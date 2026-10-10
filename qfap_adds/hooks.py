@@ -18,6 +18,9 @@ doctype_js = {
     "Journal Entry": "public/js/transaction_controller.js",
     "Expense Claim": "public/js/transaction_controller.js",
     "Payment Entry": "public/js/transaction_controller.js",
+    "Payroll Entry": "public/js/transaction_controller.js",
+    "Salary Slip": "public/js/transaction_controller.js",
+    "Additional Salary": "public/js/transaction_controller.js",
     "Employee": "public/js/employee_announcement.js",
     "Notification": "public/js/notification_configuration.js",
     "Workflow": "public/js/workflow_engine.js",
@@ -60,8 +63,19 @@ fixtures = [
         "Employee-custom_welcome_email_sent_for_joining_date",
         "Employee-custom_welcome_email_information",
         "Workflow-custom_current_responsible_user_field",
+        "Company-custom_print_identity_and_colors",
+        "Company-custom_print_document_header_color",
+        "Company-custom_print_primary_color",
+        "Company-custom_column_break_cdpt1",
+        "Company-custom_print_accent_color",
+        "Company-custom_print_light_color",
+        "Company-custom_column_break_twxkf",
+        "Company-custom_print_border_color",
     ]]]},
 ]
 
 after_install = "qfap_adds.qfap_adds.install.after_install"
-after_migrate = "qfap_adds.qfap_adds.install.after_migrate"
+after_migrate = [
+    "qfap_adds.qfap_adds.install.after_migrate",
+    "qfap_adds.qfap_adds.printing.provisioning.provision_universal_print_formats",
+]
