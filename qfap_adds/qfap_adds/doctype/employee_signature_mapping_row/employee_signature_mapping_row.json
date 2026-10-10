@@ -143,6 +143,13 @@
       "mandatory_depends_on": "eval:!doc.auto_create_fields"
     },
     {
+      "fieldname": "signature_notes_field",
+      "label": "Signature Notes Field",
+      "fieldtype": "Select",
+      "mandatory_depends_on": "eval:!doc.auto_create_fields",
+      "description": "Small Text field used to preserve formal notes beside the signature."
+    },
+    {
       "fieldname": "column_break_manual_2",
       "fieldtype": "Column Break"
     },
@@ -204,6 +211,7 @@
     "column_break_manual_1",
     "designation_field",
     "signature_date_field",
+    "signature_notes_field",
     "column_break_manual_2",
     "signature_image_field",
     "behavior_section",
@@ -214,4 +222,3 @@
     "notes"
   ]
 }
- 
