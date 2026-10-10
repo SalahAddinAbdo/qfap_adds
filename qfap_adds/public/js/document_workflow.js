@@ -95,6 +95,7 @@ function wf_open_action_dialog(frm, transition) {
     }
 
     const assignment_required = wf_checked(transition.custom_assignment_required);
+    const apply_signature = wf_checked(transition.custom_apply_employee_signature);
     const target_field = String(transition.custom_target_user_field || "").trim();
     const target_role = String(transition.custom_target_role || "").trim();
     const show_user = assignment_required || Boolean(target_field);
@@ -134,9 +135,19 @@ function wf_open_action_dialog(frm, transition) {
         });
     }
 
+    if (apply_signature) {
+        fields.push({
+            fieldname: "signature_notes",
+            label: __("Signature Notes"),
+            fieldtype: "Small Text",
+            reqd: 0,
+            description: __("Optional. Saved permanently beside this signature in the document.")
+        });
+    }
+
     fields.push({
         fieldname: "workflow_comment",
-        label: __("Comment"),
+        label: __("Internal Comment"),
         fieldtype: "Small Text",
         reqd: 0,
         description: __("Optional. The comment will be recorded after the workflow action succeeds.")
@@ -148,6 +159,7 @@ function wf_open_action_dialog(frm, transition) {
         primary_action_label: show_user ? __("Assign & Continue") : __("Continue"),
         primary_action: async values => {
             const selected_user = String(values?.user || "").trim();
+            const signature_notes = String(values?.signature_notes || "").trim();
             const comment = String(values?.workflow_comment || "").trim();
 
             if (assignment_required && !selected_user) {
@@ -163,6 +175,7 @@ function wf_open_action_dialog(frm, transition) {
                 frm,
                 transition,
                 selected_user,
+                signature_notes,
                 comment
             );
             if (completed) dialog.hide();
@@ -172,11 +185,11 @@ function wf_open_action_dialog(frm, transition) {
 
     dialog.show();
     setTimeout(() => {
-        dialog.fields_dict?.[show_user ? "user" : "workflow_comment"]?.set_focus?.();
+        dialog.fields_dict?.[show_user ? "user" : (apply_signature ? "signature_notes" : "workflow_comment")]?.set_focus?.();
     }, 150);
 }
 
-async function wf_run_transition(frm, transition, selected_user = "", comment = "") {
+async function wf_run_transition(frm, transition, selected_user = "", signature_notes = "", comment = "") {
     if (frm.__wf_processing) return false;
 
     frm.__wf_processing = true;
@@ -192,7 +205,7 @@ async function wf_run_transition(frm, transition, selected_user = "", comment = 
             frappe.throw(__("The document contains unsaved changes. Please save it before continuing."));
         }
 
-        await wf_apply_signature(frm, transition);
+        await wf_apply_signature(frm, transition, signature_notes);
         if (selected_user) await wf_set_responsible(frm, transition, selected_user);
         await wf_apply_action(frm, transition.action);
         workflow_completed = true;
@@ -225,7 +238,7 @@ async function wf_run_transition(frm, transition, selected_user = "", comment = 
     }
 }
 
-async function wf_apply_signature(frm, transition) {
+async function wf_apply_signature(frm, transition, signature_notes = "") {
     if (!wf_checked(transition.custom_apply_employee_signature)) return;
 
     const mapping_key = String(
@@ -238,7 +251,8 @@ async function wf_apply_signature(frm, transition) {
     const result = await frappe.xcall("qfap_adds.qfap_adds.api.signatures.apply_current_employee_signature", {
         doctype: frm.doc.doctype,
         document_name: frm.doc.name,
-        mapping_key
+        mapping_key,
+        signature_notes
     });
     if (!result) frappe.throw(__("The employee signature service returned no response."));
 
@@ -346,7 +360,8 @@ function wf_protect_document(frm) {
 
     const can_override =
         frappe.user.has_role("Workflow Admin") ||
-        frappe.user.has_role("Workflow Admins");
+        frappe.user.has_role("Workflow Admins") ||
+        frappe.user.has_role("System Manager");
     const is_responsible =
         wf_normalize(frappe.session.user) === wf_normalize(responsible);
     if (is_responsible || can_override) return true;
@@ -443,5 +458,4 @@ function wf_normalize(value) {
         .trim()
         .toLowerCase();
 }
-
 
