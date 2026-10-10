@@ -11,11 +11,11 @@ def validate_workflow_configuration(doc, method=None):
     keys=_mapping_keys(doc.document_type)
     for row in doc.transitions or []:
         if row.custom_assignment_required:
-            if not row.custom_target_user_field or not row.custom_target_role:
-                frappe.throw(_("Target User Field and Target Role are required in transition row {0}.").format(row.idx))
-            df=frappe.get_meta(doc.document_type).get_field(row.custom_target_user_field)
-            if not df or df.fieldtype!="Link" or df.options!="User":
-                frappe.throw(_("Target User Field in row {0} must link to User.").format(row.idx))
+            row.custom_target_user_field = RESPONSIBLE_FIELD
+            if not row.custom_target_role:
+                frappe.throw(_("Target Role is required in transition row {0} when Assignment Required is enabled.").format(row.idx))
+            if not row.custom_workflow_prompt:
+                frappe.throw(_("Workflow Prompt is required in transition row {0} when Assignment Required is enabled.").format(row.idx))
         if row.custom_apply_employee_signature:
             if not row.custom_employee_signature_mapping_key:
                 frappe.throw(_("Employee Signature Mapping is required in transition row {0}.").format(row.idx))
