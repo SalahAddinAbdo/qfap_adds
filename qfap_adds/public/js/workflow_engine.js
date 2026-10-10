@@ -466,3 +466,7 @@ function workflow_sort_empty_first(a, b) {
         String(b)
     );
 }
+
+// QFap fixed responsibility-field policy.
+frappe.ui.form.on("Workflow", { validate(frm) { (frm.doc.transitions || []).forEach(row => { if (row.custom_assignment_required) row.custom_target_user_field = "custom_current_responsible_user"; }); frm.refresh_field("transitions"); } });
+frappe.ui.form.on("Workflow Transition", { custom_assignment_required(frm, cdt, cdn) { const row=locals[cdt][cdn]; if (row.custom_assignment_required) frappe.model.set_value(cdt, cdn, "custom_target_user_field", "custom_current_responsible_user"); } });
