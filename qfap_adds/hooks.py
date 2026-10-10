@@ -7,7 +7,6 @@ app_license = "MIT"
 
 required_apps = ["erpnext"]
 
-
 doctype_js = {
     "Material Request": "public/js/transaction_controller.js",
     "Supplier Quotation": "public/js/transaction_controller.js",
@@ -24,46 +23,34 @@ doctype_js = {
     "Workflow": "public/js/workflow_engine.js",
 }
 
-
 doc_events = {
     "Workflow": {
-        "on_update": (
-            "qfap_adds.qfap_adds.workflow.provisioning."
-            "ensure_current_responsible_user"
-        )
+        "on_update": "qfap_adds.qfap_adds.workflow.provisioning.ensure_current_responsible_user",
+    },
+    "*": {
+        "validate": "qfap_adds.qfap_adds.workflow.permissions.validate_responsible_user",
     },
 }
 
-
 fixtures = [
-    {
-        "dt": "Custom Field",
-        "filters": [
-            [
-                "name",
-                "in",
-                [
-                    "Workflow Transition-custom_employee_signature_mapping_key",
-                    "Workflow Transition-custom_apply_employee_signature",
-                    "Workflow Transition-custom_notify_document_creator",
-                    "Workflow Transition-custom_column_break_6mqhf",
-                    "Workflow Transition-custom_section_break_h8b1r",
-                    "Workflow Transition-custom_target_role",
-                    "Workflow Transition-custom_target_user_field",
-                    "Workflow Transition-custom_workflow_prompt",
-                    "Workflow Transition-custom_assignment_required",
-                    "Employee-custom_welcome_email_sent_by",
-                    "Employee-custom_column_break_pihk4",
-                    "Employee-custom_welcome_email_sent_on",
-                    "Employee-custom_column_break_eqtxt",
-                    "Employee-custom_welcome_email_sent_for_joining_date",
-                    "Employee-custom_welcome_email_information",
-                ],
-            ]
-        ],
-    },
+    {"dt": "Custom Field", "filters": [["name", "in", [
+        "Workflow Transition-custom_employee_signature_mapping_key",
+        "Workflow Transition-custom_apply_employee_signature",
+        "Workflow Transition-custom_notify_document_creator",
+        "Workflow Transition-custom_column_break_6mqhf",
+        "Workflow Transition-custom_section_break_h8b1r",
+        "Workflow Transition-custom_target_role",
+        "Workflow Transition-custom_target_user_field",
+        "Workflow Transition-custom_workflow_prompt",
+        "Workflow Transition-custom_assignment_required",
+        "Employee-custom_welcome_email_sent_by",
+        "Employee-custom_column_break_pihk4",
+        "Employee-custom_welcome_email_sent_on",
+        "Employee-custom_column_break_eqtxt",
+        "Employee-custom_welcome_email_sent_for_joining_date",
+        "Employee-custom_welcome_email_information",
+    ]]]},
 ]
-
 
 after_install = "qfap_adds.qfap_adds.install.after_install"
 after_migrate = "qfap_adds.qfap_adds.install.after_migrate"
