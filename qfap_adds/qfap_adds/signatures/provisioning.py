@@ -78,9 +78,9 @@ def _provision_row(doctype, row):
         {"fieldname": names["employee_name"], "label": "Employee Name", "fieldtype": "Data",
          "insert_after": names["signature"], "read_only": 1, "allow_on_submit": 1, "no_copy": 1, "hidden": hidden},
         {"fieldname": names["column_1"], "fieldtype": "Column Break", "insert_after": names["employee_name"], "hidden": hidden},
-        {"fieldname": names["designation"], "label": "Designation", "fieldtype": "Data",
+        {"fieldname": names["designation"], "label": "Designation", "fieldtype": "Link", "options": "Designation",
          "insert_after": names["column_1"], "read_only": 1, "allow_on_submit": 1, "no_copy": 1, "hidden": hidden},
-        {"fieldname": names["date"], "label": "Signature Date", "fieldtype": "Datetime",
+        {"fieldname": names["date"], "label": "Signature Date", "fieldtype": "Date",
          "insert_after": names["designation"], "read_only": 1, "allow_on_submit": 1, "no_copy": 1, "hidden": hidden},
         {"fieldname": names["column_2"], "fieldtype": "Column Break", "insert_after": names["date"], "hidden": hidden},
         {"fieldname": names["image"], "label": "Signature Image", "fieldtype": "Attach Image",
@@ -90,6 +90,7 @@ def _provision_row(doctype, row):
     if missing:
         create_custom_fields({doctype: missing}, update=True)
         frappe.clear_cache(doctype=doctype)
+    _sync_generated_fields(doctype, specs)
 
     row.employee_signature_field = names["signature"]
     row.employee_name_field = names["employee_name"]
