@@ -20,6 +20,10 @@ frappe.ui.form.on("Workflow", {
 
 
 frappe.ui.form.on("Workflow Transition", {
+    custom_assignment_required(frm, cdt, cdn) {
+        const row = locals[cdt][cdn];
+        frappe.model.set_value(cdt, cdn, "custom_target_user_field", row.custom_assignment_required ? "custom_current_responsible_user" : "");
+    },
     custom_apply_employee_signature(frm, cdt, cdn) {
         const row = locals[cdt][cdn];
 
@@ -395,6 +399,19 @@ function workflow_validate_transition_settings(frm) {
         function (row, index) {
             const row_number = index + 1;
 
+            const assignment_required = Boolean(Number(row.custom_assignment_required || 0));
+            if (assignment_required) {
+                row.custom_target_user_field = "custom_current_responsible_user";
+                if (!row.custom_target_role) {
+                    frappe.throw(__("Target Role is required in Workflow Transition row {0}.", [row_number]));
+                }
+                if (!row.custom_workflow_prompt) {
+                    frappe.throw(__("Workflow Prompt is required in Workflow Transition row {0}.", [row_number]));
+                }
+            } else {
+                row.custom_target_user_field = "";
+            }
+
             const apply_signature =
                 row.custom_apply_employee_signature === 1 ||
                 row.custom_apply_employee_signature === true ||
@@ -467,6 +484,3 @@ function workflow_sort_empty_first(a, b) {
     );
 }
 
-// QFap fixed responsibility-field policy.
-frappe.ui.form.on("Workflow", { validate(frm) { (frm.doc.transitions || []).forEach(row => { if (row.custom_assignment_required) row.custom_target_user_field = "custom_current_responsible_user"; }); frm.refresh_field("transitions"); } });
-frappe.ui.form.on("Workflow Transition", { custom_assignment_required(frm, cdt, cdn) { const row=locals[cdt][cdn]; if (row.custom_assignment_required) frappe.model.set_value(cdt, cdn, "custom_target_user_field", "custom_current_responsible_user"); } });
