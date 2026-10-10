@@ -236,49 +236,43 @@ frappe.query_reports["Enhanced General Ledger"] = {
 
 erpnext.utils.add_dimensions("Enhanced General Ledger", 15);
 
-// ---- QFap Adds v1.2 enhancements; ERPNext accounting behavior remains authoritative. ----
+// ---- QFap Adds v1.3 enhancements; ERPNext accounting behavior remains authoritative. ----
 (() => {
   const reportName = "Enhanced General Ledger";
   const config = frappe.query_reports[reportName];
-  if (!config || config.__qfap_adds_v12_enhanced) return;
-  config.__qfap_adds_v12_enhanced = true;
+  if (!config || config.__qfap_adds_v13_enhanced) return;
+  config.__qfap_adds_v13_enhanced = true;
 
   const methodBase = "qfap_adds.qfap_adds.report.enhanced_general_ledger.enhanced_general_ledger";
-  const baseViews = [
+  const analyticalFields = ["qfap_ledger_search", "qfap_min_amount", "qfap_max_amount", "qfap_exceptions_only"];
+  const layoutOptions = [
     {label: __("Standard"), value: "Standard"},
     {label: __("Compact"), value: "Compact"},
     {label: __("Audit"), value: "Audit"},
-    {label: __("Project"), value: "Project"},
-    {label: __("Cost Center"), value: "Dimension::cost_center"},
+    {label: __("Project Focus"), value: "Project"},
+    {label: __("Cost Center Focus"), value: "Dimension::cost_center"},
   ];
-  const analyticalFields = ["qfap_ledger_search", "qfap_min_amount", "qfap_max_amount", "qfap_exceptions_only"];
 
   const qfapFilters = [
-    {fieldname:"qfap_view",label:__("QFap View"),fieldtype:"Select",options:baseViews,default:"Standard",on_change:()=>frappe.query_report.refresh()},
+    {fieldname:"qfap_view",label:__("Display Layout"),fieldtype:"Select",options:layoutOptions,default:"Standard",description:__("Changes column order and visibility only; it does not recalculate accounting groups."),on_change:()=>frappe.query_report.refresh()},
     {fieldname:"qfap_ledger_search",label:__("Ledger Search"),fieldtype:"Data",description:__("Search vouchers, parties, projects, dimensions, invoice numbers, remarks, and audit flags")},
     {fieldname:"qfap_min_amount",label:__("Minimum Amount"),fieldtype:"Currency"},
     {fieldname:"qfap_max_amount",label:__("Maximum Amount"),fieldtype:"Currency"},
     {fieldname:"qfap_exceptions_only",label:__("Audit Exceptions Only"),fieldtype:"Check",default:0},
     {fieldname:"qfap_hide_empty_columns",label:__("Hide Empty Columns"),fieldtype:"Check",default:1},
   ];
-  const existing = new Set((config.filters || []).map(f => f.fieldname));
-  qfapFilters.forEach(f => { if (!existing.has(f.fieldname)) config.filters.push(f); });
-
-  qfapFilters.filter(f => analyticalFields.includes(f.fieldname)).forEach(f => {
-    f.on_change = () => handleAnalyticalConflict(f.fieldname);
+  const existing = new Set((config.filters || []).map(filter => filter.fieldname));
+  qfapFilters.forEach(filter => { if (!existing.has(filter.fieldname)) config.filters.push(filter); });
+  qfapFilters.filter(filter => analyticalFields.includes(filter.fieldname)).forEach(filter => {
+    filter.on_change = () => handleAnalyticalConflict(filter.fieldname);
   });
-  const categorize = (config.filters || []).find(f => f.fieldname === "categorize_by");
-  if (categorize) {
-    const original = categorize.on_change;
-    categorize.on_change = function() {
-      if (original) original.apply(this, arguments);
-      handleCategorizeConflict();
-    };
-  }
 
   const originalFormatter = config.formatter;
   config.formatter = function(value,row,column,data,defaultFormatter) {
     let output = originalFormatter ? originalFormatter.call(this,value,row,column,data,defaultFormatter) : defaultFormatter(value,row,column,data);
+    if (data && data.qfap_dimension_group_header) {
+      return `<span style="font-weight:700;color:var(--text-color);display:block;padding:5px 7px;background:var(--subtle-fg);border-radius:6px">${frappe.utils.escape_html(String(value || ""))}</span>`;
+    }
     if (data && column.qfap_link_doctype && column.qfap_code_field) {
       const code = data[column.qfap_code_field];
       if (code) {
@@ -296,53 +290,75 @@ erpnext.utils.add_dimensions("Enhanced General Ledger", 15);
   const originalOnload = config.onload;
   config.onload = function(report) {
     if (originalOnload) originalOnload.call(this, report);
-    loadDimensionConfiguration(report);
-    report.page.add_inner_button(__("Standard View"),()=>setView(report,"Standard"),__("QFap Views"));
-    report.page.add_inner_button(__("Compact View"),()=>setView(report,"Compact"),__("QFap Views"));
-    report.page.add_inner_button(__("Audit View"),()=>setView(report,"Audit"),__("QFap Views"));
-    report.page.add_inner_button(__("Project View"),()=>setView(report,"Project"),__("QFap Views"));
+    initializeDimensions(report);
+    report.page.add_inner_button(__("Standard Layout"),()=>setLayout(report,"Standard"),__("QFap Layouts"));
+    report.page.add_inner_button(__("Compact Layout"),()=>setLayout(report,"Compact"),__("QFap Layouts"));
+    report.page.add_inner_button(__("Audit Layout"),()=>setLayout(report,"Audit"),__("QFap Layouts"));
+    report.page.add_inner_button(__("Project Focus"),()=>setLayout(report,"Project"),__("QFap Layouts"));
     report.page.add_inner_button(__("Reset QFap Filters"),()=>resetQfap(report));
   };
 
-  async function loadDimensionConfiguration(report) {
+  async function initializeDimensions(report) {
     const response = await frappe.call({method:`${methodBase}.get_qfap_dimension_config`});
     const dimensions = response.message || [];
     report.qfap_dimensions = dimensions;
-    const views = [...baseViews];
-    dimensions.forEach(d => {
-      if (!["project","cost_center"].includes(d.fieldname)) {
-        views.push({label: __(d.label), value: `Dimension::${d.fieldname}`});
-      }
-    });
-    const viewFilter = report.get_filter("qfap_view");
-    if (viewFilter) {
-      viewFilter.df.options = views;
-      viewFilter.refresh();
-    }
-    configureTreeDescriptions(report, dimensions, 0);
-    configureBudgetDependency(report, dimensions, 0);
+    await waitForDimensionFilters(report, dimensions, 0);
+    addDimensionLayouts(report, dimensions);
+    addDimensionCategories(report, dimensions);
+    configureTreeDescriptions(report, dimensions);
+    configureBudgetLine(report, dimensions);
+    configureCategorizeConflict(report);
   }
 
-  function configureTreeDescriptions(report, dimensions, attempt) {
-    let pending = false;
+  function waitForDimensionFilters(report, dimensions, attempt) {
+    const missing = dimensions.filter(d => !report.get_filter(d.fieldname));
+    if (!missing.length || attempt >= 20) return Promise.resolve();
+    return new Promise(resolve => setTimeout(() => resolve(waitForDimensionFilters(report, dimensions, attempt + 1)), 250));
+  }
+
+  function addDimensionLayouts(report, dimensions) {
+    const options = [...layoutOptions];
+    dimensions.forEach(d => {
+      if (!["project","cost_center"].includes(d.fieldname)) {
+        options.push({label: __(`${d.label} Focus`), value:`Dimension::${d.fieldname}`});
+      }
+    });
+    const filter = report.get_filter("qfap_view");
+    if (filter) { filter.df.options = options; filter.refresh(); }
+  }
+
+  function addDimensionCategories(report, dimensions) {
+    const filter = report.get_filter("categorize_by");
+    if (!filter) return;
+    const options = Array.isArray(filter.df.options) ? [...filter.df.options] : String(filter.df.options || "").split("\n");
+    const values = new Set(options.map(option => typeof option === "object" ? option.value : option));
+    const additions = [
+      {fieldname:"project",label:__("Project")},
+      {fieldname:"cost_center",label:__("Cost Center")},
+      ...dimensions.filter(d => !["project","cost_center"].includes(d.fieldname)),
+    ];
+    additions.forEach(d => {
+      const value = `Categorize by Dimension::${d.fieldname}`;
+      if (!values.has(value)) options.push({label:__(`Categorize by ${d.label}`),value});
+    });
+    filter.df.options = options;
+    filter.refresh();
+  }
+
+  function configureTreeDescriptions(report, dimensions) {
     dimensions.filter(d => d.is_tree).forEach(d => {
       const filter = report.get_filter(d.fieldname);
-      if (!filter) { pending = true; return; }
+      if (!filter) return;
       filter.df.description = __("Selecting a parent includes the selected node and all descendants.");
       filter.refresh();
     });
-    if (pending && attempt < 10) setTimeout(() => configureTreeDescriptions(report, dimensions, attempt + 1), 250);
   }
 
-  function configureBudgetDependency(report, dimensions, attempt) {
-    const budget = dimensions.find(d => d.is_budget_line);
-    if (!budget) return;
-    const budgetFilter = report.get_filter(budget.fieldname);
+  function configureBudgetLine(report, dimensions) {
+    const dimension = dimensions.find(d => d.is_budget_line);
+    if (!dimension) return;
+    const budgetFilter = report.get_filter(dimension.fieldname);
     const projectFilter = report.get_filter("project");
-    if ((!budgetFilter || !projectFilter) && attempt < 12) {
-      setTimeout(() => configureBudgetDependency(report, dimensions, attempt + 1), 250);
-      return;
-    }
     if (!budgetFilter || !projectFilter) return;
 
     budgetFilter.df.get_data = txt => {
@@ -351,76 +367,77 @@ erpnext.utils.add_dimensions("Enhanced General Ledger", 15);
         frappe.show_alert({message:__("Select a Project first to load its Budget Lines."),indicator:"orange"});
         return [];
       }
-      return frappe.call({
-        method:`${methodBase}.get_budget_line_options`,
-        args:{txt:txt || "",projects:projects,limit:50},
-      }).then(r => r.message || []);
+      return frappe.call({method:`${methodBase}.get_budget_line_options`,args:{txt:txt || "",projects,limit:50}}).then(r => r.message || []);
     };
-    budgetFilter.df.description = __("Only Budget Lines linked to the selected Project(s) are shown. Selecting a group includes its descendants.");
 
     const originalProjectChange = projectFilter.df.on_change;
     projectFilter.df.on_change = function() {
       if (originalProjectChange) originalProjectChange.apply(this, arguments);
-      const prior = normalizedValues(report.get_filter_value(budget.fieldname));
-      if (prior.length) {
-        report.set_filter_value(budget.fieldname, []);
+      if (normalizedValues(report.get_filter_value(dimension.fieldname)).length) {
+        report.set_filter_value(dimension.fieldname, []);
         frappe.show_alert({message:__("Budget Line was cleared because the Project filter changed."),indicator:"blue"});
       }
-      updateBudgetVisibility(report, budget.fieldname);
+      updateBudgetControl(report, budgetFilter);
     };
-    updateBudgetVisibility(report, budget.fieldname);
+    updateBudgetControl(report, budgetFilter);
   }
 
-  function updateBudgetVisibility(report, fieldname) {
-    const filter = report.get_filter(fieldname);
+  function updateBudgetControl(report, budgetFilter) {
+    const enabled = normalizedValues(report.get_filter_value("project")).length > 0;
+    budgetFilter.df.hidden = 0;
+    budgetFilter.df.description = enabled
+      ? __("Only Budget Lines linked to the selected Project(s) are shown. Selecting a group includes descendants.")
+      : __("Select a Project first to load its Budget Lines.");
+    budgetFilter.refresh();
+    if (budgetFilter.$input) budgetFilter.$input.prop("disabled", !enabled);
+    if (!enabled) report.set_filter_value(budgetFilter.df.fieldname, []);
+  }
+
+  function configureCategorizeConflict(report) {
+    const filter = report.get_filter("categorize_by");
     if (!filter) return;
-    const hasProjects = normalizedValues(report.get_filter_value("project")).length > 0;
-    filter.df.hidden = !hasProjects;
-    filter.refresh();
-    if (!hasProjects) report.set_filter_value(fieldname, []);
+    const original = filter.df.on_change;
+    filter.df.on_change = function() {
+      if (original) original.apply(this, arguments);
+      if (report.get_filter_value("categorize_by") && hasAnalyticalValues(report)) {
+        frappe.confirm(
+          __("Categorize by requires clearing QFap analytical filters. Clear them and continue?"),
+          () => { clearAnalytical(report); report.refresh(); },
+          () => report.set_filter_value("categorize_by", "")
+        );
+      }
+    };
+  }
+
+  function handleAnalyticalConflict(changedField) {
+    const report = frappe.query_report;
+    if (!report.get_filter_value(changedField) || !report.get_filter_value("categorize_by")) return;
+    frappe.confirm(
+      __("Analytical filters require an ungrouped ledger. Clear Categorize by and continue?"),
+      () => { report.set_filter_value("categorize_by", ""); report.refresh(); },
+      () => report.set_filter_value(changedField, changedField === "qfap_exceptions_only" ? 0 : "")
+    );
   }
 
   function normalizedValues(value) {
     if (!value) return [];
     if (!Array.isArray(value)) value = String(value).split(",");
-    return value.map(v => typeof v === "object" ? v.value : v).filter(Boolean);
+    return value.map(item => typeof item === "object" ? item.value : item).filter(Boolean);
   }
 
-  function hasAnalyticalValues() {
-    return analyticalFields.some(f => {
-      const value = frappe.query_report.get_filter_value(f);
-      return Array.isArray(value) ? value.length : Boolean(value);
-    });
+  function hasAnalyticalValues(report) {
+    return analyticalFields.some(fieldname => Boolean(report.get_filter_value(fieldname)));
   }
 
-  function clearAnalytical() {
-    analyticalFields.forEach(f => frappe.query_report.set_filter_value(f, f === "qfap_exceptions_only" ? 0 : ""));
+  function clearAnalytical(report) {
+    analyticalFields.forEach(fieldname => report.set_filter_value(fieldname, fieldname === "qfap_exceptions_only" ? 0 : ""));
   }
 
-  function handleAnalyticalConflict(changedField) {
-    const value = frappe.query_report.get_filter_value(changedField);
-    if (!value || !frappe.query_report.get_filter_value("categorize_by")) return;
-    frappe.confirm(
-      __("Analytical filters require an ungrouped ledger. Clear Categorize by and continue?"),
-      () => { frappe.query_report.set_filter_value("categorize_by", ""); frappe.query_report.refresh(); },
-      () => frappe.query_report.set_filter_value(changedField, changedField === "qfap_exceptions_only" ? 0 : "")
-    );
-  }
-
-  function handleCategorizeConflict() {
-    if (!frappe.query_report.get_filter_value("categorize_by") || !hasAnalyticalValues()) return;
-    frappe.confirm(
-      __("Categorize by requires clearing QFap analytical filters. Clear them and continue?"),
-      () => { clearAnalytical(); frappe.query_report.refresh(); },
-      () => frappe.query_report.set_filter_value("categorize_by", "")
-    );
-  }
-
-  function setView(report, view) {
-    report.set_filter_value("qfap_view", view);
-    if (view === "Audit") {
-      ["include_dimensions","show_remarks","show_amount_in_company_currency"].forEach(f => {if(report.get_filter(f)) report.set_filter_value(f,1);});
-    } else if ((view === "Project" || String(view).startsWith("Dimension::")) && report.get_filter("include_dimensions")) {
+  function setLayout(report, value) {
+    report.set_filter_value("qfap_view", value);
+    if (value === "Audit") {
+      ["include_dimensions","show_remarks","show_amount_in_company_currency"].forEach(fieldname => {if(report.get_filter(fieldname)) report.set_filter_value(fieldname,1);});
+    } else if ((value === "Project" || String(value).startsWith("Dimension::")) && report.get_filter("include_dimensions")) {
       report.set_filter_value("include_dimensions",1);
     }
     report.refresh();
@@ -428,7 +445,7 @@ erpnext.utils.add_dimensions("Enhanced General Ledger", 15);
 
   function resetQfap(report) {
     const values={qfap_view:"Standard",qfap_ledger_search:"",qfap_min_amount:"",qfap_max_amount:"",qfap_exceptions_only:0,qfap_hide_empty_columns:1};
-    Object.entries(values).forEach(([f,v]) => {if(report.get_filter(f)) report.set_filter_value(f,v);});
+    Object.entries(values).forEach(([fieldname,value]) => {if(report.get_filter(fieldname)) report.set_filter_value(fieldname,value);});
     report.refresh();
   }
 })();
