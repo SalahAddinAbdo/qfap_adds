@@ -12,11 +12,18 @@ def execute(filters=None):
     _validate_analytical_filters(filters)
     dimensions = _get_active_dimensions()
     _validate_dimension_dependencies(filters, dimensions)
-    result = list(general_ledger.execute(filters) or ([], []))
-    while len(result) < 6:
-        result.append(None)
-    columns, data, message, chart, report_summary, skip_total_row = result[:6]
-    columns, data = columns or [], data or []
+
+    dimension_field = _get_dimension_category_field(filters.get("categorize_by"))
+    if dimension_field:
+        columns, data, message, chart, report_summary, skip_total_row = _execute_dimension_categorization(
+            filters, dimensions, dimension_field
+        )
+    else:
+        result = list(general_ledger.execute(filters) or ([], []))
+        while len(result) < 6:
+            result.append(None)
+        columns, data, message, chart, report_summary, skip_total_row = result[:6]
+        columns, data = columns or [], data or []
     _enrich_link_dimensions(columns, data, dimensions)
     _add_audit_flags(columns, data, dimensions)
     data, subset_active = _apply_analytical_filters(data, filters)
@@ -162,14 +169,12 @@ def _apply_view(columns, view):
         focus_field = "project"
     elif str(view).startswith("Dimension::"):
         focus_field = str(view).split("::", 1)[1]
-
     focus_order = ["posting_date"]
     if focus_field:
         focus_order.append(focus_field)
     for fieldname in ["project", "cost_center", "account", "voucher_type", "voucher_no", "debit", "credit", "balance"]:
         if fieldname not in focus_order:
             focus_order.append(fieldname)
-
     for column in columns:
         fieldname = column.get("fieldname")
         if view == "Compact":
@@ -178,7 +183,6 @@ def _apply_view(columns, view):
             column["hidden"] = 0
         elif focus_field and fieldname == "qfap_audit_flags":
             column["hidden"] = 0
-
     if focus_field:
         order = {fieldname: index for index, fieldname in enumerate(focus_order)}
         columns.sort(key=lambda column: order.get(column.get("fieldname"), 1000))
@@ -240,13 +244,23 @@ def _as_list(value):
             value = [item.strip() for item in value.split(",") if item.strip()]
     if not isinstance(value, (list, tuple, set)):
         value = [value]
-    result = []
+    output = []
     for item in value:
         if isinstance(item, dict):
             item = item.get("value")
-        if item and str(item) not in result:
-            result.append(str(item))
-    return result
+        if item and str(item) not in output:
+            output.append(str(item))
+    return output
+
+
+def _get_dimension_category_field(categorize_by):
+    prefix = "Categorize by Dimension::"
+    value = str(categorize_by or "")
+    return value[len(prefix):] if value.startswith(prefix) else ""
+
+
+def _dimension_map(dimensions):
+    return {dimension.fieldname: dimension for dimension in dimensions}
 
 
 def _validate_dimension_dependencies(filters, dimensions):
@@ -259,9 +273,6 @@ def _validate_dimension_dependencies(filters, dimensions):
             continue
         if not projects:
             frappe.throw(_("Select a Project before filtering by Budget Line."))
-        meta = frappe.get_meta("Budget Line")
-        if not meta.has_field("project"):
-            frappe.throw(_("Budget Line is configured as an accounting dimension, but no Project link field was found."))
         invalid = frappe.get_list(
             "Budget Line",
             filters={"name": ["in", selected], "project": ["not in", projects]},
@@ -269,90 +280,171 @@ def _validate_dimension_dependencies(filters, dimensions):
             limit_page_length=0,
         )
         if invalid:
-            frappe.throw(
-                _("The following Budget Lines do not belong to the selected Project(s): {0}").format(
-                    ", ".join(invalid)
-                )
-            )
+            frappe.throw(_("The selected Budget Line does not belong to the selected Project."))
+
+
+def _execute_dimension_categorization(filters, dimensions, fieldname):
+    dimension = _dimension_map(dimensions).get(fieldname)
+    if not dimension:
+        frappe.throw(_("The selected accounting dimension is not enabled."))
+
+    values = _get_dimension_group_values(filters, dimension)
+    all_columns, grouped_data = [], []
+    report_summary = []
+    skip_total_row = 1
+
+    for value in values:
+        local_filters = frappe._dict(filters.copy())
+        local_filters["categorize_by"] = ""
+        local_filters["include_dimensions"] = 1
+        local_filters[fieldname] = [value]
+        for key in list(local_filters.keys()):
+            if str(key).startswith("qfap_"):
+                local_filters.pop(key, None)
+
+        result = list(general_ledger.execute(local_filters) or ([], []))
+        while len(result) < 6:
+            result.append(None)
+        columns, rows = result[0] or [], result[1] or []
+        detail_rows = [row for row in rows if _is_detail_row(row)]
+        meaningful_totals = any(
+            flt(row.get("debit")) or flt(row.get("credit")) or flt(row.get("balance"))
+            for row in rows
+            if not _is_detail_row(row)
+        )
+        if not detail_rows and not meaningful_totals:
+            continue
+        if not all_columns:
+            all_columns = columns
+        title = _get_dimension_value_title(dimension.document_type, value)
+        grouped_data.append({
+            "account": f"{dimension.label or fieldname}: {value}" + (f" - {title}" if title and title != value else ""),
+            fieldname: value,
+            "qfap_dimension_group_header": 1,
+        })
+        grouped_data.extend(rows)
+        grouped_data.append({})
+
+    message = _(
+        "Prepared dimension categorization uses ERPNext General Ledger separately for each dimension value, "
+        "so Opening, Total, and Closing remain calculated by the standard accounting engine."
+    )
+    return all_columns, grouped_data, message, None, report_summary, skip_total_row
+
+
+def _get_dimension_group_values(filters, dimension):
+    selected = _as_list(filters.get(dimension.fieldname))
+    meta = frappe.get_meta(dimension.document_type)
+    master_filters = {}
+    projects = _as_list(filters.get("project"))
+    project_field = _find_project_field(meta)
+    if projects and project_field:
+        master_filters[project_field] = ["in", projects]
+
+    if selected:
+        if meta.is_tree:
+            expanded = []
+            for name in selected:
+                node = frappe.db.get_value(dimension.document_type, name, ["lft", "rgt"], as_dict=True)
+                if node:
+                    descendants = frappe.get_list(
+                        dimension.document_type,
+                        filters={**master_filters, "lft": [">=", node.lft], "rgt": ["<=", node.rgt]},
+                        pluck="name",
+                        order_by="lft asc",
+                        limit_page_length=0,
+                    )
+                    expanded.extend(descendants)
+            return list(dict.fromkeys(expanded))
+        return selected
+
+    gl_filters = {"company": filters.get("company"), "posting_date": ["<=", filters.get("to_date")]}
+    if projects:
+        gl_filters["project"] = ["in", projects]
+    rows = frappe.get_list(
+        "GL Entry",
+        filters=gl_filters,
+        fields=[dimension.fieldname],
+        group_by=dimension.fieldname,
+        limit_page_length=0,
+    )
+    values = [row.get(dimension.fieldname) for row in rows if row.get(dimension.fieldname)]
+    if meta.is_tree and values:
+        ordering = frappe.get_list(
+            dimension.document_type,
+            filters={**master_filters, "name": ["in", values]},
+            fields=["name", "lft"],
+            order_by="lft asc",
+            limit_page_length=0,
+        )
+        return [row.name for row in ordering]
+    return sorted(set(values))
+
+
+def _find_project_field(meta):
+    for field in meta.fields:
+        if field.fieldtype == "Link" and field.options == "Project":
+            if field.fieldname == "project":
+                return field.fieldname
+    for field in meta.fields:
+        if field.fieldtype == "Link" and field.options == "Project":
+            return field.fieldname
+    return ""
+
+
+def _get_dimension_value_title(document_type, name):
+    meta = frappe.get_meta(document_type)
+    title_field = meta.title_field if meta.title_field and meta.has_field(meta.title_field) else ""
+    return frappe.db.get_value(document_type, name, title_field) if title_field else name
 
 
 @frappe.whitelist()
 def get_qfap_dimension_config():
-    """Return enabled accounting-dimension metadata for client-side views and dependencies."""
     result = []
     for dimension in _get_active_dimensions():
-        doctype_meta = frappe.get_meta(dimension.document_type)
-        project_field = ""
-        for field in doctype_meta.fields:
-            if field.fieldtype == "Link" and field.options == "Project":
-                project_field = field.fieldname
-                if field.fieldname == "project":
-                    break
-        result.append(
-            {
-                "fieldname": dimension.fieldname,
-                "label": dimension.label or dimension.fieldname.replace("_", " ").title(),
-                "document_type": dimension.document_type,
-                "is_tree": bool(doctype_meta.is_tree),
-                "parent_field": doctype_meta.nsm_parent_field or "",
-                "project_field": project_field,
-                "is_budget_line": dimension.document_type == "Budget Line",
-            }
-        )
+        meta = frappe.get_meta(dimension.document_type)
+        result.append({
+            "fieldname": dimension.fieldname,
+            "label": dimension.label or dimension.fieldname.replace("_", " ").title(),
+            "document_type": dimension.document_type,
+            "is_tree": bool(meta.is_tree),
+            "parent_field": meta.nsm_parent_field or "",
+            "project_field": _find_project_field(meta),
+            "is_budget_line": dimension.document_type == "Budget Line",
+        })
     return result
 
 
 @frappe.whitelist()
 def get_budget_line_options(txt="", projects=None, limit=50):
-    """Return Budget Lines restricted to selected projects, with review-friendly descriptions."""
     project_list = _as_list(projects)
     if not project_list:
         return []
     if not frappe.has_permission("Budget Line", "read"):
         frappe.throw(_("You do not have permission to read Budget Line."), frappe.PermissionError)
-
-    meta = frappe.get_meta("Budget Line")
-    if not meta.has_field("project"):
-        return []
-    fields = ["name", "project"]
-    for fieldname in ["budget_line", "name1", "status", "is_group", "parent_budget_line", "line_cost", "currency"]:
-        if meta.has_field(fieldname):
-            fields.append(fieldname)
-
     filters = {"project": ["in", project_list]}
+    fields = ["name", "project", "budget_line", "name1", "status", "is_group", "line_cost", "currency", "lft"]
     or_filters = {}
     if txt:
         like = "%" + txt + "%"
-        or_filters = {"name": ["like", like]}
-        for fieldname in ["budget_line", "name1"]:
-            if meta.has_field(fieldname):
-                or_filters[fieldname] = ["like", like]
-
+        or_filters = {"name": ["like", like], "budget_line": ["like", like], "name1": ["like", like]}
     rows = frappe.get_list(
         "Budget Line",
         filters=filters,
         or_filters=or_filters,
         fields=fields,
-        order_by="project asc, lft asc" if meta.has_field("lft") else "project asc, modified desc",
+        order_by="project asc, lft asc",
         limit_page_length=min(int(limit or 50), 100),
     )
     output = []
     for row in rows:
-        label_parts = []
-        if row.get("budget_line"):
-            label_parts.append(row.get("budget_line"))
-        if row.get("name1"):
-            label_parts.append(row.get("name1"))
-        label = " - ".join(label_parts) or row.name
-        description_parts = [_('Project') + ": " + str(row.project)]
-        if row.get("is_group"):
-            description_parts.append(_("Group node; selecting it includes descendants"))
-        if row.get("status"):
-            description_parts.append(_("Status") + ": " + str(row.status))
-        if row.get("line_cost") not in (None, ""):
-            amount = str(row.line_cost)
-            if row.get("currency"):
-                amount += " " + str(row.currency)
-            description_parts.append(_("Budget") + ": " + amount)
-        output.append({"value": row.name, "label": label, "description": " | ".join(description_parts)})
+        label = " - ".join([part for part in [row.budget_line, row.name1] if part]) or row.name
+        description = [_('Project') + ": " + str(row.project)]
+        if row.is_group:
+            description.append(_("Group node; selecting it includes descendants"))
+        if row.status:
+            description.append(_("Status") + ": " + str(row.status))
+        if row.line_cost not in (None, ""):
+            description.append(_("Budget") + ": " + str(row.line_cost) + (" " + str(row.currency) if row.currency else ""))
+        output.append({"value": row.name, "label": label, "description": " | ".join(description)})
     return output
