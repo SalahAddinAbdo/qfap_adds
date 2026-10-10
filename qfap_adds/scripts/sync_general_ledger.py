@@ -6,70 +6,7 @@ import frappe
 from frappe.modules import get_module_path
 
 
-ENHANCEMENT = """
-
-// ---- QFap Adds v1.1 enhancements; ERPNext filters and behavior remain intact. ----
-(() => {
-  const reportName = "Enhanced General Ledger";
-  const config = frappe.query_reports[reportName];
-  if (!config || config.__qfap_adds_v11_enhanced) return;
-  config.__qfap_adds_v11_enhanced = true;
-
-  const filters = [
-    {fieldname:"qfap_view",label:__("QFap View"),fieldtype:"Select",options:["Standard","Compact","Audit","Project"].join("\\n"),default:"Standard",on_change:()=>frappe.query_report.refresh()},
-    {fieldname:"qfap_audit_search",label:__("Audit Search"),fieldtype:"Data",description:__("Search accounts, vouchers, parties, projects, dimensions, invoice numbers, and remarks")},
-    {fieldname:"qfap_min_amount",label:__("Minimum Amount"),fieldtype:"Currency"},
-    {fieldname:"qfap_max_amount",label:__("Maximum Amount"),fieldtype:"Currency"},
-    {fieldname:"qfap_exceptions_only",label:__("Audit Exceptions Only"),fieldtype:"Check",default:0},
-    {fieldname:"qfap_hide_empty_columns",label:__("Hide Empty Columns"),fieldtype:"Check",default:1},
-  ];
-  const existing = new Set((config.filters || []).map(f=>f.fieldname));
-  filters.forEach(f=>{if(!existing.has(f.fieldname)) config.filters.push(f);});
-
-  const originalFormatter = config.formatter;
-  config.formatter = function(value,row,column,data,defaultFormatter){
-    let output = originalFormatter ? originalFormatter.call(this,value,row,column,data,defaultFormatter) : defaultFormatter(value,row,column,data);
-    if(data && column.qfap_link_doctype && column.qfap_code_field){
-      const code=data[column.qfap_code_field];
-      if(code){
-        const title=data[column.qfap_title_field] || code;
-        const route=`/app/${frappe.router.slug(column.qfap_link_doctype)}/${encodeURIComponent(code)}`;
-        output=`<a href="${route}" title="${frappe.utils.escape_html(String(title))}" class="qfap-dimension-link">${frappe.utils.escape_html(String(value || code))}</a>`;
-      }
-    }
-    if(data && column.fieldname==="qfap_audit_flags" && value){
-      output=`<span class="indicator-pill orange" title="${frappe.utils.escape_html(String(value))}">${frappe.utils.escape_html(String(value))}</span>`;
-    }
-    return output;
-  };
-
-  const originalOnload=config.onload;
-  config.onload=function(report){
-    if(originalOnload) originalOnload.call(this,report);
-    report.page.add_inner_button(__("Standard View"),()=>setView(report,"Standard"),__("QFap Views"));
-    report.page.add_inner_button(__("Compact View"),()=>setView(report,"Compact"),__("QFap Views"));
-    report.page.add_inner_button(__("Audit View"),()=>setView(report,"Audit"),__("QFap Views"));
-    report.page.add_inner_button(__("Project View"),()=>setView(report,"Project"),__("QFap Views"));
-    report.page.add_inner_button(__("Reset QFap Filters"),()=>resetQfap(report));
-  };
-
-  function setView(report,view){
-    report.set_filter_value("qfap_view",view);
-    if(view==="Audit"){
-      ["include_dimensions","show_remarks","show_amount_in_company_currency"].forEach(f=>{if(report.get_filter(f)) report.set_filter_value(f,1);});
-    } else if(view==="Project" && report.get_filter("include_dimensions")) {
-      report.set_filter_value("include_dimensions",1);
-    }
-    report.refresh();
-  }
-  function resetQfap(report){
-    const values={qfap_view:"Standard",qfap_audit_search:"",qfap_min_amount:"",qfap_max_amount:"",qfap_exceptions_only:0,qfap_hide_empty_columns:1};
-    Object.entries(values).forEach(([f,v])=>{if(report.get_filter(f)) report.set_filter_value(f,v);});
-    report.refresh();
-  }
-})();
-"""
-
+ENHANCEMENT = '\n// ---- QFap Adds v1.2 enhancements; ERPNext accounting behavior remains authoritative. ----\n(() => {\n  const reportName = "Enhanced General Ledger";\n  const config = frappe.query_reports[reportName];\n  if (!config || config.__qfap_adds_v12_enhanced) return;\n  config.__qfap_adds_v12_enhanced = true;\n\n  const methodBase = "qfap_adds.qfap_adds.report.enhanced_general_ledger.enhanced_general_ledger";\n  const baseViews = [\n    {label: __("Standard"), value: "Standard"},\n    {label: __("Compact"), value: "Compact"},\n    {label: __("Audit"), value: "Audit"},\n    {label: __("Project"), value: "Project"},\n    {label: __("Cost Center"), value: "Dimension::cost_center"},\n  ];\n  const analyticalFields = ["qfap_ledger_search", "qfap_min_amount", "qfap_max_amount", "qfap_exceptions_only"];\n\n  const qfapFilters = [\n    {fieldname:"qfap_view",label:__("QFap View"),fieldtype:"Select",options:baseViews,default:"Standard",on_change:()=>frappe.query_report.refresh()},\n    {fieldname:"qfap_ledger_search",label:__("Ledger Search"),fieldtype:"Data",description:__("Search vouchers, parties, projects, dimensions, invoice numbers, remarks, and audit flags")},\n    {fieldname:"qfap_min_amount",label:__("Minimum Amount"),fieldtype:"Currency"},\n    {fieldname:"qfap_max_amount",label:__("Maximum Amount"),fieldtype:"Currency"},\n    {fieldname:"qfap_exceptions_only",label:__("Audit Exceptions Only"),fieldtype:"Check",default:0},\n    {fieldname:"qfap_hide_empty_columns",label:__("Hide Empty Columns"),fieldtype:"Check",default:1},\n  ];\n  const existing = new Set((config.filters || []).map(f => f.fieldname));\n  qfapFilters.forEach(f => { if (!existing.has(f.fieldname)) config.filters.push(f); });\n\n  qfapFilters.filter(f => analyticalFields.includes(f.fieldname)).forEach(f => {\n    f.on_change = () => handleAnalyticalConflict(f.fieldname);\n  });\n  const categorize = (config.filters || []).find(f => f.fieldname === "categorize_by");\n  if (categorize) {\n    const original = categorize.on_change;\n    categorize.on_change = function() {\n      if (original) original.apply(this, arguments);\n      handleCategorizeConflict();\n    };\n  }\n\n  const originalFormatter = config.formatter;\n  config.formatter = function(value,row,column,data,defaultFormatter) {\n    let output = originalFormatter ? originalFormatter.call(this,value,row,column,data,defaultFormatter) : defaultFormatter(value,row,column,data);\n    if (data && column.qfap_link_doctype && column.qfap_code_field) {\n      const code = data[column.qfap_code_field];\n      if (code) {\n        const title = data[column.qfap_title_field] || code;\n        const route = `/app/${frappe.router.slug(column.qfap_link_doctype)}/${encodeURIComponent(code)}`;\n        output = `<a href="${route}" title="${frappe.utils.escape_html(String(title))}" class="qfap-dimension-link">${frappe.utils.escape_html(String(value || code))}</a>`;\n      }\n    }\n    if (data && column.fieldname === "qfap_audit_flags" && value) {\n      output = `<span class="indicator-pill orange" title="${frappe.utils.escape_html(String(value))}">${frappe.utils.escape_html(String(value))}</span>`;\n    }\n    return output;\n  };\n\n  const originalOnload = config.onload;\n  config.onload = function(report) {\n    if (originalOnload) originalOnload.call(this, report);\n    loadDimensionConfiguration(report);\n    report.page.add_inner_button(__("Standard View"),()=>setView(report,"Standard"),__("QFap Views"));\n    report.page.add_inner_button(__("Compact View"),()=>setView(report,"Compact"),__("QFap Views"));\n    report.page.add_inner_button(__("Audit View"),()=>setView(report,"Audit"),__("QFap Views"));\n    report.page.add_inner_button(__("Project View"),()=>setView(report,"Project"),__("QFap Views"));\n    report.page.add_inner_button(__("Reset QFap Filters"),()=>resetQfap(report));\n  };\n\n  async function loadDimensionConfiguration(report) {\n    const response = await frappe.call({method:`${methodBase}.get_qfap_dimension_config`});\n    const dimensions = response.message || [];\n    report.qfap_dimensions = dimensions;\n    const views = [...baseViews];\n    dimensions.forEach(d => {\n      if (!["project","cost_center"].includes(d.fieldname)) {\n        views.push({label: __(d.label), value: `Dimension::${d.fieldname}`});\n      }\n    });\n    const viewFilter = report.get_filter("qfap_view");\n    if (viewFilter) {\n      viewFilter.df.options = views;\n      viewFilter.refresh();\n    }\n    configureTreeDescriptions(report, dimensions, 0);\n    configureBudgetDependency(report, dimensions, 0);\n  }\n\n  function configureTreeDescriptions(report, dimensions, attempt) {\n    let pending = false;\n    dimensions.filter(d => d.is_tree).forEach(d => {\n      const filter = report.get_filter(d.fieldname);\n      if (!filter) { pending = true; return; }\n      filter.df.description = __("Selecting a parent includes the selected node and all descendants.");\n      filter.refresh();\n    });\n    if (pending && attempt < 10) setTimeout(() => configureTreeDescriptions(report, dimensions, attempt + 1), 250);\n  }\n\n  function configureBudgetDependency(report, dimensions, attempt) {\n    const budget = dimensions.find(d => d.is_budget_line);\n    if (!budget) return;\n    const budgetFilter = report.get_filter(budget.fieldname);\n    const projectFilter = report.get_filter("project");\n    if ((!budgetFilter || !projectFilter) && attempt < 12) {\n      setTimeout(() => configureBudgetDependency(report, dimensions, attempt + 1), 250);\n      return;\n    }\n    if (!budgetFilter || !projectFilter) return;\n\n    budgetFilter.df.get_data = txt => {\n      const projects = normalizedValues(report.get_filter_value("project"));\n      if (!projects.length) {\n        frappe.show_alert({message:__("Select a Project first to load its Budget Lines."),indicator:"orange"});\n        return [];\n      }\n      return frappe.call({\n        method:`${methodBase}.get_budget_line_options`,\n        args:{txt:txt || "",projects:projects,limit:50},\n      }).then(r => r.message || []);\n    };\n    budgetFilter.df.description = __("Only Budget Lines linked to the selected Project(s) are shown. Selecting a group includes its descendants.");\n\n    const originalProjectChange = projectFilter.df.on_change;\n    projectFilter.df.on_change = function() {\n      if (originalProjectChange) originalProjectChange.apply(this, arguments);\n      const prior = normalizedValues(report.get_filter_value(budget.fieldname));\n      if (prior.length) {\n        report.set_filter_value(budget.fieldname, []);\n        frappe.show_alert({message:__("Budget Line was cleared because the Project filter changed."),indicator:"blue"});\n      }\n      updateBudgetVisibility(report, budget.fieldname);\n    };\n    updateBudgetVisibility(report, budget.fieldname);\n  }\n\n  function updateBudgetVisibility(report, fieldname) {\n    const filter = report.get_filter(fieldname);\n    if (!filter) return;\n    const hasProjects = normalizedValues(report.get_filter_value("project")).length > 0;\n    filter.df.hidden = !hasProjects;\n    filter.refresh();\n    if (!hasProjects) report.set_filter_value(fieldname, []);\n  }\n\n  function normalizedValues(value) {\n    if (!value) return [];\n    if (!Array.isArray(value)) value = String(value).split(",");\n    return value.map(v => typeof v === "object" ? v.value : v).filter(Boolean);\n  }\n\n  function hasAnalyticalValues() {\n    return analyticalFields.some(f => {\n      const value = frappe.query_report.get_filter_value(f);\n      return Array.isArray(value) ? value.length : Boolean(value);\n    });\n  }\n\n  function clearAnalytical() {\n    analyticalFields.forEach(f => frappe.query_report.set_filter_value(f, f === "qfap_exceptions_only" ? 0 : ""));\n  }\n\n  function handleAnalyticalConflict(changedField) {\n    const value = frappe.query_report.get_filter_value(changedField);\n    if (!value || !frappe.query_report.get_filter_value("categorize_by")) return;\n    frappe.confirm(\n      __("Analytical filters require an ungrouped ledger. Clear Categorize by and continue?"),\n      () => { frappe.query_report.set_filter_value("categorize_by", ""); frappe.query_report.refresh(); },\n      () => frappe.query_report.set_filter_value(changedField, changedField === "qfap_exceptions_only" ? 0 : "")\n    );\n  }\n\n  function handleCategorizeConflict() {\n    if (!frappe.query_report.get_filter_value("categorize_by") || !hasAnalyticalValues()) return;\n    frappe.confirm(\n      __("Categorize by requires clearing QFap analytical filters. Clear them and continue?"),\n      () => { clearAnalytical(); frappe.query_report.refresh(); },\n      () => frappe.query_report.set_filter_value("categorize_by", "")\n    );\n  }\n\n  function setView(report, view) {\n    report.set_filter_value("qfap_view", view);\n    if (view === "Audit") {\n      ["include_dimensions","show_remarks","show_amount_in_company_currency"].forEach(f => {if(report.get_filter(f)) report.set_filter_value(f,1);});\n    } else if ((view === "Project" || String(view).startsWith("Dimension::")) && report.get_filter("include_dimensions")) {\n      report.set_filter_value("include_dimensions",1);\n    }\n    report.refresh();\n  }\n\n  function resetQfap(report) {\n    const values={qfap_view:"Standard",qfap_ledger_search:"",qfap_min_amount:"",qfap_max_amount:"",qfap_exceptions_only:0,qfap_hide_empty_columns:1};\n    Object.entries(values).forEach(([f,v]) => {if(report.get_filter(f)) report.set_filter_value(f,v);});\n    report.refresh();\n  }\n})();\n'
 
 def sync():
     source_dir = Path(get_module_path("Accounts")) / "report" / "general_ledger"
