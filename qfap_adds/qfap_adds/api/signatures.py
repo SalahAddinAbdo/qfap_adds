@@ -6,7 +6,7 @@ from frappe.utils import today
 
 
 @frappe.whitelist()
-def apply_current_employee_signature(doctype, document_name, mapping_key):
+def apply_current_employee_signature(doctype, document_name, mapping_key, signature_notes=None):
     if not frappe.has_permission(doctype, "write", document_name):
         frappe.throw(_("You do not have permission to sign this document."), frappe.PermissionError)
     target = frappe.get_doc(doctype, document_name)
@@ -24,12 +24,13 @@ def apply_current_employee_signature(doctype, document_name, mapping_key):
 
     existing = target.get(fields["signature"])
     if existing and not mapping.allow_signature_replacement:
-        return {"already_signed": True, "signed": False}
+        return {"already_signed": True, "signed": True}
 
     target.set(fields["signature"], signature.name)
     target.set(fields["employee_name"], signature.full_name)
     target.set(fields["designation"], signature.designation)
     target.set(fields["date"], today())
+    target.set(fields["notes"], (signature_notes or "").strip())
     target.set(fields["image"], signature.signature1)
     target.flags.ignore_validate_update_after_submit = True
     target.save(ignore_permissions=False)
@@ -59,6 +60,7 @@ def _mapping_fields(row):
         "employee_name": row.employee_name_field,
         "designation": row.designation_field,
         "date": row.signature_date_field,
+        "notes": row.signature_notes_field,
         "image": row.signature_image_field,
     }
     if not all(fields.values()):
@@ -79,4 +81,3 @@ def _get_signature(user):
     if not name:
         frappe.throw(_("No active Employee Signature is configured for the current user."))
     return frappe.get_doc("Employee Signature", name)
- 
