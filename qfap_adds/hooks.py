@@ -25,10 +25,20 @@ doctype_js = {
 
 doc_events = {
     "Workflow": {
-        "on_update": "qfap_adds.qfap_adds.workflow.provisioning.ensure_current_responsible_user",
+        "validate": (
+            "qfap_adds.qfap_adds.workflow.provisioning."
+            "validate_workflow_configuration"
+        ),
+        "on_update": (
+            "qfap_adds.qfap_adds.workflow.provisioning."
+            "ensure_current_responsible_user"
+        ),
     },
     "*": {
-        "validate": "qfap_adds.qfap_adds.workflow.permissions.validate_responsible_user",
+        "validate": (
+            "qfap_adds.qfap_adds.workflow.permissions."
+            "validate_responsible_user"
+        ),
     },
 }
 
