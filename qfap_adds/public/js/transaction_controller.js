@@ -1,8 +1,8 @@
 // QFap adaptive accounting dimensions, Project, and Budget Line controller.
-(() => {
-    const frm = window.cur_frm;
-    if (!frm || frm.__qfap_dimensions_v116_loaded) return;
-    frm.__qfap_dimensions_v116_loaded = true;
+window.qfap_initialize_transaction_controller = async function (frm) {
+    frm = frm || window.cur_frm;
+    if (!frm || frm.__qfap_dimensions_v117_loaded) return;
+    frm.__qfap_dimensions_v117_loaded = true;
 
     const PROJECT_FIELDS = ["project", "custom_project"];
     const BUDGET_FIELDS = ["budget_line", "custom_budget_line"];
@@ -49,15 +49,6 @@
     });
 
     frappe.ui.form.on(frm.doctype, handlers);
-    load_workflow_handler();
-
-    function load_workflow_handler() {
-        frappe.require("/assets/qfap_adds/js/document_workflow.js", () => {
-            if (typeof window.qfap_initialize_document_workflow === "function") {
-                window.qfap_initialize_document_workflow(frm);
-            }
-        });
-    }
 
     async function initialize() {
         await load_relevant_metadata();
@@ -66,7 +57,6 @@
         register_child_events();
         configure_budget_queries();
         await default_missing_row_values();
-        load_workflow_handler();
     }
 
     async function load_relevant_metadata() {
@@ -305,4 +295,9 @@
             return false;
         }
     }
-})();
+
+
+    // The controller can be loaded after the current form refresh event.
+    // Initialize the already-open form immediately.
+    await initialize();
+};
