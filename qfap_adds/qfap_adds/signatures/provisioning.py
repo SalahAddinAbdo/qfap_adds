@@ -101,6 +101,22 @@ def _provision_row(doctype, row):
     _apply_visibility(doctype, row, bool(row.hide_generated_fields), names)
 
 
+
+def _sync_generated_fields(doctype, specs):
+    """Synchronize existing generated Custom Fields with the current schema."""
+    properties=("label","fieldtype","options","insert_after","read_only","allow_on_submit","no_copy","print_hide","hidden","collapsible")
+    for spec in specs:
+        name=frappe.db.get_value("Custom Field", {"dt":doctype,"fieldname":spec["fieldname"]}, "name")
+        if not name: continue
+        field=frappe.get_doc("Custom Field", name); changed=False
+        for prop in properties:
+            expected=spec.get(prop, "" if prop=="options" else 0)
+            if field.get(prop)!=expected: field.set(prop,expected); changed=True
+        if changed:
+            field.flags.ignore_validate=True
+            field.save(ignore_permissions=True)
+    frappe.clear_cache(doctype=doctype)
+
 def _save_row_mapping(row):
     values = {
         "mapping_key": row.mapping_key,
