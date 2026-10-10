@@ -18,8 +18,6 @@ window.qfap_initialize_document_workflow = function (frm) {
         }
     });
 
-    // The file can be loaded asynchronously after the form refresh event.
-    // Initialize the already-open form immediately in that case.
     wf_restrict_employee_signatures(frm);
     if (!frm.is_new() && wf_protect_document(frm)) {
         setTimeout(() => wf_setup(frm), 150);
