@@ -210,7 +210,17 @@
 .universal-print[dir='rtl'], .universal-print[dir='rtl'] table { direction: rtl; }
 .universal-print[dir='ltr'], .universal-print[dir='ltr'] table { direction: ltr; }
 .letter-head-container { width: 100%; margin: 0 0 6px; page-break-inside: avoid; }
-.letter-head-container img, .letter-head img, .letter-head-footer img { max-width: 100%; height: auto; }
+/* Letter Head isolation:
+   The universal format controls only the outer container and direct image
+   Letter Heads. Nested logos, QR codes, icons, stamps, and decorative images
+   keep the dimensions defined by each client's own Letter Head CSS. */
+.letter-head-container > img,
+.letter-head > img,
+.letter-head-footer > img {
+    max-width: 100%;
+    height: auto;
+}
+
 .print-page { display: flex; flex-direction: column; width: 100%; position: relative; }
 .print-page.page-break { min-height: 0; }
 @media print {
