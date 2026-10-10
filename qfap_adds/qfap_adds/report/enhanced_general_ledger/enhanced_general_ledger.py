@@ -10,12 +10,13 @@ def execute(filters=None):
     """Run ERPNext General Ledger, then add non-posting audit presentation."""
     filters = frappe._dict(filters or {})
     _validate_analytical_filters(filters)
+    dimensions = _get_active_dimensions()
+    _validate_dimension_dependencies(filters, dimensions)
     result = list(general_ledger.execute(filters) or ([], []))
     while len(result) < 6:
         result.append(None)
     columns, data, message, chart, report_summary, skip_total_row = result[:6]
     columns, data = columns or [], data or []
-    dimensions = _get_active_dimensions()
     _enrich_link_dimensions(columns, data, dimensions)
     _add_audit_flags(columns, data, dimensions)
     data, subset_active = _apply_analytical_filters(data, filters)
@@ -29,7 +30,7 @@ def execute(filters=None):
 
 def _validate_analytical_filters(filters):
     active = any(filters.get(f) for f in (
-        "qfap_audit_search", "qfap_min_amount", "qfap_max_amount", "qfap_exceptions_only"
+        "qfap_ledger_search", "qfap_min_amount", "qfap_max_amount", "qfap_exceptions_only"
     ))
     if active and filters.get("categorize_by"):
         frappe.throw(_("QFap analytical filters cannot be combined with Categorize by. Clear Categorize by, then run the audit subset."))
@@ -124,7 +125,7 @@ def _add_audit_flags(columns, data, dimensions):
 
 
 def _apply_analytical_filters(data, filters):
-    search = (filters.get("qfap_audit_search") or "").strip().lower()
+    search = (filters.get("qfap_ledger_search") or "").strip().lower()
     min_raw, max_raw = filters.get("qfap_min_amount"), filters.get("qfap_max_amount")
     exceptions_only = bool(filters.get("qfap_exceptions_only"))
     active = bool(search or min_raw not in (None, "") or max_raw not in (None, "") or exceptions_only)
@@ -156,19 +157,31 @@ def _search_text(row):
 
 def _apply_view(columns, view):
     compact = {"posting_date", "account", "debit", "credit", "balance", "voucher_type", "voucher_no", "project"}
-    project_order = ["posting_date", "project", "cost_center", "account", "voucher_type", "voucher_no", "debit", "credit", "balance"]
+    focus_field = ""
+    if view == "Project":
+        focus_field = "project"
+    elif str(view).startswith("Dimension::"):
+        focus_field = str(view).split("::", 1)[1]
+
+    focus_order = ["posting_date"]
+    if focus_field:
+        focus_order.append(focus_field)
+    for fieldname in ["project", "cost_center", "account", "voucher_type", "voucher_no", "debit", "credit", "balance"]:
+        if fieldname not in focus_order:
+            focus_order.append(fieldname)
+
     for column in columns:
         fieldname = column.get("fieldname")
         if view == "Compact":
             column["hidden"] = 0 if fieldname in compact else 1
         elif view == "Audit" and fieldname in {"qfap_audit_flags", "gl_entry", "remarks"}:
             column["hidden"] = 0
-        elif view == "Project" and fieldname == "qfap_audit_flags":
+        elif focus_field and fieldname == "qfap_audit_flags":
             column["hidden"] = 0
-    if view == "Project":
-        order = {f: i for i, f in enumerate(project_order)}
-        columns.sort(key=lambda c: order.get(c.get("fieldname"), 1000))
 
+    if focus_field:
+        order = {fieldname: index for index, fieldname in enumerate(focus_order)}
+        columns.sort(key=lambda column: order.get(column.get("fieldname"), 1000))
 
 def _hide_empty_optional_columns(columns, data):
     protected = {"posting_date", "account", "debit", "credit", "balance", "voucher_type", "voucher_no"}
@@ -214,3 +227,132 @@ def _build_message(existing, subset_active):
 
 def _is_detail_row(row):
     return bool(row.get("posting_date") and row.get("gl_entry"))
+
+
+
+def _as_list(value):
+    if not value:
+        return []
+    if isinstance(value, str):
+        try:
+            value = frappe.parse_json(value)
+        except Exception:
+            value = [item.strip() for item in value.split(",") if item.strip()]
+    if not isinstance(value, (list, tuple, set)):
+        value = [value]
+    result = []
+    for item in value:
+        if isinstance(item, dict):
+            item = item.get("value")
+        if item and str(item) not in result:
+            result.append(str(item))
+    return result
+
+
+def _validate_dimension_dependencies(filters, dimensions):
+    projects = _as_list(filters.get("project"))
+    for dimension in dimensions:
+        if dimension.document_type != "Budget Line":
+            continue
+        selected = _as_list(filters.get(dimension.fieldname))
+        if not selected:
+            continue
+        if not projects:
+            frappe.throw(_("Select a Project before filtering by Budget Line."))
+        meta = frappe.get_meta("Budget Line")
+        if not meta.has_field("project"):
+            frappe.throw(_("Budget Line is configured as an accounting dimension, but no Project link field was found."))
+        invalid = frappe.get_list(
+            "Budget Line",
+            filters={"name": ["in", selected], "project": ["not in", projects]},
+            pluck="name",
+            limit_page_length=0,
+        )
+        if invalid:
+            frappe.throw(
+                _("The following Budget Lines do not belong to the selected Project(s): {0}").format(
+                    ", ".join(invalid)
+                )
+            )
+
+
+@frappe.whitelist()
+def get_qfap_dimension_config():
+    """Return enabled accounting-dimension metadata for client-side views and dependencies."""
+    result = []
+    for dimension in _get_active_dimensions():
+        doctype_meta = frappe.get_meta(dimension.document_type)
+        project_field = ""
+        for field in doctype_meta.fields:
+            if field.fieldtype == "Link" and field.options == "Project":
+                project_field = field.fieldname
+                if field.fieldname == "project":
+                    break
+        result.append(
+            {
+                "fieldname": dimension.fieldname,
+                "label": dimension.label or dimension.fieldname.replace("_", " ").title(),
+                "document_type": dimension.document_type,
+                "is_tree": bool(doctype_meta.is_tree),
+                "parent_field": doctype_meta.nsm_parent_field or "",
+                "project_field": project_field,
+                "is_budget_line": dimension.document_type == "Budget Line",
+            }
+        )
+    return result
+
+
+@frappe.whitelist()
+def get_budget_line_options(txt="", projects=None, limit=50):
+    """Return Budget Lines restricted to selected projects, with review-friendly descriptions."""
+    project_list = _as_list(projects)
+    if not project_list:
+        return []
+    if not frappe.has_permission("Budget Line", "read"):
+        frappe.throw(_("You do not have permission to read Budget Line."), frappe.PermissionError)
+
+    meta = frappe.get_meta("Budget Line")
+    if not meta.has_field("project"):
+        return []
+    fields = ["name", "project"]
+    for fieldname in ["budget_line", "name1", "status", "is_group", "parent_budget_line", "line_cost", "currency"]:
+        if meta.has_field(fieldname):
+            fields.append(fieldname)
+
+    filters = {"project": ["in", project_list]}
+    or_filters = {}
+    if txt:
+        like = "%" + txt + "%"
+        or_filters = {"name": ["like", like]}
+        for fieldname in ["budget_line", "name1"]:
+            if meta.has_field(fieldname):
+                or_filters[fieldname] = ["like", like]
+
+    rows = frappe.get_list(
+        "Budget Line",
+        filters=filters,
+        or_filters=or_filters,
+        fields=fields,
+        order_by="project asc, lft asc" if meta.has_field("lft") else "project asc, modified desc",
+        limit_page_length=min(int(limit or 50), 100),
+    )
+    output = []
+    for row in rows:
+        label_parts = []
+        if row.get("budget_line"):
+            label_parts.append(row.get("budget_line"))
+        if row.get("name1"):
+            label_parts.append(row.get("name1"))
+        label = " - ".join(label_parts) or row.name
+        description_parts = [_('Project') + ": " + str(row.project)]
+        if row.get("is_group"):
+            description_parts.append(_("Group node; selecting it includes descendants"))
+        if row.get("status"):
+            description_parts.append(_("Status") + ": " + str(row.status))
+        if row.get("line_cost") not in (None, ""):
+            amount = str(row.line_cost)
+            if row.get("currency"):
+                amount += " " + str(row.currency)
+            description_parts.append(_("Budget") + ": " + amount)
+        output.append({"value": row.name, "label": label, "description": " | ".join(description_parts)})
+    return output
