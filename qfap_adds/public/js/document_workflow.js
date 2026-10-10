@@ -444,3 +444,4 @@ function wf_normalize(value) {
         .toLowerCase();
 }
 
+
