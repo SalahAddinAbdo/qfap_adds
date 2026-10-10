@@ -67,4 +67,3 @@ fixtures = [
 
 after_install = "qfap_adds.qfap_adds.install.after_install"
 after_migrate = "qfap_adds.qfap_adds.install.after_migrate"
-`
