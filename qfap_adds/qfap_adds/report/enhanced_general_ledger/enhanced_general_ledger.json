@@ -1,0 +1,33 @@
+{
+  "add_total_row": 0,
+  "columns": [],
+  "disable_prepared_report": 0,
+  "disabled": 0,
+  "docstatus": 0,
+  "doctype": "Report",
+  "filters": [],
+  "idx": 0,
+  "is_standard": "Yes",
+  "letter_head": "Formal Letter Head",
+  "module": "QFap Adds",
+  "name": "Enhanced General Ledger",
+  "owner": "Administrator",
+  "prepared_report": 0,
+  "ref_doctype": "GL Entry",
+  "report_name": "Enhanced General Ledger",
+  "report_type": "Script Report",
+  "roles": [
+    {
+      "role": "Accounts User"
+    },
+    {
+      "role": "Accounts Manager"
+    },
+    {
+      "role": "Auditor"
+    },
+    {
+      "role": "System Manager"
+    }
+  ]
+}

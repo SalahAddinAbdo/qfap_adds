@@ -1,0 +1,1 @@
+recursive-include qfap_adds *.json *.js *.html *.css *.md *.txt
