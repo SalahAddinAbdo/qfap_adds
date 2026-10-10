@@ -12,7 +12,9 @@
     "hidden": 0,
     "print_hide": 0,
     "allow_on_submit": 0,
-    "no_copy": 0
+    "no_copy": 0,
+    "depends_on": "eval:doc.custom_apply_employee_signature",
+    "mandatory_depends_on": "eval:doc.custom_apply_employee_signature"
   },
   {
     "doctype": "Custom Field",
@@ -87,7 +89,9 @@
     "hidden": 0,
     "print_hide": 0,
     "allow_on_submit": 0,
-    "no_copy": 0
+    "no_copy": 0,
+    "depends_on": "eval:doc.custom_assignment_required",
+    "mandatory_depends_on": "eval:doc.custom_assignment_required"
   },
   {
     "doctype": "Custom Field",
@@ -102,7 +106,9 @@
     "hidden": 0,
     "print_hide": 0,
     "allow_on_submit": 0,
-    "no_copy": 0
+    "no_copy": 0,
+    "depends_on": "eval:doc.custom_assignment_required",
+    "mandatory_depends_on": "eval:doc.custom_assignment_required"
   },
   {
     "doctype": "Custom Field",
@@ -117,7 +123,8 @@
     "hidden": 0,
     "print_hide": 0,
     "allow_on_submit": 0,
-    "no_copy": 0
+    "no_copy": 0,
+    "depends_on": "eval:doc.custom_assignment_required"
   },
   {
     "doctype": "Custom Field",
@@ -223,5 +230,18 @@
     "print_hide": 0,
     "allow_on_submit": 0,
     "no_copy": 0
+  },
+  {
+    "doctype": "Custom Field",
+    "name": "Workflow-custom_current_responsible_user_field",
+    "dt": "Workflow",
+    "label": "Current Responsible User Field",
+    "fieldname": "custom_current_responsible_user_field",
+    "insert_after": "workflow_state_field",
+    "fieldtype": "Data",
+    "read_only": 1,
+    "bold": 1,
+    "default": "custom_current_responsible_user",
+    "description": "Field generated on the target DocType for workflow responsibility control."
   }
 ]
