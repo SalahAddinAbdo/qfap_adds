@@ -75,7 +75,8 @@ fixtures = [
 ]
 
 after_install = "qfap_adds.qfap_adds.install.after_install"
+
 after_migrate = [
     "qfap_adds.qfap_adds.install.after_migrate",
-    "qfap_adds.qfap_adds.printing.provisioning.provision_universal_print_formats",
+    "qfap_adds.printing.provisioning.provision_universal_print_formats",
 ]
