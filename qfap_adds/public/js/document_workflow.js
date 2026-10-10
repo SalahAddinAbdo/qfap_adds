@@ -2,18 +2,31 @@
 // Unified Workflow Handler for Frappe 16
 // Change only the DocType name when copying this script.
 // ============================================================
-const WF_DOCTYPE = window.cur_frm?.doctype;
+window.qfap_initialize_document_workflow = function (frm) {
+    frm = frm || window.cur_frm;
+    if (!frm || frm.__qfap_workflow_handler_registered) return;
+    frm.__qfap_workflow_handler_registered = true;
 
-if (WF_DOCTYPE) frappe.ui.form.on(WF_DOCTYPE, {
-    setup(frm) {
-        wf_restrict_employee_signatures(frm);
-    },
-    refresh(frm) {
-        wf_restrict_employee_signatures(frm);
-        if (frm.is_new() || !wf_protect_document(frm)) return;
-        setTimeout(() => wf_setup(frm), 500);
+    frappe.ui.form.on(frm.doctype, {
+        setup(current) {
+            wf_restrict_employee_signatures(current);
+        },
+        refresh(current) {
+            wf_restrict_employee_signatures(current);
+            if (current.is_new() || !wf_protect_document(current)) return;
+            setTimeout(() => wf_setup(current), 500);
+        }
+    });
+
+    // The file can be loaded asynchronously after the form refresh event.
+    // Initialize the already-open form immediately in that case.
+    wf_restrict_employee_signatures(frm);
+    if (!frm.is_new() && wf_protect_document(frm)) {
+        setTimeout(() => wf_setup(frm), 150);
     }
-});
+};
+
+window.qfap_initialize_document_workflow(window.cur_frm);
 
 // Restrict every visible/editable Employee Signature link to the session user.
 function wf_restrict_employee_signatures(frm) {
