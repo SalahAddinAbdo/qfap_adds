@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import frappe
 from frappe import _
-from frappe.utils import now_datetime
+from frappe.utils import today
 
 
 @frappe.whitelist()
@@ -29,7 +29,7 @@ def apply_current_employee_signature(doctype, document_name, mapping_key):
     target.set(fields["signature"], signature.name)
     target.set(fields["employee_name"], signature.full_name)
     target.set(fields["designation"], signature.designation)
-    target.set(fields["date"], now_datetime())
+    target.set(fields["date"], today())
     target.set(fields["image"], signature.signature1)
     target.flags.ignore_validate_update_after_submit = True
     target.save(ignore_permissions=False)
