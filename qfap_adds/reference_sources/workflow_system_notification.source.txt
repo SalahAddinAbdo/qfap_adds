@@ -1,0 +1,136 @@
+# Workflow System Notification
+# Script Type: Workflow Task
+
+workflow = frappe.db.get_value(
+    "Workflow",
+    {"document_type": doc.doctype, "is_active": 1},
+    ["name", "workflow_state_field"],
+    as_dict=True
+)
+
+if workflow:
+    state = doc.get(
+        workflow.workflow_state_field or "workflow_state"
+    )
+
+    transitions = frappe.get_all(
+        "Workflow Transition",
+        filters={
+            "parent": workflow.name,
+            "parenttype": "Workflow",
+            "next_state": state
+        },
+        fields=[
+            "custom_target_user_field",
+            "custom_notify_document_creator"
+        ]
+    )
+
+    target_fields = []
+    notify_creator = False
+
+    for transition in transitions:
+        fieldname = transition.get(
+            "custom_target_user_field"
+        )
+
+        if fieldname and fieldname not in target_fields:
+            target_fields.append(fieldname)
+
+        if transition.get(
+            "custom_notify_document_creator"
+        ):
+            notify_creator = True
+
+    recipients = []
+
+    if len(target_fields) == 1:
+        target_user = doc.get(target_fields[0])
+
+        if target_user:
+            recipients.append(target_user)
+
+    if notify_creator and doc.owner:
+        recipients.append(doc.owner)
+
+    notified_users = []
+
+    for user in recipients:
+        if (
+            user and
+            user not in notified_users and
+            user != frappe.session.user and
+            frappe.db.get_value("User", user, "enabled")
+        ):
+            notified_users.append(user)
+
+            language = (
+                frappe.db.get_value(
+                    "User",
+                    user,
+                    "language"
+                ) or
+                frappe.db.get_single_value(
+                    "System Settings",
+                    "language"
+                ) or
+                "en"
+            )
+
+            document_type = _(
+                str(doc.doctype),
+                lang=language
+            )
+
+            translated_state = _(
+                str(state or "").strip(),
+                lang=language
+            )
+
+            subject_source = "%s requires your action"
+
+            message_source = (
+                "%s No. %s has been moved to the workflow state %s. "
+                "You are receiving this notification because this "
+                "document requires your action. Click this notification "
+                "to open the document, review the details and any "
+                "available comments, and take the required action."
+            )
+
+            subject_template = frappe.db.get_value(
+                "Translation",
+                {
+                    "language": language,
+                    "source_text": subject_source
+                },
+                "translated_text"
+            ) or subject_source
+
+            message_template = frappe.db.get_value(
+                "Translation",
+                {
+                    "language": language,
+                    "source_text": message_source
+                },
+                "translated_text"
+            ) or message_source
+
+            subject = subject_template % document_type
+
+            message = message_template % (
+                "<strong>" + str(document_type) + "</strong>",
+                "<strong>" + str(doc.name) + "</strong>",
+                "<strong>" + str(translated_state) + "</strong>"
+            )
+
+            frappe.get_doc({
+                "doctype": "Notification Log",
+                "subject": subject,
+                "email_content": message,
+                "for_user": user,
+                "type": "Alert",
+                "document_type": doc.doctype,
+                "document_name": doc.name,
+                "from_user": frappe.session.user,
+                "read": 0
+            }).insert(ignore_permissions=True)

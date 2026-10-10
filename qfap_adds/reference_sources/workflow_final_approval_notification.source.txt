@@ -1,0 +1,68 @@
+# Workflow Final Approval Notification
+# Script Type: Workflow Task
+
+user = doc.owner
+
+if (
+    user and
+    user != frappe.session.user and
+    frappe.db.get_value("User", user, "enabled")
+):
+    language = (
+        frappe.db.get_value("User", user, "language") or
+        frappe.db.get_single_value(
+            "System Settings",
+            "language"
+        ) or
+        "en"
+    )
+
+    document_type = _(
+        str(doc.doctype),
+        lang=language
+    )
+
+    subject_source = "%s has been approved"
+
+    message_source = (
+        "Your %s No. %s has been finally approved. "
+        "Click this notification to open the document, "
+        "review the details, and take the next steps."
+    )
+
+    subject_template = frappe.db.get_value(
+        "Translation",
+        {
+            "language": language,
+            "source_text": subject_source
+        },
+        "translated_text"
+    ) or subject_source
+
+    message_template = frappe.db.get_value(
+        "Translation",
+        {
+            "language": language,
+            "source_text": message_source
+        },
+        "translated_text"
+    ) or message_source
+
+    subject = subject_template % document_type
+
+    message = message_template % (
+        "<strong>" + str(document_type) + "</strong>",
+        "<strong>" + str(doc.name) + "</strong>"
+    )
+
+    frappe.get_doc({
+        "doctype": "Notification Log",
+        "subject": subject,
+        "email_content": message,
+        "for_user": user,
+        "type": "Alert",
+        "document_type": doc.doctype,
+        "document_name": doc.name,
+        "from_user": frappe.session.user,
+        "read": 0
+    }).insert(ignore_permissions=True)

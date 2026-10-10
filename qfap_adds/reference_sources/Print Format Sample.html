@@ -1,0 +1,702 @@
+{# =========================================================
+   STOCK HANDOVER AND RECEIPT - FINAL PRINT FORMAT
+   DocType: Stock Handover and Receipt
+   Frappe / ERPNext 16
+   Signature date fields are Date, not Datetime
+   ========================================================= #}
+
+{% set lang = frappe.form_dict.get('_lang') or frappe.local.lang or 'en' %}
+{% set direction = 'rtl' if lang in ['العربية', 'اردو', 'پارسی', 'ar', 'ur', 'fa'] else 'ltr' %}
+{% set show_values = doc.show_item_values_on_print == 1 %}
+{% set has_transport = doc.handover_method == 'Transported Delivery' %}
+{% set is_employee_receiver = doc.receiver_type == 'Employee' %}
+{% set is_external_receiver = doc.receiver_type and doc.receiver_type != 'Employee' %}
+{% set final_states = ['Discrepancy Review', 'Pending Final Verification', 'Approved'] %}
+{% set receipt_recorded = doc.received_by or doc.receipt_datetime or doc.workflow_state in final_states %}
+{% set has_discrepancy = doc.has_discrepancy == 1 %}
+{% set receiver_display = doc.employee_name if is_employee_receiver else (doc.receiver_name or doc.receiving_entity or '') %}
+{% set receiver_capacity_display = doc.designation if is_employee_receiver else (doc.receiver_capacity or '') %}
+{% set actual_receiver_display = doc.actual_receiver_name or receiver_display %}
+{% set actual_capacity_display = doc.actual_receiver_capacity or receiver_capacity_display %}
+{% set document_date = frappe.utils.formatdate(doc.posting_date) if doc.posting_date else '' %}
+
+
+{# =========================================================
+   PRINT MODE AND COMPANY PRINT IDENTITY
+   signature_mode: electronic (default) or manual
+   ========================================================= #}
+
+{% set signature_mode = frappe.form_dict.get('signature_mode') or 'electronic' %}
+{% set show_electronic_signatures = signature_mode != 'manual' %}
+{% set manual_signature_mode = signature_mode == 'manual' %}
+
+
+{# =========================================================
+   CENTRAL SIGNATURE PRINT POLICY
+   Main DocType: Employee Signature Configuration
+   Child DocType: Employee Signature Mapping Row
+   Child table: signature_mappings
+   ========================================================= #}
+
+{% set signature_configuration_list = frappe.get_all(
+    'Employee Signature Configuration',
+    filters={
+        'document_type': doc.doctype,
+        'enabled': 1
+    },
+    fields=['name', 'print_all_signatures_as_manual'],
+    order_by='modified desc',
+    page_length=1
+) %}
+
+{% set signature_configuration = signature_configuration_list[0] if signature_configuration_list else none %}
+
+{% set configured_all_manual =
+    signature_configuration
+    and signature_configuration.print_all_signatures_as_manual == 1
+%}
+
+{% set signature_mapping_rows = frappe.get_all(
+    'Employee Signature Mapping Row',
+    filters={
+        'parent': signature_configuration.name,
+        'parenttype': 'Employee Signature Configuration',
+        'parentfield': 'signature_mappings',
+        'enabled': 1
+    },
+    fields=[
+        'idx',
+        'mapping_key',
+        'signature_role_description',
+        'employee_signature_field',
+        'designation_field',
+        'signature_date_field',
+        'signature_image_field',
+        'signature_required',
+        'print_as_manual_signature'
+    ],
+    order_by='idx asc',
+    page_length=100
+) if signature_configuration else [] %}
+
+{# URL manual mode remains available as an optional override. #}
+{% set force_all_signatures_manual = manual_signature_mode or configured_all_manual %}
+
+{% set print_company = doc.company or frappe.db.get_single_value('Global Defaults', 'default_company') or '' %}
+
+{% set primary_color = (frappe.db.get_value('Company', print_company, 'custom_print_primary_color') if print_company else none) or '#176B87' %}
+{% set document_header_color = (frappe.db.get_value('Company', print_company, 'custom_print_document_header_color') if print_company else none) or primary_color %}
+{% set accent_color = (frappe.db.get_value('Company', print_company, 'custom_print_accent_color') if print_company else none) or '#D7A83E' %}
+{% set light_color = (frappe.db.get_value('Company', print_company, 'custom_print_light_color') if print_company else none) or '#EAF3F6' %}
+{% set border_color = (frappe.db.get_value('Company', print_company, 'custom_print_border_color') if print_company else none) or '#C9D6DC' %}
+
+{% set text_color = '#243342' %}
+{% set muted_text_color = '#667780' %}
+{% set white_color = '#FFFFFF' %}
+{% set alternate_row_color = '#F7FAFB' %}
+{% set total_row_color = '#EEF5F7' %}
+{% set warning_background = '#FFF9DF' %}
+{% set warning_border = '#D9C98D' %}
+{% set warning_text = '#66561E' %}
+
+{% macro workflow_signature(
+    label,
+    person,
+    designation,
+    signature_date,
+    signature_url,
+    force_manual,
+    cell_width
+) %}
+<td style="width: {{ cell_width }}%;">
+    <div class="signature-slot">
+        {% if force_manual %}
+            <div class="manual-signature-space">&nbsp;</div>
+        {% elif signature_url %}
+            <img src="{{ signature_url }}" alt="{{ label or '' }}">
+        {% else %}
+            <div class="electronic-signature-space">&nbsp;</div>
+        {% endif %}
+    </div>
+
+    <div class="signature-line">{{ label or '' }}</div>
+
+    <div class="signature-note">
+        {{ person or '' }}
+        {% if designation %}<br>{{ designation }}{% endif %}
+        {% if signature_date %}<br>{{ frappe.utils.formatdate(signature_date) }}{% endif %}
+    </div>
+
+    {% if force_manual %}
+        <div class="signature-mode-note">{{ _('Manual Signature') }}</div>
+    {% elif signature_url %}
+        <div class="signature-mode-note">{{ _('Electronically Signed') }}</div>
+    {% endif %}
+</td>
+{% endmacro %}
+
+<style>
+.handover-report {
+    --document-header: {{ document_header_color }};
+    --primary: {{ primary_color }};
+    --accent: {{ accent_color }};
+    --light: {{ light_color }};
+    --border: {{ border_color }};
+    --text: {{ text_color }};
+    --muted: {{ muted_text_color }};
+    direction: {{ direction }};
+    text-align: {{ 'right' if direction == 'rtl' else 'left' }};
+    width: 100%;
+    color: {{ text_color }};
+    background: {{ white_color }};
+    font-family: "DejaVu Sans", "Arial", "Tahoma", sans-serif;
+    font-size: 9px;
+    line-height: 1.4;
+}
+.handover-report, .handover-report * { box-sizing: border-box; }
+.handover-report[dir="rtl"], .handover-report[dir="rtl"] table { direction: rtl; }
+.handover-report[dir="ltr"], .handover-report[dir="ltr"] table { direction: ltr; }
+.letter-head-container { width: 100%; margin: 0 0 6px; page-break-inside: avoid; }
+.print-page {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    min-height: 0;
+    position: relative;
+}
+@media print {
+    .print-page.page-break:not(.first-print-page) {
+        page-break-before: always !important;
+        break-before: page !important;
+    }
+}
+.letter-head-container img, .letter-head img, .letter-head-footer img { max-width: 100%; height: auto; }
+
+.print-heading {
+    margin: 0 0 7px;
+    padding: 8px 10px;
+    border: 1px solid {{ document_header_color }};
+    border-top: 4px solid {{ accent_color }};
+    border-radius: 3px;
+    background: {{ document_header_color }} !important;
+    color: {{ white_color }} !important;
+    text-align: center;
+    page-break-inside: avoid;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+}
+.print-heading h1 { margin: 0; color: {{ white_color }} !important; font-size: 17px; font-weight: 700; background-color: unset !important; }
+.print-heading .subheading {
+    margin-top: 3px;
+    color: {{ white_color }} !important;
+    -webkit-text-fill-color: {{ white_color }} !important;
+    opacity: 1 !important;
+    font-size: 9px;
+}
+/* Force every nested heading element, especially document code/date,
+   to remain white in the browser print dialog. */
+.print-heading,
+.print-heading h1,
+.print-heading .subheading,
+.print-heading .subheading span,
+.print-heading .document-code,
+.print-heading .date-value,
+.print-heading .print-mode-label {
+    color: {{ white_color }} !important;
+    -webkit-text-fill-color: {{ white_color }} !important;
+    text-decoration-color: {{ white_color }} !important;
+}
+.print-heading .document-code,
+.print-heading .date-value {
+    font-weight: 700;
+}
+.print-mode-label {
+    display: inline-block;
+    margin-top: 5px;
+    padding: 2px 8px;
+    border: 1px solid {{ light_color }};
+    border-radius: 10px;
+    background: transparent;
+    color: {{ white_color }};
+    font-size: 6.8px;
+}
+.document-code, .ltr-value, .date-value { direction: ltr !important; unicode-bidi: embed; font-variant-numeric: tabular-nums; }
+.numeric { direction: ltr !important; unicode-bidi: embed; text-align: center !important; white-space: nowrap; }
+.section { width: 100%; margin-top: 7px; }
+.section-title {
+    margin: 0;
+    padding: 2.5px 7px;
+    border: 1px solid {{ primary_color }};
+    background: {{ primary_color }} !important;
+    color: {{ white_color }} !important;
+    font-weight: 700;
+    text-align: center;
+    page-break-after: avoid;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+}
+.section-title,
+.section-title * {
+    color: {{ white_color }} !important;
+    -webkit-text-fill-color: {{ white_color }} !important;
+}
+.handover-report table { width: 100%; margin: 0; border-collapse: collapse; border-spacing: 0; }
+.info-table, .items-table, .signature-table { table-layout: fixed; }
+.info-table td, .items-table th, .items-table td, .signature-table td {
+    padding: 5px 7px !important;
+    border: 1px solid {{ border_color }};
+    vertical-align: middle;
+    overflow-wrap: break-word;
+    word-wrap: break-word;
+}
+/* Main information fields are displayed on one line: Label: Value.
+   Signature details keep their own stacked layout through .signature-note. */
+.info-table td {
+    line-height: 1.55;
+    text-align: {{ 'right' if direction == 'rtl' else 'left' }};
+}
+.field-label {
+    display: inline;
+    margin: 0;
+    color: {{ muted_text_color }};
+    font-weight: 700;
+    white-space: nowrap;
+}
+.field-label::after {
+    content: ":";
+}
+.field-value {
+    display: inline;
+    min-height: 0;
+    {% if direction == 'rtl' %}
+    margin-right: 4px;
+    {% else %}
+    margin-left: 4px;
+    {% endif %}
+    color: {{ text_color }};
+    font-weight: 500;
+    line-height: 1.55;
+}
+.field-value .status-badge {
+    vertical-align: middle;
+}
+/* Preserve clean LTR rendering for codes, dates, phone numbers and numeric IDs. */
+.field-value.document-code,
+.field-value.ltr-value,
+.field-value.date-value {
+    display: inline-block;
+    vertical-align: baseline;
+}
+.items-table {
+    page-break-inside: auto !important;
+    break-inside: auto !important;
+}
+.items-table thead { display: table-header-group !important; }
+.items-table tbody { display: table-row-group !important; }
+.items-table tfoot { display: table-row-group !important; }
+.items-table tr { page-break-inside: avoid !important; break-inside: avoid !important; }
+.items-table th {
+    padding: 5px 3px !important;
+    background: {{ light_color }} !important;
+    color: {{ primary_color }};
+    font-weight: 700;
+    text-align: center;
+    line-height: 1.2;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+}
+.items-table td { height: 22px; text-align: center; vertical-align: middle; overflow-wrap: anywhere; }
+.items-table .text-cell { text-align: {{ 'right' if direction == 'rtl' else 'left' }} !important; }
+.items-table .item-code-cell { direction: ltr !important; unicode-bidi: embed; font-size: 8px; }
+.items-table tbody tr:nth-child(even) td { background: {{ alternate_row_color }} !important; }
+.items-table tfoot th, .items-table tfoot td { background: {{ total_row_color }} !important; font-weight: 700; }
+.notes-box { min-height: 38px; padding: 6px 7px; border: 1px solid {{ border_color }}; background: {{ white_color }}; }
+.declaration { padding: 7px 8px; border: 1px solid {{ border_color }}; background: {{ alternate_row_color }} !important; font-size: 8.5px; line-height: 1.55; }
+.status-badge {
+    display: inline-block;
+    padding: 2px 7px;
+    border: 1px solid {{ border_color }};
+    border-radius: 10px;
+    background: {{ light_color }} !important;
+    color: {{ primary_color }};
+    font-size: 8px;
+    font-weight: 700;
+}
+.signature-table td { height: 122px; padding: 6px !important; text-align: center; vertical-align: bottom; }
+.signature-slot { display: block; width: 100%; height: 55px; margin: 0 auto 4px; text-align: center; }
+.signature-slot img { display: inline-block; max-width: 120px; max-height: 51px; width: auto; height: auto; object-fit: contain; }
+.electronic-signature-space { display: block; height: 55px; }
+.manual-signature-space { display: block; height: 68px; }
+.signature-line { display: block; padding-top: 4px; border-top: 1px solid {{ text_color }}; font-weight: 700; }
+.signature-note { display: block; margin-top: 2px; color: {{ muted_text_color }}; font-size: 7px; line-height: 1.35; }
+.signature-mode-note { display: block; margin-top: 2px; color: {{ muted_text_color }}; font-size: 6.4px; font-style: italic; }
+.paper-signature-space { display: block; height: 68px; }
+.attachment-note { font-size: 7.5px; color: {{ muted_text_color }}; word-break: break-all; }
+.important-note {
+    margin-top: 6px;
+    padding: 5px 7px;
+    border: 1px solid {{ warning_border }};
+    {% if direction == 'rtl' %}border-right: 5px solid {{ accent_color }};{% else %}border-left: 5px solid {{ accent_color }};{% endif %}
+    background: {{ warning_background }} !important;
+    color: {{ warning_text }};
+    font-size: 7.7px;
+    line-height: 1.45;
+}
+.footer-note { margin-top: 6px; color: {{ muted_text_color }}; font-size: 7px; text-align: center; }
+.avoid-page-break { page-break-inside: avoid; break-inside: avoid; }
+thead { display: table-header-group; }
+tfoot { display: table-row-group; }
+tr { page-break-inside: avoid; break-inside: avoid; }
+.handover-footer { display: block !important; width: 100%; margin-top: auto; padding-top: 8px; }
+@media print {
+    html,
+    body,
+    .handover-report,
+    .handover-report * {
+        -webkit-print-color-adjust: exact !important;
+        print-color-adjust: exact !important;
+        color-adjust: exact !important;
+    }
+
+    .print-heading {
+        background-color: {{ document_header_color }} !important;
+        border-color: {{ document_header_color }} !important;
+        border-top-color: {{ accent_color }} !important;
+    }
+
+    .print-heading,
+    .print-heading h1,
+    .print-heading .subheading,
+    .print-heading .subheading span,
+    .print-heading .document-code,
+    .print-heading .date-value,
+    .print-heading .print-mode-label,
+    .section-title,
+    .section-title * {
+        color: {{ white_color }} !important;
+        -webkit-text-fill-color: {{ white_color }} !important;
+        opacity: 1 !important;
+    }
+
+    .section-title {
+        background-color: {{ primary_color }} !important;
+        border-color: {{ primary_color }} !important;
+    }
+
+    .print-heading,
+    .section-title,
+    .info-table,
+    .declaration,
+    .signature-table,
+    .important-note {
+        page-break-inside: avoid;
+    }
+}
+</style>
+
+<div class="print-page page-break first-print-page">
+{% if not no_letterhead and letter_head %}
+    {% if print_settings and print_settings.repeat_header_footer %}
+        <div id="header-html" class="hidden-pdf letter-head-container">
+            <div class="letter-head">{{ letter_head }}</div>
+        </div>
+    {% else %}
+        <div class="letter-head-container">
+            <div class="letter-head">{{ letter_head }}</div>
+        </div>
+    {% endif %}
+{% endif %}
+
+<div class="handover-report" dir="{{ direction }}">
+    <div class="print-heading">
+        <h1>{{ _("Stock Handover and Receipt") }}</h1>
+        <div class="subheading">
+            {{ _("Stock Handover and Receipt Record") }}
+            &nbsp;|&nbsp;
+            <span class="document-code">{{ doc.name }}</span>
+            &nbsp;|&nbsp;
+            <span class="date-value">{% if doc.posting_date %}{{ frappe.utils.formatdate(doc.posting_date) }}{% endif %}</span>
+        </div>
+        <div class="print-mode-label">{{ _("Signatures") }}</div>
+    </div>
+
+    <div class="section avoid-page-break">
+        <div class="section-title">{{ _("Document Information") }}</div>
+        <table class="info-table"><tbody>
+            <tr>
+                <td><span class="field-label">{{ _("Document No.") }}</span><span class="field-value document-code">{{ doc.name }}</span></td>
+                <td><span class="field-label">{{ _("Posting Date") }}</span><span class="field-value date-value">{{ document_date }}</span></td>
+                <td><span class="field-label">{{ _("Reference Stock Entry") }}</span><span class="field-value document-code">{{ doc.stock_entry or '' }}</span></td>
+                <td><span class="field-label">{{ _("Workflow State") }}</span><span class="field-value"><span class="status-badge">{{ doc.workflow_state or '' }}</span></span></td>
+            </tr>
+            <tr>
+                <td colspan="2"><span class="field-label">{{ _("Company") }}</span><span class="field-value">{{ doc.company or '' }}</span></td>
+                <td><span class="field-label">{{ _("Stock Entry Purpose") }}</span><span class="field-value">{{ doc.stock_entry_purpose or doc.stock_entry_type or '' }}</span></td>
+                <td><span class="field-label">{{ _("Stock Entry Date") }}</span><span class="field-value date-value">{% if doc.stock_entry_date %}{{ frappe.utils.formatdate(doc.stock_entry_date) }}{% endif %}</span></td>
+            </tr>
+            <tr>
+                <td><span class="field-label">{{ _("Source Warehouse") }}</span><span class="field-value">{{ doc.source_warehouse or '' }}</span></td>
+                <td><span class="field-label">{{ _("Target Warehouse") }}</span><span class="field-value">{{ doc.target_warehouse or '' }}</span></td>
+                <td><span class="field-label">{{ _("Project") }}</span><span class="field-value">{{ doc.project or '' }}</span></td>
+                <td><span class="field-label">{{ _("Cost Center") }}</span><span class="field-value">{{ doc.cost_center or '' }}</span></td>
+            </tr>
+            <tr>
+                <td><span class="field-label">{{ _("Budget Line") }}</span><span class="field-value">{{ doc.budget_line or '' }}</span></td>
+                <td><span class="field-label">{{ _("Handover Method") }}</span><span class="field-value">{{ doc.handover_method or '' }}</span></td>
+                <td><span class="field-label">{{ _("Handover Location") }}</span><span class="field-value">{{ doc.handover_location or '' }}</span></td>
+                <td><span class="field-label">{{ _("Delivery Location") }}</span><span class="field-value">{{ doc.delivery_location or '' }}</span></td>
+            </tr>
+            <tr><td colspan="4"><span class="field-label">{{ _("Handover Purpose") }}</span><span class="field-value">{{ doc.handover_purpose or '' }}</span></td></tr>
+        </tbody></table>
+    </div>
+
+    <div class="section avoid-page-break">
+        <div class="section-title">{{ _("Receiver Information") }}</div>
+        <table class="info-table"><tbody>
+            <tr>
+                <td><span class="field-label">{{ _("Receiver Type") }}</span><span class="field-value">{{ doc.receiver_type or '' }}</span></td>
+                <td colspan="2"><span class="field-label">{{ _("Receiver / Entity Name") }}</span><span class="field-value">{{ receiver_display }}</span></td>
+                <td><span class="field-label">{{ _("Capacity / Designation") }}</span><span class="field-value">{{ receiver_capacity_display }}</span></td>
+            </tr>
+            {% if is_employee_receiver %}
+            <tr>
+                <td colspan="2"><span class="field-label">{{ _("Receiving Employee") }}</span><span class="field-value">{{ doc.employee or '' }}</span></td>
+                <td><span class="field-label">{{ _("Department") }}</span><span class="field-value">{{ doc.department or '' }}</span></td>
+                <td><span class="field-label">{{ _("Expected Receipt Date") }}</span><span class="field-value date-value">{% if doc.expected_receipt_date %}{{ frappe.utils.formatdate(doc.expected_receipt_date) }}{% endif %}</span></td>
+            </tr>
+            {% else %}
+            <tr>
+                <td><span class="field-label">{{ _("Receiving Entity") }}</span><span class="field-value">{{ doc.receiving_entity or '' }}</span></td>
+                <td><span class="field-label">{{ _("Identification No.") }}</span><span class="field-value ltr-value">{{ doc.receiver_id_no or '' }}</span></td>
+                <td><span class="field-label">{{ _("Mobile No.") }}</span><span class="field-value ltr-value">{{ doc.receiver_mobile or '' }}</span></td>
+                <td><span class="field-label">{{ _("Expected Receipt Date") }}</span><span class="field-value date-value">{% if doc.expected_receipt_date %}{{ frappe.utils.formatdate(doc.expected_receipt_date) }}{% endif %}</span></td>
+            </tr>
+            {% endif %}
+            {% if doc.delivery_address %}<tr><td colspan="4"><span class="field-label">{{ _("Delivery Address") }}</span><span class="field-value">{{ doc.delivery_address }}</span></td></tr>{% endif %}
+        </tbody></table>
+    </div>
+
+    {% if has_transport %}
+    <div class="section avoid-page-break">
+        <div class="section-title">{{ _("Transportation Details") }}</div>
+        <table class="info-table"><tbody>
+            <tr>
+                <td><span class="field-label">{{ _("Transport Type") }}</span><span class="field-value">{{ doc.transport_type or '' }}</span></td>
+                <td><span class="field-label">{{ _("Transporter") }}</span><span class="field-value">{{ doc.transporter_name or doc.transporter or '' }}</span></td>
+                <td><span class="field-label">{{ _("Driver Name") }}</span><span class="field-value">{{ doc.driver_name or doc.driver or '' }}</span></td>
+                <td><span class="field-label">{{ _("Driver Mobile") }}</span><span class="field-value ltr-value">{{ doc.driver_mobile or '' }}</span></td>
+            </tr>
+            <tr>
+                <td><span class="field-label">{{ _("Vehicle Number") }}</span><span class="field-value ltr-value">{{ doc.vehicle_no or '' }}</span></td>
+                <td><span class="field-label">{{ _("Dispatch Date and Time") }}</span><span class="field-value date-value">{% if doc.dispatch_datetime %}{{ frappe.utils.format_datetime(doc.dispatch_datetime) }}{% endif %}</span></td>
+                <td><span class="field-label">{{ _("Expected Arrival") }}</span><span class="field-value date-value">{% if doc.expected_arrival_datetime %}{{ frappe.utils.format_datetime(doc.expected_arrival_datetime) }}{% endif %}</span></td>
+                <td><span class="field-label">{{ _("Transport Reference") }}</span><span class="field-value document-code">{{ doc.transport_reference or '' }}</span></td>
+            </tr>
+            {% if doc.transport_notes or doc.external_transport_document %}
+            <tr><td colspan="3"><span class="field-label">{{ _("Transport Notes") }}</span><span class="field-value">{{ doc.transport_notes or '' }}</span></td><td><span class="field-label">{{ _("Transport Document") }}</span><span class="field-value attachment-note">{{ doc.external_transport_document or '' }}</span></td></tr>
+            {% endif %}
+        </tbody></table>
+    </div>
+    {% endif %}
+
+    <div class="section">
+        <div class="section-title">{{ _("Handover Items and Receipt Results") }}</div>
+        <table class="items-table">
+            <thead><tr>
+                <th style="width:4%;">{{ _("No.") }}</th><th style="width:11%;">{{ _("Item Code") }}</th><th style="width:{{ '21' if show_values else '31' }}%;">{{ _("Item and Description") }}</th><th style="width:6%;">{{ _("UOM") }}</th><th style="width:8%;">{{ _("Handover") }}</th><th style="width:8%;">{{ _("Accepted") }}</th><th style="width:7%;">{{ _("Damaged") }}</th><th style="width:7%;">{{ _("Rejected") }}</th><th style="width:7%;">{{ _("Short") }}</th><th style="width:11%;">{{ _("Condition / Status") }}</th>{% if show_values %}<th style="width:10%;">{{ _("Amount") }}</th>{% endif %}
+            </tr></thead>
+            <tbody>
+            {% for row in doc.items %}
+                <tr>
+                    <td>{{ loop.index }}</td><td class="item-code-cell">{{ row.item_code or '' }}</td><td class="text-cell"><strong>{{ row.item_name or '' }}</strong>{% if row.description %}<br><span style="font-size:7.4px;color:#64747d;">{{ row.description | striptags }}</span>{% endif %}</td><td>{{ row.uom or '' }}</td><td class="numeric">{{ frappe.utils.flt(row.handover_qty, 3) }}</td><td class="numeric">{{ frappe.utils.flt(row.received_qty, 3) if receipt_recorded else '' }}</td><td class="numeric">{{ frappe.utils.flt(row.damaged_qty, 3) if receipt_recorded else '' }}</td><td class="numeric">{{ frappe.utils.flt(row.rejected_qty, 3) if receipt_recorded else '' }}</td><td class="numeric">{{ frappe.utils.flt(row.short_qty, 3) if receipt_recorded else '' }}</td><td>{{ (row.item_condition or '') if receipt_recorded else '' }}{% if receipt_recorded and row.receipt_status %}<br><span style="font-size:7px;color:#596c76;">{{ row.receipt_status }}</span>{% endif %}</td>{% if show_values %}<td class="numeric">{{ frappe.utils.fmt_money(row.handover_amount, currency=row.currency or doc.currency) }}</td>{% endif %}
+                </tr>
+                {% if receipt_recorded and row.remarks %}<tr><td></td><td colspan="{{ 9 if show_values else 8 }}" class="text-cell"><strong>{{ _("Receipt Remarks") }}:</strong> {{ row.remarks }}</td></tr>{% endif %}
+
+                {% if row.page_break %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<div class="print-page page-break">
+    {% if not no_letterhead and letter_head %}
+        <div class="hidden-pdf letter-head-container">
+            <div class="letter-head">{{ letter_head }}</div>
+        </div>
+    {% endif %}
+
+    <div class="handover-report" dir="{{ direction }}">
+        <div class="print-heading">
+            <h1>{{ _("Stock Handover and Receipt") }}</h1>
+            <div class="subheading">
+                {{ _("Stock Handover and Receipt Record") }}
+                &nbsp;|&nbsp;
+                <span class="document-code">{{ doc.name }}</span>
+                &nbsp;|&nbsp;
+                <span class="date-value">{% if doc.posting_date %}{{ frappe.utils.formatdate(doc.posting_date) }}{% endif %}</span>
+            </div>
+            <div class="print-mode-label">{{ _("Signatures") }}</div>
+        </div>
+
+        <div class="section">
+            <div class="section-title">{{ _("Handover Items and Receipt Results") }}</div>
+            <table class="items-table">
+                <thead><tr>
+                    <th style="width:4%;">{{ _("No.") }}</th><th style="width:11%;">{{ _("Item Code") }}</th><th style="width:{{ '21' if show_values else '31' }}%;">{{ _("Item and Description") }}</th><th style="width:6%;">{{ _("UOM") }}</th><th style="width:8%;">{{ _("Handover") }}</th><th style="width:8%;">{{ _("Accepted") }}</th><th style="width:7%;">{{ _("Damaged") }}</th><th style="width:7%;">{{ _("Rejected") }}</th><th style="width:7%;">{{ _("Short") }}</th><th style="width:11%;">{{ _("Condition / Status") }}</th>{% if show_values %}<th style="width:10%;">{{ _("Amount") }}</th>{% endif %}
+                </tr></thead>
+                <tbody>
+                {% endif %}
+            {% endfor %}
+            </tbody>
+            <tfoot><tr><th colspan="4" class="text-cell">{{ _("Total") }}</th><th class="numeric">{{ frappe.utils.flt(doc.total_handover_qty, 3) }}</th><th class="numeric">{{ frappe.utils.flt(doc.total_accepted_qty, 3) if receipt_recorded else '' }}</th><th class="numeric">{{ frappe.utils.flt(doc.total_damaged_qty, 3) if receipt_recorded else '' }}</th><th class="numeric">{{ frappe.utils.flt(doc.total_rejected_qty, 3) if receipt_recorded else '' }}</th><th class="numeric">{{ frappe.utils.flt(doc.total_short_qty, 3) if receipt_recorded else '' }}</th><th>{{ doc.overall_receipt_status if receipt_recorded else _("Pending") }}</th>{% if show_values %}<th class="numeric">{{ frappe.utils.fmt_money(doc.total_handover_amount, currency=doc.currency) }}</th>{% endif %}</tr></tfoot>
+        </table>
+    </div>
+
+    {% if receipt_recorded %}
+    <div class="section avoid-page-break">
+        <div class="section-title">{{ _("Final Receipt Information") }}</div>
+        <table class="info-table"><tbody>
+            <tr><td><span class="field-label">{{ _("Actual Receiver Name") }}</span><span class="field-value">{{ actual_receiver_display }}</span></td><td><span class="field-label">{{ _("Actual Receiver Capacity") }}</span><span class="field-value">{{ actual_capacity_display }}</span></td><td><span class="field-label">{{ _("Receipt Date and Time") }}</span><span class="field-value date-value">{% if doc.receipt_datetime %}{{ frappe.utils.format_datetime(doc.receipt_datetime) }}{% endif %}</span></td><td><span class="field-label">{{ _("Receipt Status") }}</span><span class="field-value"><span class="status-badge">{{ doc.overall_receipt_status or '' }}</span></span></td></tr>
+            <tr><td><span class="field-label">{{ _("Overall Shipment Condition") }}</span><span class="field-value">{{ doc.overall_condition or '' }}</span></td><td colspan="2"><span class="field-label">{{ _("Receiver Notes") }}</span><span class="field-value">{{ doc.receiver_notes or '' }}</span></td><td><span class="field-label">{{ _("Proof of Receipt") }}</span><span class="field-value attachment-note">{{ doc.proof_of_receipt or '' }}</span></td></tr>
+        </tbody></table>
+    </div>
+    {% endif %}
+
+    {% if has_discrepancy %}
+    <div class="section avoid-page-break">
+        <div class="section-title">{{ _("Discrepancy and Resolution") }}</div>
+        <div class="notes-box"><strong>{{ _("Discrepancy Description") }}:</strong><br>{{ doc.discrepancy_description or '' }}</div>
+        <table class="info-table"><tbody>
+            <tr><td colspan="2"><span class="field-label">{{ _("Immediate Action") }}</span><span class="field-value">{{ doc.immediate_action or '' }}</span></td><td><span class="field-label">{{ _("Follow-up Responsible") }}</span><span class="field-value">{{ doc.follow_up_responsible or '' }}</span></td><td><span class="field-label">{{ _("Follow-up Date") }}</span><span class="field-value date-value">{% if doc.follow_up_date %}{{ frappe.utils.formatdate(doc.follow_up_date) }}{% endif %}</span></td></tr>
+            <tr><td><span class="field-label">{{ _("Resolved") }}</span><span class="field-value">{{ _("Yes") if doc.discrepancy_resolved else _("No") }}</span></td><td colspan="2"><span class="field-label">{{ _("Resolution Notes") }}</span><span class="field-value">{{ doc.resolution_notes or '' }}</span></td><td><span class="field-label">{{ _("Supporting Document") }}</span><span class="field-value attachment-note">{{ doc.supporting_document or '' }}</span></td></tr>
+        </tbody></table>
+    </div>
+    {% endif %}
+
+    <div class="section avoid-page-break">
+        <div class="section-title">{{ _("Signatures") }}</div>
+        <table class="signature-table">
+            <tbody>
+                {% if signature_mapping_rows %}
+
+                    {% for signature_row in signature_mapping_rows | batch(4) %}
+                        {% set row_signature_count = signature_row | length %}
+                        {% set signature_cell_width = 100 / row_signature_count %}
+
+                        <tr>
+                            {% for mapping in signature_row %}
+
+                                {# Read the linked Employee Signature record safely. #}
+                                {% set employee_signature_record =
+                                    doc.get(mapping.employee_signature_field)
+                                    if mapping.employee_signature_field
+                                    else ''
+                                %}
+
+                                {# Prefer Employee Signature.full_name. If the linked record
+                                   cannot be resolved, fall back to the link value; otherwise blank. #}
+                                {% set signer_full_name =
+                                    frappe.db.get_value(
+                                        'Employee Signature',
+                                        employee_signature_record,
+                                        'full_name'
+                                    )
+                                    if employee_signature_record
+                                    else ''
+                                %}
+
+                                {% set signer_display =
+                                    signer_full_name
+                                    or employee_signature_record
+                                    or ''
+                                %}
+
+                                {% set signer_designation =
+                                    doc.get(mapping.designation_field)
+                                    if mapping.designation_field
+                                    else ''
+                                %}
+
+                                {% set signer_date =
+                                    doc.get(mapping.signature_date_field)
+                                    if mapping.signature_date_field
+                                    else ''
+                                %}
+
+                                {% set signer_image =
+                                    doc.get(mapping.signature_image_field)
+                                    if mapping.signature_image_field
+                                    else ''
+                                %}
+
+                                {% set force_manual_signature =
+                                    force_all_signatures_manual
+                                    or mapping.print_as_manual_signature == 1
+                                %}
+
+                                {{ workflow_signature(
+                                    _(mapping.signature_role_description or mapping.mapping_key or ''),
+                                    signer_display,
+                                    signer_designation,
+                                    signer_date,
+                                    signer_image,
+                                    force_manual_signature,
+                                    signature_cell_width
+                                ) }}
+
+                            {% endfor %}
+                        </tr>
+                    {% endfor %}
+
+                {% else %}
+
+                    {# No active signature configuration: show four completely blank
+                       manual signature boxes without names, roles, dates, or statuses. #}
+                    <tr>
+                        {% for empty_signature in range(4) %}
+                            <td style="width: 25%;">
+                                <div class="signature-slot">
+                                    <div class="manual-signature-space">&nbsp;</div>
+                                </div>
+                                <div class="signature-line">&nbsp;</div>
+                                <div class="signature-note">&nbsp;</div>
+                            </td>
+                        {% endfor %}
+                    </tr>
+
+                {% endif %}
+            </tbody>
+        </table>
+    </div>
+
+    {% if is_external_receiver %}
+    <div class="section avoid-page-break">
+        <div class="section-title">{{ _("External Receiver Acknowledgement") }}</div>
+        <div class="declaration">{{ _("The external receiver acknowledges receipt of the listed items after checking quantities and apparent condition. Any shortage, damage or rejection must be recorded before signing.") }}</div>
+        <table class="signature-table"><tbody><tr>
+            <td><span class="paper-signature-space"></span><span class="signature-line">{{ _("External Receiver Name") }}</span><span class="signature-note">{{ actual_receiver_display }}</span></td>
+            <td><span class="paper-signature-space"></span><span class="signature-line">{{ _("Signature or Fingerprint") }}</span><span class="signature-note">{{ _("To be completed by the external receiver") }}</span></td>
+            <td><span class="paper-signature-space"></span><span class="signature-line">{{ _("Official Stamp") }}</span><span class="signature-note">{{ _("If applicable") }}</span></td>
+            <td><span class="paper-signature-space"></span><span class="signature-line">{{ _("Date and Time") }}</span><span class="signature-note">{% if doc.receipt_datetime %}{{ frappe.utils.format_datetime(doc.receipt_datetime) }}{% endif %}</span></td>
+        </tr></tbody></table>
+        <table class="info-table"><tbody><tr><td><span class="field-label">{{ _("Confirmation Method") }}</span><span class="field-value">{{ doc.external_confirmation_method or '' }}</span></td><td><span class="field-label">{{ _("Signed Document") }}</span><span class="field-value attachment-note">{{ doc.external_signed_document or '' }}</span></td><td><span class="field-label">{{ _("Recorded By") }}</span><span class="field-value">{{ doc.external_confirmation_recorded_by or '' }}</span></td><td><span class="field-label">{{ _("Recorded On") }}</span><span class="field-value date-value">{% if doc.external_confirmation_on %}{{ frappe.utils.format_datetime(doc.external_confirmation_on) }}{% endif %}</span></td></tr></tbody></table>
+    </div>
+    {% endif %}
+
+    {% if has_transport %}
+    <div class="section avoid-page-break">
+        <div class="section-title">{{ _("Driver / Carrier Custody Acknowledgement") }}</div>
+        <table class="signature-table"><tbody><tr><td colspan="2"><span class="paper-signature-space"></span><span class="signature-line">{{ _("Driver / Carrier Representative") }}</span><span class="signature-note">{{ doc.driver_name or '' }}</span></td><td><span class="paper-signature-space"></span><span class="signature-line">{{ _("Signature") }}</span><span class="signature-note">{{ _("Upon taking custody") }}</span></td><td><span class="paper-signature-space"></span><span class="signature-line">{{ _("Date and Time") }}</span><span class="signature-note">{% if doc.dispatch_datetime %}{{ frappe.utils.format_datetime(doc.dispatch_datetime) }}{% endif %}</span></td></tr></tbody></table>
+    </div>
+    {% endif %}
+
+    <div class="important-note">{{ _("This record documents handover and receipt against the referenced Stock Entry. Internal signatures are populated from the employee signature workflow. When the receiver is external, the external receiver must sign or provide an approved supporting document, and the internal user recording the receipt is shown separately.") }}</div>
+    <div class="footer-note">{{ _("This document does not create a stock movement separate from the referenced Stock Entry.") }}</div>
+</div>
+
+<div id="footer-html" class="visible-pdf handover-footer">
+    <div class="letter-head-footer">{% if not no_letterhead and footer %}{{ footer }}{% endif %}</div>
+    <p class="text-center small page-number visible-pdf">{{ _("Page {0} of {1}").format('<span class="page"></span>', '<span class="topage"></span>') }}</p>
+</div>
+</div>
