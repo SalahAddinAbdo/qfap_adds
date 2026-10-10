@@ -6,7 +6,7 @@ Adds **Enhanced General Ledger**. The Python report directly executes ERPNext Ge
 
 ```bash
 cd ~/frappe-bench
-bench get-app qfap_adds https://github.com/YOUR-ORG/qfap_adds.git
+bench get-app qfap_adds https://github.com/SalahAddinAbdo/qfap_adds.git
 bench --site YOUR-SITE install-app qfap_adds
 bench execute qfap_adds.scripts.sync_general_ledger.sync
 bench build --app qfap_adds
