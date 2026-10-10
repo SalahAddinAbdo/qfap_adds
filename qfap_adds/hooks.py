@@ -59,6 +59,7 @@ fixtures = [
         "Employee-custom_column_break_eqtxt",
         "Employee-custom_welcome_email_sent_for_joining_date",
         "Employee-custom_welcome_email_information",
+        "Workflow-custom_current_responsible_user_field",
     ]]]},
 ]
 
