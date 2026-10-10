@@ -79,3 +79,4 @@ def _get_signature(user):
     if not name:
         frappe.throw(_("No active Employee Signature is configured for the current user."))
     return frappe.get_doc("Employee Signature", name)
+ 
