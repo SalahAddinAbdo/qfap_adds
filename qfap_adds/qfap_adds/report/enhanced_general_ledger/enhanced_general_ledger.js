@@ -237,101 +237,63 @@ frappe.query_reports["Enhanced General Ledger"] = {
 erpnext.utils.add_dimensions("Enhanced General Ledger", 15);
 
 
-// ---- QFap Adds enhancements; ERPNext filters and behaviors remain intact. ----
+// ---- QFap Adds v1.1 enhancements; ERPNext filters and behavior remain intact. ----
 (() => {
-  const config = frappe.query_reports["Enhanced General Ledger"];
+  const reportName = "Enhanced General Ledger";
+  const config = frappe.query_reports[reportName];
+  if (!config || config.__qfap_adds_v11_enhanced) return;
+  config.__qfap_adds_v11_enhanced = true;
 
-  if (!config || config.__qfap_adds_enhanced) {
-    return;
-  }
+  const filters = [
+    {fieldname:"qfap_view",label:__("QFap View"),fieldtype:"Select",options:["Standard","Compact","Audit","Project"].join("\n"),default:"Standard",on_change:()=>frappe.query_report.refresh()},
+    {fieldname:"qfap_audit_search",label:__("Audit Search"),fieldtype:"Data",description:__("Search accounts, vouchers, parties, projects, dimensions, invoice numbers, and remarks")},
+    {fieldname:"qfap_min_amount",label:__("Minimum Amount"),fieldtype:"Currency"},
+    {fieldname:"qfap_max_amount",label:__("Maximum Amount"),fieldtype:"Currency"},
+    {fieldname:"qfap_exceptions_only",label:__("Audit Exceptions Only"),fieldtype:"Check",default:0},
+    {fieldname:"qfap_hide_empty_columns",label:__("Hide Empty Columns"),fieldtype:"Check",default:1},
+  ];
+  const existing = new Set((config.filters || []).map(f=>f.fieldname));
+  filters.forEach(f=>{if(!existing.has(f.fieldname)) config.filters.push(f);});
 
-  config.__qfap_adds_enhanced = true;
-
-  const original_formatter = config.formatter;
-
-  config.formatter = function (
-    value,
-    row,
-    column,
-    data,
-    default_formatter
-  ) {
-    let output = original_formatter
-      ? original_formatter.call(
-          this,
-          value,
-          row,
-          column,
-          data,
-          default_formatter
-        )
-      : default_formatter(value, row, column, data);
-
-    if (
-      data &&
-      column.fieldname === "project" &&
-      data.project_code
-    ) {
-      const route =
-        `/app/project/${encodeURIComponent(data.project_code)}`;
-
-      const title = frappe.utils.escape_html(
-        data.project_name || data.project_code
-      );
-
-      const label = frappe.utils.escape_html(
-        String(value || data.project_code)
-      );
-
-      output = `<a href="${route}" title="${title}" class="qfap-project-link">${label}</a>`;
+  const originalFormatter = config.formatter;
+  config.formatter = function(value,row,column,data,defaultFormatter){
+    let output = originalFormatter ? originalFormatter.call(this,value,row,column,data,defaultFormatter) : defaultFormatter(value,row,column,data);
+    if(data && column.qfap_link_doctype && column.qfap_code_field){
+      const code=data[column.qfap_code_field];
+      if(code){
+        const title=data[column.qfap_title_field] || code;
+        const route=`/app/${frappe.router.slug(column.qfap_link_doctype)}/${encodeURIComponent(code)}`;
+        output=`<a href="${route}" title="${frappe.utils.escape_html(String(title))}" class="qfap-dimension-link">${frappe.utils.escape_html(String(value || code))}</a>`;
+      }
     }
-
+    if(data && column.fieldname==="qfap_audit_flags" && value){
+      output=`<span class="indicator-pill orange" title="${frappe.utils.escape_html(String(value))}">${frappe.utils.escape_html(String(value))}</span>`;
+    }
     return output;
   };
 
-  const original_onload = config.onload;
-
-  config.onload = function (report) {
-    if (original_onload) {
-      original_onload.call(this, report);
-    }
-
-    report.page.add_inner_button(
-      __("Audit View"),
-      () => {
-        const values = {
-          include_dimensions: 1,
-          show_remarks: 1,
-          show_amount_in_company_currency: 1,
-        };
-
-        Object.entries(values).forEach(([fieldname, value]) => {
-          if (report.get_filter(fieldname)) {
-            report.set_filter_value(fieldname, value);
-          }
-        });
-
-        report.refresh();
-      },
-      __("View")
-    );
-
-    report.page.add_inner_button(
-      __("Standard View"),
-      () => {
-        [
-          "show_remarks",
-          "show_amount_in_company_currency",
-          "add_values_in_transaction_currency",
-        ].forEach((fieldname) => {
-          if (report.get_filter(fieldname)) {
-            report.set_filter_value(fieldname, 0);
-          }
-        });
-
-        report.refresh();
-      },
-      __("View")
-    );
+  const originalOnload=config.onload;
+  config.onload=function(report){
+    if(originalOnload) originalOnload.call(this,report);
+    report.page.add_inner_button(__("Standard View"),()=>setView(report,"Standard"),__("QFap Views"));
+    report.page.add_inner_button(__("Compact View"),()=>setView(report,"Compact"),__("QFap Views"));
+    report.page.add_inner_button(__("Audit View"),()=>setView(report,"Audit"),__("QFap Views"));
+    report.page.add_inner_button(__("Project View"),()=>setView(report,"Project"),__("QFap Views"));
+    report.page.add_inner_button(__("Reset QFap Filters"),()=>resetQfap(report));
   };
+
+  function setView(report,view){
+    report.set_filter_value("qfap_view",view);
+    if(view==="Audit"){
+      ["include_dimensions","show_remarks","show_amount_in_company_currency"].forEach(f=>{if(report.get_filter(f)) report.set_filter_value(f,1);});
+    } else if(view==="Project" && report.get_filter("include_dimensions")) {
+      report.set_filter_value("include_dimensions",1);
+    }
+    report.refresh();
+  }
+  function resetQfap(report){
+    const values={qfap_view:"Standard",qfap_audit_search:"",qfap_min_amount:"",qfap_max_amount:"",qfap_exceptions_only:0,qfap_hide_empty_columns:1};
+    Object.entries(values).forEach(([f,v])=>{if(report.get_filter(f)) report.set_filter_value(f,v);});
+    report.refresh();
+  }
 })();
