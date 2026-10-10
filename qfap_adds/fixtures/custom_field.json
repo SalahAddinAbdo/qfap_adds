@@ -102,13 +102,15 @@
     "insert_after": "custom_assignment_required",
     "fieldtype": "Select",
     "options": "",
-    "read_only": 0,
+    "read_only": 1,
     "hidden": 0,
     "print_hide": 0,
     "allow_on_submit": 0,
     "no_copy": 0,
     "depends_on": "eval:doc.custom_assignment_required",
-    "mandatory_depends_on": "eval:doc.custom_assignment_required"
+    "mandatory_depends_on": "eval:doc.custom_assignment_required",
+    "default": "custom_current_responsible_user",
+    "description": "Automatically uses the QFap current responsible user field."
   },
   {
     "doctype": "Custom Field",
@@ -124,7 +126,8 @@
     "print_hide": 0,
     "allow_on_submit": 0,
     "no_copy": 0,
-    "depends_on": "eval:doc.custom_assignment_required"
+    "depends_on": "eval:doc.custom_assignment_required",
+    "mandatory_depends_on": "eval:doc.custom_assignment_required"
   },
   {
     "doctype": "Custom Field",
