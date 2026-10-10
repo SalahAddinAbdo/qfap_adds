@@ -260,7 +260,21 @@ def _get_dimension_category_field(categorize_by):
 
 
 def _dimension_map(dimensions):
-    return {dimension.fieldname: dimension for dimension in dimensions}
+    result = {
+        "project": frappe._dict(
+            fieldname="project",
+            label=_("Project"),
+            document_type="Project",
+        ),
+        "cost_center": frappe._dict(
+            fieldname="cost_center",
+            label=_("Cost Center"),
+            document_type="Cost Center",
+        ),
+    }
+    for dimension in dimensions:
+        result[dimension.fieldname] = dimension
+    return result
 
 
 def _validate_dimension_dependencies(filters, dimensions):
@@ -328,17 +342,19 @@ def _execute_dimension_categorization(filters, dimensions, fieldname):
     grand_total_rows = _get_grand_total_rows(filters)
     if grand_total_rows:
         grouped_data.append({})
-        grouped_data.append({
-            "account": _("Grand Total for All Groups"),
-            "qfap_dimension_group_header": 1,
-            "qfap_grand_total_header": 1,
-        })
+        grouped_data.append(
+            {
+                "account": _("Grand Total for All Groups"),
+                "qfap_dimension_group_header": 1,
+                "qfap_grand_total_header": 1,
+            }
+        )
         grouped_data.extend(grand_total_rows)
 
     message = _(
         "Dimension categorization uses ERPNext General Ledger separately for each dimension value. "
-        "The final Grand Total and Closing rows are calculated once more by the standard accounting engine "
-        "using the complete filtered ledger scope."
+        "The Grand Total section is taken directly from the final Total and Closing rows returned "
+        "by the standard accounting engine for the complete filtered ledger scope."
     )
     return all_columns, grouped_data, message, None, report_summary, skip_total_row
 
@@ -352,17 +368,19 @@ def _get_grand_total_rows(filters):
 
     result = list(general_ledger.execute(total_filters) or ([], []))
     rows = result[1] if len(result) > 1 and result[1] else []
-    total_rows = []
-    for row in reversed(rows):
-        label = str(row.get("account") or "")
-        if label in {_("Total"), _("Closing (Opening + Total)")} and label not in {
-            str(item.get("account") or "") for item in total_rows
-        }:
-            total_rows.insert(0, row)
-        if len(total_rows) == 2:
-            break
-    return total_rows
 
+    # ERPNext General Ledger appends the overall Total and Closing rows at the end.
+    # Select the last two labelled, non-detail rows rather than relying on translated text.
+    labelled_rows = []
+    for row in reversed(rows):
+        if _is_detail_row(row):
+            continue
+        if not row.get("account"):
+            continue
+        labelled_rows.insert(0, row)
+        if len(labelled_rows) == 2:
+            break
+    return labelled_rows
 
 def _get_dimension_group_values(filters, dimension):
     selected = _as_list(filters.get(dimension.fieldname))
@@ -426,6 +444,21 @@ def _find_project_field(meta):
 
 def _get_dimension_value_title(document_type, name):
     meta = frappe.get_meta(document_type)
+    if document_type == "Budget Line":
+        row = frappe.db.get_value(
+            document_type,
+            name,
+            ["budget_line", "name1", "project"],
+            as_dict=True,
+        )
+        if not row:
+            return name
+        label = " - ".join(
+            [value for value in [row.get("budget_line"), row.get("name1")] if value]
+        ) or name
+        if row.get("project"):
+            label += " | " + _("Project") + ": " + str(row.get("project"))
+        return label
     title_field = meta.title_field if meta.title_field and meta.has_field(meta.title_field) else ""
     return frappe.db.get_value(document_type, name, title_field) if title_field else name
 
