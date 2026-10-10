@@ -7,20 +7,11 @@ app_license = "MIT"
 
 required_apps = ["erpnext"]
 
+app_include_js = [
+    "/assets/qfap_adds/js/qfap_form_bootstrap.js",
+]
+
 doctype_js = {
-    "Material Request": "public/js/transaction_controller.js",
-    "Supplier Quotation": "public/js/transaction_controller.js",
-    "Request for Quotation": "public/js/transaction_controller.js",
-    "Purchase Order": "public/js/transaction_controller.js",
-    "Purchase Receipt": "public/js/transaction_controller.js",
-    "Purchase Invoice": "public/js/transaction_controller.js",
-    "Stock Entry": "public/js/transaction_controller.js",
-    "Journal Entry": "public/js/transaction_controller.js",
-    "Expense Claim": "public/js/transaction_controller.js",
-    "Payment Entry": "public/js/transaction_controller.js",
-    "Payroll Entry": "public/js/transaction_controller.js",
-    "Salary Slip": "public/js/transaction_controller.js",
-    "Additional Salary": "public/js/transaction_controller.js",
     "Employee": "public/js/employee_announcement.js",
     "Notification": "public/js/notification_configuration.js",
     "Workflow": "public/js/workflow_engine.js",
@@ -75,7 +66,6 @@ fixtures = [
 ]
 
 after_install = "qfap_adds.qfap_adds.install.after_install"
-
 after_migrate = [
     "qfap_adds.qfap_adds.install.after_migrate",
     "qfap_adds.printing.provisioning.provision_universal_print_formats",
