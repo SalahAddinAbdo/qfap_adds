@@ -260,7 +260,21 @@ def _get_dimension_category_field(categorize_by):
 
 
 def _dimension_map(dimensions):
-    return {dimension.fieldname: dimension for dimension in dimensions}
+    result = {
+        "project": frappe._dict(
+            fieldname="project",
+            label=_("Project"),
+            document_type="Project",
+        ),
+        "cost_center": frappe._dict(
+            fieldname="cost_center",
+            label=_("Cost Center"),
+            document_type="Cost Center",
+        ),
+    }
+    for dimension in dimensions:
+        result[dimension.fieldname] = dimension
+    return result
 
 
 def _validate_dimension_dependencies(filters, dimensions):
@@ -394,6 +408,15 @@ def _find_project_field(meta):
 
 def _get_dimension_value_title(document_type, name):
     meta = frappe.get_meta(document_type)
+    if document_type == "Budget Line":
+        fields = ["budget_line", "name1", "project"]
+        row = frappe.db.get_value(document_type, name, fields, as_dict=True)
+        if not row:
+            return name
+        label = " - ".join([value for value in [row.get("budget_line"), row.get("name1")] if value]) or name
+        if row.get("project"):
+            label += " | " + _("Project") + ": " + str(row.get("project"))
+        return label
     title_field = meta.title_field if meta.title_field and meta.has_field(meta.title_field) else ""
     return frappe.db.get_value(document_type, name, title_field) if title_field else name
 
