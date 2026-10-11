@@ -110,9 +110,7 @@
 {% set signature_configuration_list = frappe.get_all(
     'Employee Signature Configuration',
     filters={'document_type': doc.doctype, 'enabled': 1},
-    fields=['name'],
-    order_by='modified desc',
-    page_length=1
+    fields=['name'], order_by='modified desc', page_length=1
 ) %}
 {% set signature_configuration_name = signature_configuration_list[0].name if signature_configuration_list else '' %}
 {% set signature_configuration_doc = frappe.get_doc('Employee Signature Configuration', signature_configuration_name) if signature_configuration_name else none %}
@@ -158,6 +156,12 @@
         <span class="ltr-value attachment-value">{{ raw_value }}</span>
     {% elif df.fieldtype in ['Text Editor', 'HTML Editor'] %}
         {{ (raw_value or '') | safe }}
+    {% elif df.fieldtype == 'Link' and raw_value and df.options %}
+        {% set linked_meta = frappe.get_meta(df.options) %}
+        {% set linked_title_field = linked_meta.title_field or '' %}
+        {% set show_link_title = linked_meta.show_title_field_in_link == 1 %}
+        {% set linked_title = frappe.db.get_value(df.options, raw_value, linked_title_field) if show_link_title and linked_title_field else '' %}
+        <span class="link-code-title ltr-value">{{ raw_value }}{% if linked_title and linked_title != raw_value %}: {{ linked_title }}{% endif %}</span>
     {% else %}
         {{ frappe.format(raw_value, df, doc) | safe }}
     {% endif %}
@@ -210,16 +214,9 @@
 .universal-print[dir='rtl'], .universal-print[dir='rtl'] table { direction: rtl; }
 .universal-print[dir='ltr'], .universal-print[dir='ltr'] table { direction: ltr; }
 .letter-head-container { width: 100%; margin: 0 0 6px; page-break-inside: avoid; }
-/* Letter Head isolation:
-   The universal format controls only the outer container and direct image
-   Letter Heads. Nested logos, QR codes, icons, stamps, and decorative images
-   keep the dimensions defined by each client's own Letter Head CSS. */
 .letter-head-container > img,
 .letter-head > img,
-.letter-head-footer > img {
-    max-width: 100%;
-}
-
+.letter-head-footer > img { max-width: 100%; }
 .print-page { display: flex; flex-direction: column; width: 100%; position: relative; }
 .print-page.page-break { min-height: 0; }
 @media print {
@@ -243,7 +240,10 @@
 }
 .print-heading h1 { margin: 0; color: {{ white_color }} !important; -webkit-text-fill-color: {{ white_color }} !important; background: unset !important; font-size: 17px; font-weight: 700; }
 .print-heading .subheading, .print-heading .subheading * { color: {{ white_color }} !important; -webkit-text-fill-color: {{ white_color }} !important; }
-.print-heading .subheading { margin-top: 3px; font-size: 11px; }
+.print-heading .subheading { margin-top:3px; font-size:11px; }
+.document-title-row { display:flex; width:100%; align-items:flex-start; gap:6px; border:1px solid var(--border); margin:0 0 7px; padding:6px 8px; overflow-wrap:anywhere; }
+.document-title-row .field-value { flex:1 1 auto; min-width:0; }
+.link-code-title { unicode-bidi:plaintext; }
 .document-code, .ltr-value, .date-value { direction: ltr !important; unicode-bidi: embed; font-variant-numeric: tabular-nums; }
 .section { width: 100%; margin-top: 7px; }
 .section-title {
@@ -261,8 +261,17 @@
     print-color-adjust: exact !important;
 }
 .universal-print table { width: 100%; margin: 0; border-collapse: collapse; border-spacing: 0; }
-.field-grid, .child-table, .signature-table { table-layout: fixed; }
-.field-grid td, .child-table th, .child-table td, .signature-table td { border: 1px solid var(--border); padding: 5px 7px !important; vertical-align: middle; overflow-wrap: anywhere; }
+.field-grid, .signature-table { table-layout: fixed; }
+.field-grid-responsive { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); width:100%; border-top:1px solid var(--border); border-left:1px solid var(--border); }
+.field-grid-responsive .field-cell { display:flex; flex-direction:row; align-items:flex-start; gap:6px; min-width:0; border-right:1px solid var(--border); border-bottom:1px solid var(--border); padding:5px 7px; overflow-wrap:anywhere; word-break:break-word; }
+.field-grid-responsive .field-label { flex:0 0 auto; white-space:nowrap; }
+.field-grid-responsive .field-value { flex:1 1 auto; min-width:0; }
+.field-grid-responsive > .field-cell:last-child:nth-child(odd), .field-grid-responsive > .wide-content-field { grid-column:1 / -1; }
+@media screen and (max-width:700px) { .field-grid-responsive { grid-template-columns:minmax(0,1fr); } .field-grid-responsive > .field-cell { grid-column:1 / -1; } }
+.child-table { table-layout:auto; }
+.field-grid td, .child-table th, .child-table td, .signature-table td { border:1px solid var(--border) !important; padding:5px 7px !important; vertical-align:middle; overflow-wrap:anywhere; word-break:break-word; }
+.child-table-wrap { width:100%; overflow:visible; }
+.child-table th, .child-table td { font-size:11px !important; }
 .field-grid td { width: 50%; background: {{ white_color }}; }
 .field-label { display: inline; color: var(--muted); font-weight: 700; white-space: nowrap; }
 .field-label::after { content: ':'; }
@@ -271,7 +280,7 @@
 .long-value { display: block; margin: 3px 0 0; white-space: normal; }
 .field-image { max-width: 150px; max-height: 90px; object-fit: contain; }
 .child-table { page-break-inside: auto; }
-.child-table { font-size: 10px; }
+.child-table { font-size: 11px; }
 .child-table thead { display: table-header-group; }
 .child-table tr { page-break-inside: avoid; break-inside: avoid; }
 .child-table th { background: var(--light) !important; color: var(--primary); text-align: center; font-weight: 700; -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
@@ -316,11 +325,15 @@
         </div>
     </div>
 
+    {% set title_fieldname = document_meta.title_field or ('title' if document_meta.get_field('title') else '') %}
+    {% set document_title = doc.get(title_fieldname) if title_fieldname else '' %}
+    {% if document_title and document_title != doc.name %}<div class="document-title-row"><span class="field-label">{{ _('Title') }}</span><span class="field-value">{{ document_title }}</span></div>{% endif %}
+
     {% for section in layout.sections %}
         {% set visible = namespace(fields=[]) %}
         {% for df in section.fields %}
             {% set value = doc.get(df.fieldname) %}
-            {% set has_value = value is not none and value != '' and value != [] %}
+            {% set has_value = (value == 1 if df.fieldtype == 'Check' else (value is not none and value != '' and value != [] and value != {})) %}
             {% set is_header_status_field = df.fieldname in ['workflow_state', 'status'] %}
             {% set is_mapped_signature_field = df.fieldname in signature_field_registry.names %}
             {% set is_employee_signature_link = df.fieldtype == 'Link' and df.options == 'Employee Signature' %}
@@ -335,7 +348,7 @@
                 and not is_mapped_signature_field
                 and not is_employee_signature_link
                 and not is_signature_control_field
-                and (df.print_hide_if_no_value != 1 or has_value)
+                and has_value
             %}
                 {% set visible.fields = visible.fields + [df] %}
             {% endif %}
@@ -360,21 +373,15 @@
                 {% for df in visible.fields %}
                     {% if df.fieldtype == 'Table' %}
                         {% if scalar.fields %}
-                            <table class="field-grid"><tbody>
-                            {% for pair in scalar.fields | batch(2, none) %}
-                                <tr>
-                                {% for field in pair %}
-                                    {% if field %}
-                                        {% set raw_value = doc.get(field.fieldname) %}
-                                        <td class="{% if field.fieldtype in ['Small Text','Text','Long Text','Text Editor','Code','Attach Image'] %}full-width-field{% endif %}">
-                                            <span class="field-label">{{ _(field.label or field.fieldname) }}</span>
-                                            <span class="field-value {% if field.fieldtype in ['Small Text','Text','Long Text','Text Editor','Code'] %}long-value{% endif %}">{{ printable_value(field, raw_value) }}</span>
-                                        </td>
-                                    {% else %}<td></td>{% endif %}
-                                {% endfor %}
-                                </tr>
-                            {% endfor %}
-                            </tbody></table>
+                            <div class="field-grid-responsive">
+                    {% for field in scalar.fields %}
+                        {% set raw_value = doc.get(field.fieldname) %}
+                        <div class="field-cell {% if field.fieldtype in ['Small Text','Text','Long Text','Text Editor','Code','Attach Image'] %}wide-content-field{% endif %}">
+                            <span class="field-label">{{ _(field.label or field.fieldname) }}</span>
+                            <span class="field-value {% if field.fieldtype in ['Small Text','Text','Long Text','Text Editor','Code'] %}long-value{% endif %}">{{ printable_value(field, raw_value) }}</span>
+                        </div>
+                    {% endfor %}
+                </div>
                             {% set scalar.fields = [] %}
                         {% endif %}
 
@@ -383,17 +390,20 @@
                             {% set child_meta = frappe.get_meta(df.options) %}
                             {% set child_columns = namespace(fields=[]) %}
                             {% for cdf in child_meta.fields %}
-                                {% if cdf.print_hide != 1 and cdf.fieldname not in ['page_break', 'custom_page_break'] and cdf.fieldtype not in excluded_fieldtypes and cdf.fieldtype not in ['Table'] and (cdf.in_list_view == 1 or cdf.columns or cdf.reqd == 1) %}
-                                    {% set child_columns.fields = child_columns.fields + [cdf] %}
-                                {% endif %}
-                            {% endfor %}
-                            {% if not child_columns.fields %}
-                                {% for cdf in child_meta.fields %}
-                                    {% if cdf.print_hide != 1 and cdf.hidden != 1 and cdf.fieldname not in ['page_break', 'custom_page_break'] and cdf.fieldtype not in excluded_fieldtypes and cdf.fieldtype not in ['Table'] and child_columns.fields | length < 8 %}
+                                {% if cdf.print_hide != 1 and cdf.fieldname not in ['page_break', 'custom_page_break'] and cdf.fieldtype not in excluded_fieldtypes and cdf.fieldtype != 'Table' %}
+                                    {% set column_state = namespace(has_data=false, has_nonzero=false) %}
+                                    {% for child_row in child_rows %}
+                                        {% set child_value = child_row.get(cdf.fieldname) %}
+                                        {% set child_has_value = (child_value == 1 if cdf.fieldtype == 'Check' else (child_value is not none and child_value != '' and child_value != [] and child_value != {})) %}
+                                        {% set child_has_nonzero = child_has_value and child_value != 0 and child_value != 0.0 and child_value != '0' and child_value != '0.0' %}
+                                        {% if child_has_value %}{% set column_state.has_data = true %}{% endif %}
+                                        {% if child_has_nonzero %}{% set column_state.has_nonzero = true %}{% endif %}
+                                    {% endfor %}
+                                    {% if (cdf.print_hide_if_no_value == 1 and column_state.has_nonzero) or (cdf.print_hide_if_no_value != 1 and column_state.has_data) %}
                                         {% set child_columns.fields = child_columns.fields + [cdf] %}
                                     {% endif %}
-                                {% endfor %}
-                            {% endif %}
+                                {% endif %}
+                            {% endfor %}
 
                             <div class="child-table-wrap">
                                 <div class="section-title">{{ _(df.label or df.fieldname) }}</div>
@@ -408,7 +418,15 @@
                                             <td>{{ loop.index }}</td>
                                             {% for cdf in child_columns.fields %}
                                                 {% set child_value = row.get(cdf.fieldname) %}
-                                                <td class="{% if cdf.fieldtype in ['Data','Small Text','Text','Long Text','Link','Dynamic Link'] %}text-cell{% endif %}">{{ frappe.format(child_value, cdf, row) | safe }}</td>
+                                                <td class="{% if cdf.fieldtype in ['Data','Small Text','Text','Long Text','Link','Dynamic Link'] %}text-cell{% endif %}">
+                                                    {% if cdf.fieldtype == 'Link' and child_value and cdf.options %}
+                                                        {% set linked_meta = frappe.get_meta(cdf.options) %}
+                                                        {% set linked_title_field = linked_meta.title_field or '' %}
+                                                        {% set show_link_title = linked_meta.show_title_field_in_link == 1 %}
+                                                        {% set linked_title = frappe.db.get_value(cdf.options, child_value, linked_title_field) if show_link_title and linked_title_field else '' %}
+                                                        <span class="link-code-title ltr-value">{{ child_value }}{% if linked_title and linked_title != child_value %}: {{ linked_title }}{% endif %}</span>
+                                                    {% else %}{{ frappe.format(child_value, cdf, row) | safe }}{% endif %}
+                                                </td>
                                             {% endfor %}
                                         </tr>
 
@@ -459,21 +477,15 @@
                 {% endfor %}
 
                 {% if scalar.fields %}
-                    <table class="field-grid"><tbody>
-                    {% for pair in scalar.fields | batch(2, none) %}
-                        <tr>
-                        {% for field in pair %}
-                            {% if field %}
-                                {% set raw_value = doc.get(field.fieldname) %}
-                                <td class="{% if field.fieldtype in ['Small Text','Text','Long Text','Text Editor','Code','Attach Image'] %}full-width-field{% endif %}">
-                                    <span class="field-label">{{ _(field.label or field.fieldname) }}</span>
-                                    <span class="field-value {% if field.fieldtype in ['Small Text','Text','Long Text','Text Editor','Code'] %}long-value{% endif %}">{{ printable_value(field, raw_value) }}</span>
-                                </td>
-                            {% else %}<td></td>{% endif %}
-                        {% endfor %}
-                        </tr>
+                    <div class="field-grid-responsive">
+                    {% for field in scalar.fields %}
+                        {% set raw_value = doc.get(field.fieldname) %}
+                        <div class="field-cell {% if field.fieldtype in ['Small Text','Text','Long Text','Text Editor','Code','Attach Image'] %}wide-content-field{% endif %}">
+                            <span class="field-label">{{ _(field.label or field.fieldname) }}</span>
+                            <span class="field-value {% if field.fieldtype in ['Small Text','Text','Long Text','Text Editor','Code'] %}long-value{% endif %}">{{ printable_value(field, raw_value) }}</span>
+                        </div>
                     {% endfor %}
-                    </tbody></table>
+                </div>
                 {% endif %}
             </div>
         {% endif %}
