@@ -96,7 +96,7 @@ async function wf_setup(frm) {
     }
 }
 
-function wf_open_action_dialog(frm, transition) {
+async function wf_open_action_dialog(frm, transition) {
     if (frm.__wf_processing) {
         frappe.show_alert({
             message: __("A workflow action is already being processed. Please wait."),
@@ -110,6 +110,9 @@ function wf_open_action_dialog(frm, transition) {
     const target_field = String(transition.custom_target_user_field || "").trim();
     const target_role = String(transition.custom_target_role || "").trim();
     const show_user = assignment_required || Boolean(target_field);
+    const signature_context = apply_signature
+        ? await wf_get_signature_dialog_context(frm, transition)
+        : { include_signature_notes: false, signature_notes: "" };
 
     if (show_user && !target_field) {
         return wf_message(
@@ -146,13 +149,14 @@ function wf_open_action_dialog(frm, transition) {
         });
     }
 
-    if (apply_signature) {
+    if (apply_signature && signature_context.include_signature_notes) {
         fields.push({
             fieldname: "signature_notes",
             label: __("Signature Notes"),
             fieldtype: "Small Text",
             reqd: 0,
-            description: __("Optional. Saved permanently beside this signature in the document.")
+            default: signature_context.signature_notes || "",
+            description: __("Optional. The previously saved note is shown here and may be retained or updated.")
         });
     }
 
@@ -196,8 +200,41 @@ function wf_open_action_dialog(frm, transition) {
 
     dialog.show();
     setTimeout(() => {
-        dialog.fields_dict?.[show_user ? "user" : (apply_signature ? "signature_notes" : "workflow_comment")]?.set_focus?.();
+        dialog.fields_dict?.[
+            show_user
+                ? "user"
+                : (apply_signature && signature_context.include_signature_notes
+                    ? "signature_notes"
+                    : "workflow_comment")
+        ]?.set_focus?.();
     }, 150);
+}
+
+async function wf_get_signature_dialog_context(frm, transition) {
+    const mapping_key = String(
+        transition.custom_employee_signature_mapping_key || ""
+    ).trim();
+    if (!mapping_key || frm.is_new() || !frm.doc.name) {
+        return { include_signature_notes: false, signature_notes: "" };
+    }
+    try {
+        const result = await frappe.xcall(
+            "qfap_adds.qfap_adds.api.signatures.get_signature_dialog_context",
+            {
+                doctype: frm.doc.doctype,
+                document_name: frm.doc.name,
+                mapping_key
+            }
+        );
+        return {
+            include_signature_notes: wf_checked(result?.include_signature_notes),
+            signature_notes: String(result?.signature_notes || "")
+        };
+    } catch (error) {
+        console.error("Unable to load signature dialog context", error);
+        wf_show_error(error);
+        return { include_signature_notes: false, signature_notes: "" };
+    }
 }
 
 async function wf_run_transition(frm, transition, selected_user = "", signature_notes = "", comment = "") {
@@ -370,8 +407,8 @@ function wf_protect_document(frm) {
     if (!responsible) return true;
 
     const can_override =
+        frappe.session.user === "Administrator" ||
         frappe.user.has_role("Workflow Admin") ||
-        frappe.user.has_role("Workflow Admins") ||
         frappe.user.has_role("System Manager");
     const is_responsible =
         wf_normalize(frappe.session.user) === wf_normalize(responsible);
