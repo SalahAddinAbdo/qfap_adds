@@ -1,0 +1,80 @@
+{
+  "actions": [],
+  "doctype": "DocType",
+  "engine": "InnoDB",
+  "field_order": [
+    "settings_section",
+    "rules",
+    "actions_section",
+    "apply_formats",
+    "last_sync_on",
+    "last_sync_summary",
+    "managed_once"
+  ],
+  "fields": [
+    {
+      "fieldname": "settings_section",
+      "fieldtype": "Section Break",
+      "label": "Managed Print Formats"
+    },
+    {
+      "description": "Only enabled rows receive a managed QFAP print format. Disabling a row disables its managed format without deleting it.",
+      "fieldname": "rules",
+      "fieldtype": "Table",
+      "label": "Print Format Rules",
+      "options": "QFAP Print Format Rule"
+    },
+    {
+      "fieldname": "actions_section",
+      "fieldtype": "Section Break",
+      "label": "Apply Settings"
+    },
+    {
+      "fieldname": "apply_formats",
+      "fieldtype": "Button",
+      "label": "Apply Print Formats"
+    },
+    {
+      "fieldname": "last_sync_on",
+      "fieldtype": "Datetime",
+      "label": "Last Sync On",
+      "read_only": 1
+    },
+    {
+      "fieldname": "last_sync_summary",
+      "fieldtype": "Small Text",
+      "label": "Last Sync Summary",
+      "read_only": 1
+    },
+    {
+      "default": "0",
+      "fieldname": "managed_once",
+      "fieldtype": "Check",
+      "hidden": 1,
+      "label": "Managed Once",
+      "read_only": 1
+    }
+  ],
+  "index_web_pages_for_search": 0,
+  "issingle": 1,
+  "links": [],
+  "module": "QFap Adds",
+  "name": "QFAP Print Format Settings",
+  "permissions": [
+    {
+      "create": 1,
+      "delete": 1,
+      "email": 1,
+      "print": 1,
+      "read": 1,
+      "role": "System Manager",
+      "share": 1,
+      "write": 1
+    }
+  ],
+  "quick_entry": 0,
+  "sort_field": "modified",
+  "sort_order": "DESC",
+  "states": [],
+  "track_changes": 1
+}

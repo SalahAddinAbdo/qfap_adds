@@ -1,0 +1,94 @@
+{
+  "actions": [],
+  "doctype": "DocType",
+  "editable_grid": 1,
+  "engine": "InnoDB",
+  "field_order": [
+    "document_type",
+    "enabled",
+    "print_profile",
+    "set_as_default",
+    "include_letter_head",
+    "include_workflow_status",
+    "include_signatures",
+    "include_audit_information",
+    "include_attachments"
+  ],
+  "fields": [
+    {
+      "fieldname": "document_type",
+      "fieldtype": "Link",
+      "in_list_view": 1,
+      "label": "Document Type",
+      "options": "DocType",
+      "reqd": 1,
+      "columns": 3
+    },
+    {
+      "default": "1",
+      "fieldname": "enabled",
+      "fieldtype": "Check",
+      "in_list_view": 1,
+      "label": "Enabled",
+      "columns": 1
+    },
+    {
+      "default": "QFAP Universal",
+      "fieldname": "print_profile",
+      "fieldtype": "Select",
+      "in_list_view": 1,
+      "label": "Print Profile",
+      "options": "QFAP Universal",
+      "reqd": 1,
+      "columns": 2
+    },
+    {
+      "default": "1",
+      "fieldname": "set_as_default",
+      "fieldtype": "Check",
+      "in_list_view": 1,
+      "label": "Set as Default",
+      "columns": 1
+    },
+    {
+      "default": "1",
+      "fieldname": "include_letter_head",
+      "fieldtype": "Check",
+      "label": "Include Letter Head"
+    },
+    {
+      "default": "1",
+      "fieldname": "include_workflow_status",
+      "fieldtype": "Check",
+      "label": "Include Workflow Status"
+    },
+    {
+      "default": "1",
+      "fieldname": "include_signatures",
+      "fieldtype": "Check",
+      "label": "Include Signatures"
+    },
+    {
+      "default": "0",
+      "fieldname": "include_audit_information",
+      "fieldtype": "Check",
+      "label": "Include Audit Information"
+    },
+    {
+      "default": "1",
+      "fieldname": "include_attachments",
+      "fieldtype": "Check",
+      "label": "Include Attachments"
+    }
+  ],
+  "index_web_pages_for_search": 0,
+  "istable": 1,
+  "links": [],
+  "module": "QFap Adds",
+  "name": "QFAP Print Format Rule",
+  "permissions": [],
+  "quick_entry": 0,
+  "sort_field": "modified",
+  "sort_order": "DESC",
+  "states": []
+}
