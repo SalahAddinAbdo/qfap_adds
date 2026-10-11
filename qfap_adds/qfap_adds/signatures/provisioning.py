@@ -48,7 +48,11 @@ def validate_configuration(doc):
         keys.add(row.mapping_key)
 
         if not row.auto_create_fields:
-            missing = [fieldname for fieldname in MAPPING_FIELDS if not row.get(fieldname)]
+            required_mapping_fields = [
+                fieldname for fieldname in MAPPING_FIELDS
+                if fieldname != "signature_notes_field" or row.get("include_signature_notes")
+            ]
+            missing = [fieldname for fieldname in required_mapping_fields if not row.get(fieldname)]
             if missing:
                 frappe.throw(
                     _("Missing manual field mapping in row {0}: {1}").format(
@@ -95,13 +99,24 @@ def _provision_row(doctype, row, anchor):
     specs = [
         _spec(names["section"], row.signature_role_description or row.signature_role, "Section Break", anchor, hidden, collapsible=1),
         _spec(names["signature"], "Employee Signature", "Link", names["section"], hidden, options="Employee Signature", print_hide=1),
-        _spec(names["employee_name"], "Employee Name", "Data", names["signature"], hidden),
-        _spec(names["designation"], "Designation", "Link", names["employee_name"], hidden, options="Designation"),
+        _spec(names["employee_name"], "Employee Name", "Data", names["signature"], hidden, print_hide=1 if row.get("hide_signature_from_print") else 0),
+        _spec(names["designation"], "Designation", "Link", names["employee_name"], hidden, options="Designation", print_hide=1 if row.get("hide_signature_from_print") else 0),
         _spec(names["column_1"], "", "Column Break", names["designation"], hidden),
-        _spec(names["date"], "Signature Date", "Date", names["column_1"], hidden),
-        _spec(names["notes"], "Signature Notes", "Small Text", names["date"], hidden),
+        _spec(
+            names["date"], "Signature Date", "Date", names["column_1"], hidden,
+            read_only=0 if row.get("allow_signature_date_edit_after_submit") else 1,
+            print_hide=1 if row.get("hide_signature_from_print") else 0,
+        ),
+        _spec(
+            names["notes"], "Signature Notes", "Small Text", names["date"],
+            1 if hidden or not row.get("include_signature_notes") else 0,
+            print_hide=1 if row.get("hide_signature_from_print") or not row.get("include_signature_notes") else 0,
+        ),
         _spec(names["column_2"], "", "Column Break", names["notes"], hidden),
-        _spec(names["image"], "Signature Image", "Attach Image", names["column_2"], hidden),
+        _spec(
+            names["image"], "Signature Image", "Attach Image", names["column_2"], hidden,
+            print_hide=1 if row.get("hide_signature_from_print") else 0,
+        ),
     ]
 
     meta = frappe.get_meta(doctype)
@@ -124,7 +139,7 @@ def _provision_row(doctype, row, anchor):
     return names["image"], [spec["fieldname"] for spec in specs]
 
 
-def _spec(fieldname, label, fieldtype, insert_after, hidden, options="", collapsible=0, print_hide=0):
+def _spec(fieldname, label, fieldtype, insert_after, hidden, options="", collapsible=0, print_hide=0, read_only=1):
     value = {
         "fieldname": fieldname,
         "label": label,
@@ -136,7 +151,7 @@ def _spec(fieldname, label, fieldtype, insert_after, hidden, options="", collaps
         "print_hide": print_hide,
     }
     if fieldtype not in ("Section Break", "Column Break"):
-        value.update({"read_only": 1, "allow_on_submit": 1, "no_copy": 1})
+        value.update({"read_only": read_only, "allow_on_submit": 1, "no_copy": 1})
     return value
 
 
@@ -227,14 +242,29 @@ def _save_row_mapping(row):
 
 def _apply_visibility(doctype, row, hidden, names=None):
     fieldnames = list(names.values()) if names else [row.get(name) for name in MAPPING_FIELDS]
-    for fieldname in [name for name in fieldnames if name]:
+    notes_field = names.get("notes") if names else row.get("signature_notes_field")
+    date_field = names.get("date") if names else row.get("signature_date_field")
+    mapped_fields = set(name for name in fieldnames if name)
+    for fieldname in mapped_fields:
         custom_name = frappe.db.get_value(
             "Custom Field", {"dt": doctype, "fieldname": fieldname}, "name"
         )
-        if custom_name:
-            frappe.db.set_value(
-                "Custom Field", custom_name, "hidden", 1 if hidden else 0, update_modified=False
-            )
+        if not custom_name:
+            continue
+        values = {"hidden": 1 if hidden else 0}
+        if fieldname == notes_field and not row.get("include_signature_notes"):
+            values["hidden"] = 1
+        if fieldname in {
+            row.get("employee_name_field"), row.get("designation_field"),
+            date_field, notes_field, row.get("signature_image_field")
+        }:
+            values["print_hide"] = 1 if row.get("hide_signature_from_print") else 0
+        if fieldname == notes_field and not row.get("include_signature_notes"):
+            values["print_hide"] = 1
+        if fieldname == date_field:
+            values["read_only"] = 0 if row.get("allow_signature_date_edit_after_submit") else 1
+            values["allow_on_submit"] = 1
+        frappe.db.set_value("Custom Field", custom_name, values, update_modified=False)
 
 
 def _validate_manual_fields(doctype, row):
@@ -243,11 +273,14 @@ def _validate_manual_fields(doctype, row):
         row.employee_name_field: (("Data",), None),
         row.designation_field: (("Data", "Link"), None),
         row.signature_date_field: (("Date", "Datetime"), None),
-        row.signature_notes_field: (("Data", "Small Text", "Text"), None),
+        row.signature_notes_field: (("Data", "Small Text", "Text"), None) if row.get("include_signature_notes") else None,
         row.signature_image_field: (("Attach", "Attach Image"), None),
     }
     meta = frappe.get_meta(doctype)
-    for fieldname, (fieldtypes, options) in expected.items():
+    for fieldname, requirement in expected.items():
+        if not requirement or not fieldname:
+            continue
+        fieldtypes, options = requirement
         df = meta.get_field(fieldname)
         if not df or df.fieldtype not in fieldtypes:
             frappe.throw(_("Field {0} is missing or has an incompatible type.").format(fieldname))
