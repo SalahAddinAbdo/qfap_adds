@@ -190,6 +190,27 @@
       "fieldname": "notes",
       "label": "Notes",
       "fieldtype": "Small Text"
+    },
+    {
+      "default": "1",
+      "description": "Creates and uses a persistent Signature Notes field. The previous note is loaded into the workflow action dialog.",
+      "fieldname": "include_signature_notes",
+      "fieldtype": "Check",
+      "label": "Include Signature Notes"
+    },
+    {
+      "default": "0",
+      "description": "Allows authorized users to edit this signature date after the target document is submitted.",
+      "fieldname": "allow_signature_date_edit_after_submit",
+      "fieldtype": "Check",
+      "label": "Allow Signature Date Edit After Submit"
+    },
+    {
+      "default": "0",
+      "description": "Excludes this signature from managed print formats without deleting saved signature values.",
+      "fieldname": "hide_signature_from_print",
+      "fieldtype": "Check",
+      "label": "Hide Signature from Print"
     }
   ],
   "permissions": [],
@@ -217,8 +238,11 @@
     "behavior_section",
     "signature_required",
     "allow_signature_replacement",
+    "include_signature_notes",
+    "allow_signature_date_edit_after_submit",
     "column_break_behavior",
     "print_as_manual_signature",
+    "hide_signature_from_print",
     "notes"
   ]
 }
