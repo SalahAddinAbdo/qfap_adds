@@ -123,6 +123,12 @@
 {% set signature_configuration_doc = frappe.get_doc('Employee Signature Configuration', signature_configuration_name) if signature_configuration_name else none %}
 {% set configured_all_manual = signature_configuration_doc and signature_configuration_doc.get('print_all_signatures_as_manual') == 1 %}
 {% set signature_mapping_rows = signature_configuration_doc.get('signature_mappings') or [] if signature_configuration_doc else [] %}
+{% set printable_signature_rows = namespace(rows=[]) %}
+{% for mapping in signature_mapping_rows %}
+    {% if mapping.get('enabled') == 1 and mapping.get('hide_signature_from_print') != 1 %}
+        {% set printable_signature_rows.rows = printable_signature_rows.rows + [mapping] %}
+    {% endif %}
+{% endfor %}
 {% set force_all_signatures_manual = manual_signature_mode or configured_all_manual %}
 
 
@@ -134,6 +140,7 @@
         mapping.get('employee_signature_field'),
         mapping.get('designation_field'),
         mapping.get('signature_date_field'),
+        mapping.get('signature_notes_field'),
         mapping.get('signature_image_field')
     ] %}
         {% if signature_fieldname and signature_fieldname not in signature_field_registry.names %}
@@ -518,12 +525,12 @@
 </div>
 {% endif %}
 
-{% if qfap_include_signatures %}
+{% if qfap_include_signatures and (printable_signature_rows.rows or not signature_configuration_doc) %}
     <div class="section avoid-page-break">
         <div class="section-title">{{ _('Signatures') }}</div>
         <table class="signature-table"><tbody>
-        {% if signature_mapping_rows %}
-            {% for signature_row in signature_mapping_rows | batch(4) %}
+        {% if printable_signature_rows.rows %}
+            {% for signature_row in printable_signature_rows.rows | batch(4) %}
                 {% set row_count = signature_row | length %}
                 {% set cell_width = 100 / row_count %}
                 <tr>
