@@ -1,0 +1,80 @@
+{
+  "doctype": "DocType",
+  "name": "QFAP Managed Task Share",
+  "module": "QFap Adds",
+  "autoname": "hash",
+  "track_changes": 1,
+  "field_order": [
+    "task",
+    "user",
+    "employee",
+    "reason",
+    "docshare",
+    "active",
+    "last_reconciled_on"
+  ],
+  "fields": [
+    {
+      "fieldname": "task",
+      "label": "Task",
+      "fieldtype": "Link",
+      "options": "Task",
+      "reqd": 1
+    },
+    {
+      "fieldname": "user",
+      "label": "User",
+      "fieldtype": "Link",
+      "options": "User",
+      "reqd": 1
+    },
+    {
+      "fieldname": "employee",
+      "label": "Employee",
+      "fieldtype": "Link",
+      "options": "Employee"
+    },
+    {
+      "fieldname": "reason",
+      "label": "Reason",
+      "fieldtype": "Select",
+      "options": "Assignee\nAssigner\nSupervisor Chain\nAssignment Request",
+      "reqd": 1
+    },
+    {
+      "fieldname": "docshare",
+      "label": "DocShare",
+      "fieldtype": "Link",
+      "options": "DocShare",
+      "read_only": 1
+    },
+    {
+      "fieldname": "active",
+      "label": "Active",
+      "fieldtype": "Check",
+      "default": "1"
+    },
+    {
+      "fieldname": "last_reconciled_on",
+      "label": "Last Reconciled On",
+      "fieldtype": "Datetime",
+      "read_only": 1
+    }
+  ],
+  "permissions": [
+    {
+      "role": "Task Management Administrator",
+      "read": 1,
+      "write": 1,
+      "create": 1,
+      "delete": 1
+    },
+    {
+      "role": "System Manager",
+      "read": 1,
+      "write": 1,
+      "create": 1,
+      "delete": 1
+    }
+  ]
+}

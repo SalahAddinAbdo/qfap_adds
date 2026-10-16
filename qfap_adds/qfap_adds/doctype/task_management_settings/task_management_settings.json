@@ -1,0 +1,383 @@
+{
+  "doctype": "DocType",
+  "name": "Task Management Settings",
+  "module": "QFap Adds",
+  "is_single": 1,
+  "track_changes": 1,
+  "field_order": [
+    "enabled",
+    "administration_section",
+    "administrative_role",
+    "global_reopen_roles",
+    "scope_section",
+    "scope_mode",
+    "hierarchy_max_depth",
+    "same_company_only",
+    "allow_unassigned_standard_tasks",
+    "allow_self_assignment",
+    "outside_scope_policy",
+    "project_section",
+    "enforce_project_period",
+    "allow_before_project_start",
+    "allow_after_project_end",
+    "allow_cross_project_end",
+    "allow_workplan_outside_period",
+    "missing_project_dates_policy",
+    "parent_section",
+    "parent_must_same_project",
+    "allow_workplan_as_parent",
+    "exclude_locked_parents",
+    "maximum_task_tree_depth",
+    "lock_parent_with_children",
+    "require_children_completed",
+    "rollup_section",
+    "progress_calculation",
+    "rollup_expected_hours",
+    "rollup_actual_hours",
+    "sharing_section",
+    "enable_managed_sharing",
+    "share_with_assignee",
+    "share_with_supervisor_chain",
+    "managed_share_write",
+    "protect_manual_shares",
+    "remove_obsolete_managed_shares",
+    "request_section",
+    "enable_assignment_requests",
+    "prevent_self_approval",
+    "notification_section",
+    "enable_notifications",
+    "weekly_summary_enabled",
+    "weekly_summary_recipients",
+    "migration_section",
+    "migration_batch_size",
+    "reconciliation_batch_size",
+    "warn_legacy_scripts",
+    "last_reconciliation_on",
+    "last_reconciliation_status",
+    "last_reconciliation_summary"
+  ],
+  "fields": [
+    {
+      "fieldname": "enabled",
+      "label": "Enable Task Management",
+      "fieldtype": "Check",
+      "default": "1"
+    },
+    {
+      "fieldname": "administration_section",
+      "label": "Administration",
+      "fieldtype": "Section Break"
+    },
+    {
+      "fieldname": "administrative_role",
+      "label": "Administrative Role",
+      "fieldtype": "Link",
+      "default": "Task Management Administrator",
+      "options": "Role"
+    },
+    {
+      "fieldname": "global_reopen_roles",
+      "label": "Global Reopen Roles",
+      "fieldtype": "Small Text",
+      "default": "System Manager\nTask Management Administrator"
+    },
+    {
+      "fieldname": "scope_section",
+      "label": "Assignment Scope",
+      "fieldtype": "Section Break"
+    },
+    {
+      "fieldname": "scope_mode",
+      "label": "Scope Mode",
+      "fieldtype": "Select",
+      "default": "Full Reporting Tree",
+      "options": "Direct Reports Only\nFull Reporting Tree"
+    },
+    {
+      "fieldname": "hierarchy_max_depth",
+      "label": "Maximum Hierarchy Depth",
+      "fieldtype": "Int",
+      "default": "100",
+      "non_negative": 1
+    },
+    {
+      "fieldname": "same_company_only",
+      "label": "Restrict to Same Company",
+      "fieldtype": "Check",
+      "default": "1"
+    },
+    {
+      "fieldname": "allow_self_assignment",
+      "label": "Allow Self Assignment",
+      "fieldtype": "Check",
+      "default": "1"
+    },
+    {
+      "fieldname": "outside_scope_policy",
+      "label": "Outside Scope Policy",
+      "fieldtype": "Select",
+      "default": "Create Assignment Request",
+      "options": "Block\nCreate Assignment Request\nAdministrative Role Only"
+    },
+    {
+      "fieldname": "project_section",
+      "label": "Project Period",
+      "fieldtype": "Section Break"
+    },
+    {
+      "fieldname": "enforce_project_period",
+      "label": "Enforce Project Period",
+      "fieldtype": "Check",
+      "default": "1"
+    },
+    {
+      "fieldname": "allow_before_project_start",
+      "label": "Allow Before Project Start",
+      "fieldtype": "Check",
+      "default": "0"
+    },
+    {
+      "fieldname": "allow_after_project_end",
+      "label": "Allow After Project End",
+      "fieldtype": "Check",
+      "default": "0"
+    },
+    {
+      "fieldname": "allow_cross_project_end",
+      "label": "Allow Crossing Project End",
+      "fieldtype": "Check",
+      "default": "0"
+    },
+    {
+      "fieldname": "allow_workplan_outside_period",
+      "label": "Allow Workplan Outside Period",
+      "fieldtype": "Check",
+      "default": "1"
+    },
+    {
+      "fieldname": "missing_project_dates_policy",
+      "label": "Missing Project Dates Policy",
+      "fieldtype": "Select",
+      "default": "Allow with Warning",
+      "options": "Block\nAllow with Warning\nAllow"
+    },
+    {
+      "fieldname": "parent_section",
+      "label": "Main and Child Tasks",
+      "fieldtype": "Section Break"
+    },
+    {
+      "fieldname": "allow_workplan_as_parent",
+      "label": "Allow Workplan as Main Task",
+      "fieldtype": "Check",
+      "default": "1"
+    },
+    {
+      "fieldname": "exclude_locked_parents",
+      "label": "Exclude Locked Main Tasks",
+      "fieldtype": "Check",
+      "default": "1"
+    },
+    {
+      "fieldname": "maximum_task_tree_depth",
+      "label": "Maximum Task Tree Depth",
+      "fieldtype": "Int",
+      "default": "100",
+      "non_negative": 1
+    },
+    {
+      "fieldname": "lock_parent_with_children",
+      "label": "Lock Main Task When Children Exist",
+      "fieldtype": "Check",
+      "default": "1"
+    },
+    {
+      "fieldname": "require_children_completed",
+      "label": "Require All Children Completed",
+      "fieldtype": "Check",
+      "default": "1"
+    },
+    {
+      "fieldname": "rollup_section",
+      "label": "Rollup",
+      "fieldtype": "Section Break"
+    },
+    {
+      "fieldname": "progress_calculation",
+      "label": "Progress Calculation",
+      "fieldtype": "Select",
+      "default": "Weighted by Expected Hours",
+      "options": "Average\nWeighted by Expected Hours"
+    },
+    {
+      "fieldname": "rollup_expected_hours",
+      "label": "Roll Up Expected Hours",
+      "fieldtype": "Check",
+      "default": "1"
+    },
+    {
+      "fieldname": "rollup_actual_hours",
+      "label": "Roll Up Actual Hours",
+      "fieldtype": "Check",
+      "default": "1"
+    },
+    {
+      "fieldname": "sharing_section",
+      "label": "Sharing",
+      "fieldtype": "Section Break"
+    },
+    {
+      "fieldname": "enable_managed_sharing",
+      "label": "Enable Managed DocShare",
+      "fieldtype": "Check",
+      "default": "1"
+    },
+    {
+      "fieldname": "share_with_assignee",
+      "label": "Share with Assignee",
+      "fieldtype": "Check",
+      "default": "1"
+    },
+    {
+      "fieldname": "share_with_supervisor_chain",
+      "label": "Share with Supervisor Chain",
+      "fieldtype": "Check",
+      "default": "1"
+    },
+    {
+      "fieldname": "managed_share_write",
+      "label": "Managed Share Write Permission",
+      "fieldtype": "Check",
+      "default": "1"
+    },
+    {
+      "fieldname": "protect_manual_shares",
+      "label": "Protect Manual Shares",
+      "fieldtype": "Check",
+      "default": "1"
+    },
+    {
+      "fieldname": "remove_obsolete_managed_shares",
+      "label": "Remove Obsolete Managed Shares",
+      "fieldtype": "Check",
+      "default": "1"
+    },
+    {
+      "fieldname": "request_section",
+      "label": "Assignment Requests",
+      "fieldtype": "Section Break"
+    },
+    {
+      "fieldname": "enable_assignment_requests",
+      "label": "Enable Assignment Requests",
+      "fieldtype": "Check",
+      "default": "1"
+    },
+    {
+      "fieldname": "prevent_self_approval",
+      "label": "Prevent Self Approval",
+      "fieldtype": "Check",
+      "default": "1"
+    },
+    {
+      "fieldname": "notification_section",
+      "label": "Notifications and Summary",
+      "fieldtype": "Section Break"
+    },
+    {
+      "fieldname": "enable_notifications",
+      "label": "Enable Notifications",
+      "fieldtype": "Check",
+      "default": "1"
+    },
+    {
+      "fieldname": "weekly_summary_enabled",
+      "label": "Enable Weekly Summary",
+      "fieldtype": "Check",
+      "default": "1"
+    },
+    {
+      "fieldname": "weekly_summary_recipients",
+      "label": "Additional Weekly Recipients",
+      "fieldtype": "Small Text"
+    },
+    {
+      "fieldname": "migration_section",
+      "label": "Migration and Diagnostics",
+      "fieldtype": "Section Break"
+    },
+    {
+      "fieldname": "migration_batch_size",
+      "label": "Migration Batch Size",
+      "fieldtype": "Int",
+      "default": "200",
+      "non_negative": 1
+    },
+    {
+      "fieldname": "reconciliation_batch_size",
+      "label": "Reconciliation Batch Size",
+      "fieldtype": "Int",
+      "default": "200",
+      "non_negative": 1
+    },
+    {
+      "fieldname": "warn_legacy_scripts",
+      "label": "Warn About Legacy Scripts",
+      "fieldtype": "Check",
+      "default": "1"
+    },
+    {
+      "fieldname": "last_reconciliation_on",
+      "label": "Last Reconciliation On",
+      "fieldtype": "Datetime",
+      "read_only": 1
+    },
+    {
+      "fieldname": "last_reconciliation_status",
+      "label": "Last Reconciliation Status",
+      "fieldtype": "Data",
+      "read_only": 1
+    },
+    {
+      "fieldname": "last_reconciliation_summary",
+      "label": "Last Reconciliation Summary",
+      "fieldtype": "Long Text",
+      "read_only": 1
+    },
+    {
+      "fieldname": "parent_must_same_project",
+      "label": "Main Task Must Belong to Same Project",
+      "fieldtype": "Check",
+      "default": "1"
+    },
+    {
+      "fieldname": "allow_unassigned_standard_tasks",
+      "label": "Allow Unassigned Standard Tasks",
+      "fieldtype": "Check",
+      "default": "1",
+      "description": "Preserves compatibility with standard ERPNext processes that create Task records without the custom employee assignment fields."
+    }
+  ],
+  "permissions": [
+    {
+      "role": "Task Management Administrator",
+      "read": 1,
+      "write": 1,
+      "create": 1,
+      "delete": 1,
+      "print": 1,
+      "email": 1,
+      "share": 1
+    },
+    {
+      "role": "System Manager",
+      "read": 1,
+      "write": 1,
+      "create": 1,
+      "delete": 1,
+      "print": 1,
+      "email": 1,
+      "share": 1
+    }
+  ]
+}
