@@ -11,7 +11,7 @@ BASE = Path(__file__).resolve().parent
 
 ADMIN_ROLE = "Task Management Administrator"
 REPORT_ROLE = "Reports Viewer"
-DEFAULT_SUMMARY_EMAIL_TEMPLATE = "Farabi Configurable Task Summary v2"
+DEFAULT_SUMMARY_EMAIL_TEMPLATE = "Farabi Configurable Task Summary v3"
 WORKFLOW_NAME = "Task Assignment Request Approval"
 WORKFLOW_DOCTYPE = "Task Assignment Request"
 
@@ -87,7 +87,7 @@ def _ensure_task_summary_email_template() -> None:
     if not frappe.db.exists("DocType", "Task Management Settings"):
         return
     current = frappe.db.get_single_value("Task Management Settings", "summary_email_template") or ""
-    default_templates = {"", "Farabi Task Summary", "Farabi Configurable Task Summary"}
+    default_templates = {"", "Farabi Task Summary", "Farabi Configurable Task Summary", "Farabi Configurable Task Summary v2"}
     if current in default_templates:
         frappe.db.set_single_value("Task Management Settings", "summary_email_template", template_name)
 
