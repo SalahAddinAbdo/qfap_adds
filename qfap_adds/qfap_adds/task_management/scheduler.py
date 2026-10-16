@@ -89,10 +89,53 @@ def _columns(settings):
     return result
 
 
+def _company_identity(company):
+    defaults = {
+        "header_color": "#155f78",
+        "primary_color": "#155f78",
+        "accent_color": "#1b9aa6",
+        "light_color": "#f3f7f9",
+        "border_color": "#dbe4ea",
+        "company_logo": "",
+    }
+    if not company or not frappe.db.exists("Company", company):
+        return defaults
+    meta = frappe.get_meta("Company")
+    field_map = {
+        "header_color": "custom_print_document_header_color",
+        "primary_color": "custom_print_primary_color",
+        "accent_color": "custom_print_accent_color",
+        "light_color": "custom_print_light_color",
+        "border_color": "custom_print_border_color",
+        "company_logo": "company_logo",
+    }
+    available = [field for field in field_map.values() if meta.has_field(field)]
+    values = frappe.db.get_value("Company", company, available, as_dict=True) if available else {}
+    values = values or {}
+    for key, fieldname in field_map.items():
+        value = values.get(fieldname)
+        if value:
+            defaults[key] = value
+    logo = defaults.get("company_logo") or ""
+    if logo and not str(logo).startswith(("http://", "https://")):
+        defaults["company_logo"] = frappe.utils.get_url(logo)
+    return defaults
+
+
+def _status_style(task, identity):
+    if task.get("overdue"):
+        return {"background": "#fde8e8", "color": "#b42318", "label": "Overdue"}
+    if task.get("due_soon"):
+        return {"background": "#fff4d6", "color": "#9a6700", "label": "Due Soon"}
+    if task.get("status") == "Completed":
+        return {"background": "#e7f6ec", "color": "#18794e", "label": "Completed"}
+    return {"background": identity["light_color"], "color": identity["primary_color"], "label": task.get("status") or "Open"}
+
+
 def _fallback_html(context):
     cards=[("Operational",context['operational_task_count']), ("Main Tasks",context['main_task_count']), ("Overdue",context['overdue_count']), ("Due Soon",context['due_soon_count']), ("Average Progress",str(context['average_progress'])+'%'), ("Expected Hours",context['expected_hours']), ("Actual Hours",context['actual_hours'])]
-    card_html=''.join(f'<td style="padding:10px;border:1px solid #dbe4ea;background:#f8fafc;text-align:center"><b>{frappe.utils.escape_html(str(v))}</b><br><span style="font-size:11px;color:#64748b">{frappe.utils.escape_html(k)}</span></td>' for k,v in cards)
-    return f'<div style="font-family:Arial,sans-serif;color:#1f2937"><h2 style="color:#155f78">Task Summary</h2><p><b>{frappe.utils.escape_html(context["employee_name"])}</b><br>{frappe.utils.escape_html(context["period_label"])}</p><table style="width:100%;border-collapse:collapse"><tr>{card_html}</tr></table><p style="margin-top:20px"><a href="{context["report_url"]}">Open Employees Task Tracker</a></p></div>'
+    card_html=''.join(f'<td style="padding:10px;border:1px solid #dbe4ea;background:{context['light_color']};text-align:center"><b>{frappe.utils.escape_html(str(v))}</b><br><span style="font-size:11px;color:#64748b">{frappe.utils.escape_html(k)}</span></td>' for k,v in cards)
+    return f'<div style="font-family:Arial,sans-serif;color:#1f2937"><h2 style="color:{context['primary_color']}">Task Summary</h2><p><b>{frappe.utils.escape_html(context["employee_name"])}</b><br>{frappe.utils.escape_html(context["period_label"])}</p><table style="width:100%;border-collapse:collapse"><tr>{card_html}</tr></table><p style="margin-top:20px"><a href="{context["report_url"]}">Open Employees Task Tracker</a></p></div>'
 
 
 def build_summary_context(employee, reference_date=None, settings=None):
@@ -103,6 +146,14 @@ def build_summary_context(employee, reference_date=None, settings=None):
     max_rows=max(1,int(settings.summary_max_tasks or 25)); level=settings.summary_detail_level or "Full Task Details"
     visible=[] if level=="Summary Only" else (attention if level=="Summary and Attention Tasks" else tasks)
     context={"employee":info,"employee_id":employee,"employee_name":info.get('employee_name') or employee,"department":info.get('department') or '',"designation":info.get('designation') or '',"company":info.get('company') or '',"frequency":settings.summary_frequency or 'Weekly',"report_date":frappe.format(getdate(reference_date or today()),{'fieldtype':'Date'}),"period_start":period['start'],"period_end":period['end'],"period_label":period['label'],"report_url":frappe.utils.get_url()+"/app/query-report/Employees%20Task%20Tracker?my_tasks_only=1","operational_tasks":operational[:max_rows],"main_tasks":main[:max_rows],"attention_tasks":attention[:max_rows],"overdue_tasks":[x for x in tasks if x.overdue][:max_rows],"due_soon_tasks":[x for x in tasks if x.due_soon][:max_rows],"display_tasks":visible[:max_rows],"columns":_columns(settings),"operational_task_count":len(operational),"main_task_count":len(main),"total_tasks":len(tasks),"active_tasks":sum(1 for x in tasks if x.status!='Completed'),"completed_tasks":sum(1 for x in tasks if x.status=='Completed'),"overdue_count":sum(1 for x in tasks if x.overdue),"due_soon_count":sum(1 for x in tasks if x.due_soon),"average_progress":round(sum(flt(x.progress) for x in operational)/len(operational),2) if operational else 0,"expected_hours":round(sum(flt(x.expected_time) for x in operational),2),"actual_hours":round(sum(flt(x.actual_time) for x in operational),2),"detail_level":level}
+    identity = _company_identity(context['company'])
+    context.update(identity)
+    context['hours_variance'] = round(context['actual_hours'] - context['expected_hours'], 2)
+    context['operational_hidden_count'] = max(0, len(operational) - len(context['operational_tasks']))
+    context['main_hidden_count'] = max(0, len(main) - len(context['main_tasks']))
+    context['attention_hidden_count'] = max(0, len(attention) - len(context['attention_tasks']))
+    for task in tasks:
+        task['status_style'] = _status_style(task, identity)
     context['generated_summary_html']=_fallback_html(context)
     return context
 
