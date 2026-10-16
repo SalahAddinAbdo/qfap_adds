@@ -8,125 +8,132 @@
     "enabled",
     "administration_section",
     "administrative_role",
-    "layout_v33_table_section_1",
-    "global_reopen_role_rows",
     "global_reopen_roles",
+    "layout_v331_section_break_1",
+    "global_reopen_role_rows",
     "scope_section",
     "scope_mode",
     "hierarchy_max_depth",
-    "layout_v33_column_2",
+    "layout_v331_column_break_2",
     "same_company_only",
     "allow_unassigned_standard_tasks",
-    "layout_v33_column_3",
+    "layout_v331_column_break_3",
     "allow_self_assignment",
     "outside_scope_policy",
     "project_section",
     "enforce_project_period",
-    "allow_before_project_start",
-    "layout_v33_column_4",
-    "allow_after_project_end",
-    "allow_cross_project_end",
-    "layout_v33_column_5",
-    "allow_workplan_outside_period",
     "missing_project_dates_policy",
+    "layout_v331_column_break_4",
+    "allow_before_project_start",
+    "allow_after_project_end",
+    "layout_v331_column_break_5",
+    "allow_cross_project_end",
+    "allow_workplan_outside_period",
     "parent_section",
     "parent_must_same_project",
-    "allow_workplan_as_parent",
-    "layout_v33_column_6",
-    "exclude_locked_parents",
     "maximum_task_tree_depth",
-    "layout_v33_column_7",
+    "layout_v331_column_break_6",
+    "allow_workplan_as_parent",
     "lock_parent_with_children",
+    "layout_v331_column_break_7",
+    "exclude_locked_parents",
     "require_children_completed",
     "rollup_section",
     "progress_calculation",
-    "rollup_expected_hours",
-    "layout_v33_column_8",
-    "rollup_actual_hours",
-    "auto_calculate_expected_hours",
-    "layout_v33_column_9",
     "working_hours_per_day",
+    "layout_v331_column_break_8",
+    "rollup_expected_hours",
+    "auto_calculate_expected_hours",
+    "layout_v331_column_break_9",
+    "rollup_actual_hours",
     "sharing_section",
     "enable_managed_sharing",
-    "share_with_assignee",
-    "layout_v33_column_10",
-    "share_with_supervisor_chain",
     "protect_manual_shares",
-    "layout_v33_column_11",
+    "layout_v331_column_break_10",
+    "share_with_assignee",
     "remove_obsolete_managed_shares",
+    "layout_v331_column_break_11",
+    "share_with_supervisor_chain",
     "managed_share_write",
     "request_section",
     "enable_assignment_requests",
-    "layout_v33_column_12",
+    "layout_v331_column_break_12",
     "prevent_self_approval",
+    "layout_v331_column_break_13",
     "notification_section",
     "enable_notifications",
+    "layout_v331_column_break_14",
+    "layout_v331_column_break_15",
     "weekly_summary_enabled",
     "weekly_summary_recipients",
     "summary_schedule_section",
     "summary_schedule_enabled",
-    "summary_frequency",
-    "layout_v33_column_13",
     "summary_send_time",
+    "layout_v331_column_break_16",
+    "summary_frequency",
     "summary_weekly_day",
-    "layout_v33_column_14",
+    "layout_v331_column_break_17",
     "summary_monthly_day",
-    "layout_v33_table_section_15",
+    "summary_next_send_on",
+    "summary_last_period_key",
+    "layout_v331_section_break_18",
     "summary_recipients",
+    "layout_v331_section_break_19",
     "summary_email_subject",
     "summary_email_template",
+    "layout_v331_column_break_20",
     "summary_send_to_employees",
-    "layout_v33_column_16",
     "summary_last_sent_on",
-    "summary_next_send_on",
+    "layout_v331_column_break_21",
     "summary_last_send_status",
-    "layout_v33_column_17",
+    "layout_v331_section_break_22",
     "summary_last_send_summary",
-    "summary_last_period_key",
     "summary_period_section",
     "summary_period_mode",
     "summary_rolling_days",
-    "layout_v33_column_18",
+    "layout_v331_column_break_23",
     "summary_include_carried_forward",
+    "layout_v331_column_break_24",
     "summary_include_undated",
     "summary_filters_section",
     "summary_include_operational",
-    "summary_include_main_tasks",
-    "summary_include_workplan",
     "summary_include_completed",
-    "layout_v33_column_19",
-    "summary_include_overdue",
-    "summary_include_due_soon",
-    "summary_due_soon_days",
     "summary_only_attention",
-    "layout_v33_column_20",
     "summary_progress_warning",
+    "layout_v331_column_break_25",
+    "summary_include_main_tasks",
+    "summary_include_overdue",
+    "summary_due_soon_days",
     "summary_stale_days",
+    "layout_v331_column_break_26",
+    "summary_include_workplan",
+    "summary_include_due_soon",
     "summary_exclude_zero_hours",
-    "layout_v33_table_section_21",
+    "layout_v331_section_break_27",
     "summary_filter_rows",
     "summary_display_section",
     "summary_detail_level",
-    "summary_max_tasks",
     "summary_show_project",
+    "summary_show_due_date",
+    "summary_show_task_type",
+    "layout_v331_column_break_28",
+    "summary_max_tasks",
     "summary_show_status",
-    "layout_v33_column_22",
+    "summary_show_expected_hours",
+    "summary_show_assigned_by",
+    "layout_v331_column_break_29",
     "summary_show_priority",
     "summary_show_progress",
-    "summary_show_due_date",
-    "summary_show_expected_hours",
-    "layout_v33_column_23",
     "summary_show_actual_hours",
-    "summary_show_task_type",
-    "summary_show_assigned_by",
     "migration_section",
     "migration_batch_size",
-    "reconciliation_batch_size",
-    "layout_v33_column_24",
-    "warn_legacy_scripts",
     "last_reconciliation_on",
-    "layout_v33_column_25",
+    "layout_v331_column_break_30",
+    "reconciliation_batch_size",
     "last_reconciliation_status",
+    "layout_v331_column_break_31",
+    "warn_legacy_scripts",
+    "layout_v331_section_break_32",
     "last_reconciliation_summary"
   ],
   "fields": [
@@ -830,110 +837,138 @@
       "default": "0"
     },
     {
-      "fieldname": "layout_v33_table_section_1",
+      "fieldname": "layout_v331_section_break_1",
       "fieldtype": "Section Break",
-      "label": "Roles Allowed to Reopen Globally",
-      "collapsible": 0
+      "label": ""
     },
     {
-      "fieldname": "layout_v33_column_2",
+      "fieldname": "layout_v331_column_break_2",
       "fieldtype": "Column Break"
     },
     {
-      "fieldname": "layout_v33_column_3",
+      "fieldname": "layout_v331_column_break_3",
       "fieldtype": "Column Break"
     },
     {
-      "fieldname": "layout_v33_column_4",
+      "fieldname": "layout_v331_column_break_4",
       "fieldtype": "Column Break"
     },
     {
-      "fieldname": "layout_v33_column_5",
+      "fieldname": "layout_v331_column_break_5",
       "fieldtype": "Column Break"
     },
     {
-      "fieldname": "layout_v33_column_6",
+      "fieldname": "layout_v331_column_break_6",
       "fieldtype": "Column Break"
     },
     {
-      "fieldname": "layout_v33_column_7",
+      "fieldname": "layout_v331_column_break_7",
       "fieldtype": "Column Break"
     },
     {
-      "fieldname": "layout_v33_column_8",
+      "fieldname": "layout_v331_column_break_8",
       "fieldtype": "Column Break"
     },
     {
-      "fieldname": "layout_v33_column_9",
+      "fieldname": "layout_v331_column_break_9",
       "fieldtype": "Column Break"
     },
     {
-      "fieldname": "layout_v33_column_10",
+      "fieldname": "layout_v331_column_break_10",
       "fieldtype": "Column Break"
     },
     {
-      "fieldname": "layout_v33_column_11",
+      "fieldname": "layout_v331_column_break_11",
       "fieldtype": "Column Break"
     },
     {
-      "fieldname": "layout_v33_column_12",
+      "fieldname": "layout_v331_column_break_12",
       "fieldtype": "Column Break"
     },
     {
-      "fieldname": "layout_v33_column_13",
+      "fieldname": "layout_v331_column_break_13",
       "fieldtype": "Column Break"
     },
     {
-      "fieldname": "layout_v33_column_14",
+      "fieldname": "layout_v331_column_break_14",
       "fieldtype": "Column Break"
     },
     {
-      "fieldname": "layout_v33_table_section_15",
+      "fieldname": "layout_v331_column_break_15",
+      "fieldtype": "Column Break"
+    },
+    {
+      "fieldname": "layout_v331_column_break_16",
+      "fieldtype": "Column Break"
+    },
+    {
+      "fieldname": "layout_v331_column_break_17",
+      "fieldtype": "Column Break"
+    },
+    {
+      "fieldname": "layout_v331_section_break_18",
       "fieldtype": "Section Break",
-      "label": "Additional Recipients",
-      "collapsible": 0
+      "label": ""
     },
     {
-      "fieldname": "layout_v33_column_16",
-      "fieldtype": "Column Break"
-    },
-    {
-      "fieldname": "layout_v33_column_17",
-      "fieldtype": "Column Break"
-    },
-    {
-      "fieldname": "layout_v33_column_18",
-      "fieldtype": "Column Break"
-    },
-    {
-      "fieldname": "layout_v33_column_19",
-      "fieldtype": "Column Break"
-    },
-    {
-      "fieldname": "layout_v33_column_20",
-      "fieldtype": "Column Break"
-    },
-    {
-      "fieldname": "layout_v33_table_section_21",
+      "fieldname": "layout_v331_section_break_19",
       "fieldtype": "Section Break",
-      "label": "Optional Filter Values",
-      "collapsible": 0
+      "label": "Email Delivery"
     },
     {
-      "fieldname": "layout_v33_column_22",
+      "fieldname": "layout_v331_column_break_20",
       "fieldtype": "Column Break"
     },
     {
-      "fieldname": "layout_v33_column_23",
+      "fieldname": "layout_v331_column_break_21",
       "fieldtype": "Column Break"
     },
     {
-      "fieldname": "layout_v33_column_24",
+      "fieldname": "layout_v331_section_break_22",
+      "fieldtype": "Section Break",
+      "label": ""
+    },
+    {
+      "fieldname": "layout_v331_column_break_23",
       "fieldtype": "Column Break"
     },
     {
-      "fieldname": "layout_v33_column_25",
+      "fieldname": "layout_v331_column_break_24",
       "fieldtype": "Column Break"
+    },
+    {
+      "fieldname": "layout_v331_column_break_25",
+      "fieldtype": "Column Break"
+    },
+    {
+      "fieldname": "layout_v331_column_break_26",
+      "fieldtype": "Column Break"
+    },
+    {
+      "fieldname": "layout_v331_section_break_27",
+      "fieldtype": "Section Break",
+      "label": ""
+    },
+    {
+      "fieldname": "layout_v331_column_break_28",
+      "fieldtype": "Column Break"
+    },
+    {
+      "fieldname": "layout_v331_column_break_29",
+      "fieldtype": "Column Break"
+    },
+    {
+      "fieldname": "layout_v331_column_break_30",
+      "fieldtype": "Column Break"
+    },
+    {
+      "fieldname": "layout_v331_column_break_31",
+      "fieldtype": "Column Break"
+    },
+    {
+      "fieldname": "layout_v331_section_break_32",
+      "fieldtype": "Section Break",
+      "label": ""
     }
   ],
   "permissions": [
