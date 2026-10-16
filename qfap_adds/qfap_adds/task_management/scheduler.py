@@ -872,10 +872,41 @@ def send_employee_task_summary(force=False):
         recipients = list(dict.fromkeys(([recipient_email] if int(settings.summary_send_to_employees or 0) else []) + additional_recipients))
         if not recipients:
             continue
-        if settings.summary_email_template:
-            template = frappe.get_doc("Email Template", settings.summary_email_template)
-            email_subject = frappe.render_template(template.subject or email_subject, {"employee": employee, "report_date": report_date, "frequency": settings.summary_frequency})
-            message = frappe.render_template(template.response_html or template.response or message, {"employee": employee, "report_date": report_date, "frequency": settings.summary_frequency, "report_url": report_url})
+        template_context = {
+            "employee": employee,
+            "employee_id": employee_id,
+            "employee_name": employee_name,
+            "department": department,
+            "designation": designation,
+            "company": default_company,
+            "frequency": settings.summary_frequency or "Weekly",
+            "report_date": report_date,
+            "report_url": report_url,
+            "operational_task_count": operational_task_count,
+            "main_task_count": main_task_count,
+            "overdue_tasks": overdue_tasks,
+            "due_soon_tasks": due_soon_tasks,
+            "completed_this_month": completed_this_month,
+            "average_progress": average_progress,
+            "expected_hours": expected_hours,
+            "actual_hours": actual_hours,
+            "generated_summary_html": message,
+        }
+
+        template_name = settings.summary_email_template
+        if template_name and frappe.db.exists("Email Template", template_name):
+            template = frappe.get_doc("Email Template", template_name)
+            email_subject = frappe.render_template(
+                template.subject or email_subject, template_context
+            )
+            template_body = template.response_html or template.response
+            if template_body:
+                message = frappe.render_template(template_body, template_context)
+        elif template_name:
+            frappe.log_error(
+                "Email Template not found: " + str(template_name),
+                "Task Summary Email Template",
+            )
 
         frappe.sendmail(
             recipients=recipients,
