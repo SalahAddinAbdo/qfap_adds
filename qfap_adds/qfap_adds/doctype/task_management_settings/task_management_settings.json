@@ -35,6 +35,8 @@
     "progress_calculation",
     "rollup_expected_hours",
     "rollup_actual_hours",
+    "auto_calculate_expected_hours",
+    "working_hours_per_day",
     "sharing_section",
     "enable_managed_sharing",
     "share_with_assignee",
@@ -447,7 +449,7 @@
       "label": "Email Template",
       "fieldtype": "Link",
       "options": "Email Template",
-      "description": "Optional editable Email Template. If empty, the built-in formatted message is used."
+      "description": "Editable Email Template used for scheduled and manual task summaries. The application creates Farabi Task Summary once and never overwrites user changes."
     },
     {
       "fieldname": "summary_send_to_employees",
@@ -485,6 +487,22 @@
       "label": "Last Send Summary",
       "fieldtype": "Long Text",
       "read_only": 1
+    },
+    {
+      "fieldname": "auto_calculate_expected_hours",
+      "label": "Auto Calculate Expected Hours",
+      "fieldtype": "Check",
+      "default": "1",
+      "description": "Calculate Expected Hours from the inclusive date range and Working Hours per Day."
+    },
+    {
+      "fieldname": "working_hours_per_day",
+      "label": "Working Hours per Day",
+      "fieldtype": "Float",
+      "default": "8",
+      "non_negative": 1,
+      "depends_on": "eval:doc.auto_calculate_expected_hours",
+      "description": "Used only for automatic Expected Hours calculation."
     }
   ],
   "permissions": [
