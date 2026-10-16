@@ -127,7 +127,9 @@ def task_assignment_scope(target_employee=None):
         "assignable_employee_names": assignees,
         "supervisor_names": supervisors,
         "target_employee": requested_target,
-        "target_allowed": 1 if requested_target and requested_target in assignees else 0
+        "target_allowed": 1 if requested_target and requested_target in assignees else 0,
+        "auto_calculate_expected_hours": int(settings.auto_calculate_expected_hours or 0),
+        "working_hours_per_day": float(settings.working_hours_per_day or 8),
     }
 
     return result
