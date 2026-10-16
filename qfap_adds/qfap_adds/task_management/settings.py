@@ -54,3 +54,25 @@ def get_settings():
         if value not in (None, ""):
             values[fieldname] = value
     return frappe._dict(values)
+
+def role_lines(value):
+    """Return unique non-empty Role names from text or legacy values."""
+    if not value:
+        return []
+
+    if isinstance(value, (list, tuple, set)):
+        values = value
+    else:
+        values = str(value).replace(",", "\n").splitlines()
+
+    roles = []
+    seen = set()
+
+    for value_item in values:
+        role_name = str(value_item or "").strip()
+
+        if role_name and role_name not in seen:
+            seen.add(role_name)
+            roles.append(role_name)
+
+    return roles
