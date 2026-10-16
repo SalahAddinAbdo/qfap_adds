@@ -25,6 +25,7 @@
     "priority",
     "exp_start_date",
     "exp_end_date",
+    "expected_days",
     "expected_time",
     "request_reason",
     "decision",
@@ -88,7 +89,8 @@
       "fieldname": "subject",
       "label": "Task Subject",
       "fieldtype": "Data",
-      "reqd": 1
+      "reqd": 1,
+      "description": "Enter a clear title for the Task that will be created after approval."
     },
     {
       "fieldname": "description",
@@ -100,13 +102,16 @@
       "label": "Employee",
       "fieldtype": "Link",
       "options": "Employee",
-      "reqd": 1
+      "reqd": 1,
+      "description": "Select the Employee who will receive the approved Task."
     },
     {
       "fieldname": "project",
       "label": "Project",
       "fieldtype": "Link",
-      "options": "Project"
+      "options": "Project",
+      "reqd": 1,
+      "description": "Project to which the approved Task will belong."
     },
     {
       "fieldname": "parent_task",
@@ -119,29 +124,38 @@
       "label": "Priority",
       "fieldtype": "Select",
       "options": "Low\nMedium\nHigh\nUrgent",
-      "default": "Medium"
+      "default": "Medium",
+      "reqd": 1,
+      "description": "Priority assigned to the new Task."
     },
     {
       "fieldname": "exp_start_date",
       "label": "Expected Start Date",
-      "fieldtype": "Date"
+      "fieldtype": "Date",
+      "reqd": 1,
+      "description": "Planned start date for the new Task."
     },
     {
       "fieldname": "exp_end_date",
       "label": "Expected End Date",
-      "fieldtype": "Date"
+      "fieldtype": "Date",
+      "reqd": 1,
+      "description": "Planned end date. It cannot be before the start date."
     },
     {
       "fieldname": "expected_time",
       "label": "Expected Hours",
       "fieldtype": "Float",
-      "non_negative": 1
+      "non_negative": 1,
+      "reqd": 1,
+      "description": "Proposed automatically from the date range and remains editable before submission."
     },
     {
       "fieldname": "request_reason",
       "label": "Request Reason",
       "fieldtype": "Small Text",
-      "reqd": 1
+      "reqd": 1,
+      "description": "Explain why this Task assignment requires supervisor approval."
     },
     {
       "fieldname": "decision",
@@ -212,14 +226,24 @@
       "options": "Company",
       "reqd": 1,
       "fetch_from": "requested_assignee.company",
-      "fetch_if_empty": 1
+      "fetch_if_empty": 1,
+      "description": "Company for the new Task. It is fetched from the selected Employee when available."
     },
     {
       "fieldname": "task_type",
       "label": "Task Type",
       "fieldtype": "Link",
       "options": "Task Type",
-      "reqd": 1
+      "reqd": 1,
+      "description": "Select the Task Type required by the Task form."
+    },
+    {
+      "fieldname": "expected_days",
+      "label": "Expected Days",
+      "fieldtype": "Float",
+      "read_only": 1,
+      "non_negative": 1,
+      "description": "Calculated automatically from the inclusive expected date range."
     }
   ],
   "permissions": [
