@@ -36,7 +36,9 @@ function task_scope_payload(response) {
             scope.supervisors || scope.supervisor_names || []
         ),
         privileged: cint(scope.privileged || 0),
-        can_manage_selected: cint(scope.can_manage_selected || 0)
+        can_manage_selected: cint(scope.can_manage_selected || 0),
+        auto_calculate_expected_hours: cint(scope.auto_calculate_expected_hours || 0),
+        working_hours_per_day: flt(scope.working_hours_per_day || 8)
     };
 }
 
@@ -77,6 +79,7 @@ function task_load_assignment_scope(frm, target_employee, preserve_values) {
             const scope = task_scope_payload(response);
             frm.__task_scope = scope;
             task_set_employee_queries(frm);
+            task_calculate_expected_values(frm);
 
             if (
                 frm.is_new() &&
@@ -438,12 +441,26 @@ function task_apply_timing_ui(frm) {
 }
 
 function task_calculate_expected_values(frm) {
-    if (!frm.doc.exp_start_date || !frm.doc.exp_end_date) return;
+    if (!frm.doc.exp_start_date || !frm.doc.exp_end_date) {
+        if (flt(frm.doc.custom_expected_days || 0) !== 0) frm.set_value("custom_expected_days", 0);
+        return;
+    }
     const start = frappe.datetime.str_to_obj(frm.doc.exp_start_date);
     const end = frappe.datetime.str_to_obj(frm.doc.exp_end_date);
     if (!start || !end || end < start) return;
-    const days = ((end.getTime() - start.getTime()) / 86400000) + 1;
+    const startDate = new Date(start.getFullYear(), start.getMonth(), start.getDate());
+    const endDate = new Date(end.getFullYear(), end.getMonth(), end.getDate());
+    const days = Math.round((endDate.getTime() - startDate.getTime()) / 86400000) + 1;
     frm.set_value("custom_expected_days", flt(days, 2));
+
+    const scope = frm.__task_scope || {};
+    if (
+        cint(scope.auto_calculate_expected_hours || 0) &&
+        !cint(frm.doc.is_group || 0) &&
+        !cint(frm.doc.custom_project_workplan || 0)
+    ) {
+        frm.set_value("expected_time", flt(days * flt(scope.working_hours_per_day || 8), 2));
+    }
 }
 
 function task_apply_self_assignment(frm) {
@@ -624,6 +641,7 @@ frappe.ui.form.on("Task", {
         task_apply_completion_lock_ui(frm);
         task_apply_parent_rollup_ui(frm);
         task_apply_timing_ui(frm);
+        task_calculate_expected_values(frm);
         task_add_reopen_button(frm);
         task_add_parent_unlock_button(frm);
         task_add_complete_parent_button(frm);
