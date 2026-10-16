@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 import frappe
-from frappe.utils import nowdate
+from frappe.utils import date_diff, flt, getdate, nowdate
 
 from qfap_adds.qfap_adds.task_management.scope import (
     can_manage_employee,
@@ -89,7 +89,9 @@ def _prepare_assignment(doc, settings):
         frappe.throw("You cannot assign a task outside your administrative scope. Create a Task Assignment Request instead.")
 
     doc.custom_user_id = employee.user_id
-    doc.department = employee.department
+    # Preserve an explicitly selected Department. Use the Employee Department only when blank.
+    if not doc.get("department") and employee.department:
+        doc.department = employee.department
     doc.custom_self_assigned = 1 if is_self else 0
     if is_self:
         doc.custom_task_assigned_by = current_employee
@@ -97,6 +99,29 @@ def _prepare_assignment(doc, settings):
         doc.custom_task_assigned_by = current_employee
     if not doc.custom_task_assigned_by:
         frappe.throw("Assigned By could not be determined from the current User.")
+
+
+
+def _prepare_expected_values(doc, settings):
+    if not doc.exp_start_date or not doc.exp_end_date:
+        doc.custom_expected_days = 0
+        return
+
+    start_date = getdate(doc.exp_start_date)
+    end_date = getdate(doc.exp_end_date)
+    if end_date < start_date:
+        frappe.throw("Expected End Date cannot be before Expected Start Date.")
+
+    expected_days = date_diff(end_date, start_date) + 1
+    doc.custom_expected_days = flt(expected_days, 2)
+
+    if (
+        int(settings.auto_calculate_expected_hours or 0)
+        and not int(doc.get("is_group") or 0)
+        and not int(doc.get("custom_project_workplan") or 0)
+    ):
+        hours_per_day = flt(settings.working_hours_per_day or 8)
+        doc.expected_time = flt(expected_days * hours_per_day, 2)
 
 
 def _prepare_completion(doc):
@@ -119,6 +144,7 @@ def before_validate(doc, method=None):
         bool(doc.get("custom_project_workplan")), True,
     )
     _prepare_assignment(doc, settings)
+    _prepare_expected_values(doc, settings)
     _prepare_completion(doc)
 
 
