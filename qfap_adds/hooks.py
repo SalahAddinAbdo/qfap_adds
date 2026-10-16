@@ -85,7 +85,9 @@ after_migrate = [
 
 scheduler_events = {
     "cron": {
-        "0 8 * * 0": ["qfap_adds.qfap_adds.task_management.scheduler.weekly_employee_task_summary"]
+        "*/15 * * * *": [
+            "qfap_adds.qfap_adds.task_management.scheduler.run_scheduled_task_summary"
+        ]
     }
 }
 
