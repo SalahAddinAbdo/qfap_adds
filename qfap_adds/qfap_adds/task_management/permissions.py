@@ -47,7 +47,9 @@ def has_task_permission(doc, user=None, permission_type=None):
     if permission_type in READ_TYPES:
         return bool(doc.owner == user or doc.get("custom_user_id") == user or in_scope or shared_read)
     if permission_type in WRITE_TYPES:
-        return bool(doc.owner == user or doc.get("custom_user_id") == user or in_scope)
+        # Supervisors receive read access only. Supervisor Remarks are saved
+        # exclusively through the restricted API endpoint.
+        return bool(doc.owner == user or doc.get("custom_user_id") == user)
     return None
 
 
