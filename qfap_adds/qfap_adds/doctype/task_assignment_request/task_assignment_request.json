@@ -2,7 +2,7 @@
   "doctype": "DocType",
   "name": "Task Assignment Request",
   "module": "QFap Adds",
-  "autoname": "format:TAR-.YYYY.-.#####",
+  "autoname": "naming_series:",
   "title_field": "subject",
   "search_fields": "subject,requested_assignee,project,created_task",
   "track_changes": 1,
@@ -10,6 +10,7 @@
   "field_order": [
     "request_details",
     "request_type",
+    "naming_series",
     "workflow_state",
     "layout_v2_column_break_1",
     "requested_by_user",
@@ -62,6 +63,16 @@
       "options": "Assign New Task",
       "default": "Assign New Task",
       "read_only": 1
+    },
+    {
+      "fieldname": "naming_series",
+      "label": "Naming Series",
+      "fieldtype": "Select",
+      "options": "TAR-.YYYY.-.#####",
+      "default": "TAR-.YYYY.-.#####",
+      "reqd": 1,
+      "no_copy": 1,
+      "description": "Series used to generate the Task Assignment Request ID."
     },
     {
       "fieldname": "workflow_state",
