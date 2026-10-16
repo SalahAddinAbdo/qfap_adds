@@ -139,11 +139,13 @@ class BudgetLine(NestedSet):
 
 @frappe.whitelist()
 def get_tree_nodes(doctype=None, parent=None, filters=None, project=None, is_root=False, **kwargs):
-    """Return Budget Line nodes using the real per-Project root records.
+    """Return the real per-Project Budget Line hierarchy.
 
-    Without a Project filter, the first tree level contains the root Budget Line
-    of every Project. With a Project filter, only that Project root is returned.
-    Expanding a node always reads children by ``parent_budget_line``.
+    Frappe may send the selected Project in ``filters`` as a dict, a list, or a
+    JSON string. When a Project filter is active, Frappe may also send the
+    Project name itself as ``parent`` while expanding the visible Project root.
+    This method normalizes both cases and maps that visible Project root to the
+    actual root Budget Line document before fetching children.
     """
     parsed_filters = filters
     if isinstance(parsed_filters, str):
@@ -151,13 +153,46 @@ def get_tree_nodes(doctype=None, parent=None, filters=None, project=None, is_roo
             parsed_filters = frappe.parse_json(parsed_filters)
         except Exception:
             parsed_filters = {}
-    if not isinstance(parsed_filters, dict):
-        parsed_filters = {}
 
-    selected_project = project or parsed_filters.get("project") or ""
+    selected_project = project or ""
+    if isinstance(parsed_filters, dict):
+        selected_project = selected_project or parsed_filters.get("project") or ""
+    elif isinstance(parsed_filters, (list, tuple)):
+        for item in parsed_filters:
+            if isinstance(item, dict) and item.get("fieldname") == "project":
+                selected_project = selected_project or item.get("value") or ""
+            elif isinstance(item, (list, tuple)) and len(item) >= 2:
+                # Supports [field, value], [field, operator, value], and
+                # [doctype, field, operator, value] filter formats.
+                if item[0] == "project":
+                    selected_project = selected_project or item[-1] or ""
+                elif len(item) >= 4 and item[1] == "project":
+                    selected_project = selected_project or item[-1] or ""
+
     current_parent = (parent or "").strip()
     root_labels = {"", "Budget Line", "Budget Lines", _("Budget Lines")}
     root_request = bool(frappe.utils.cint(is_root) or current_parent in root_labels)
+
+    # With a selected Project, the visible first node can use the Project name
+    # as its value. Resolve it to the actual root Budget Line document.
+    if not root_request:
+        parent_is_budget_line = frappe.db.exists("Budget Line", current_parent)
+        parent_is_project = frappe.db.exists("Project", current_parent)
+        if not parent_is_budget_line and (parent_is_project or current_parent == selected_project):
+            project_for_root = selected_project or current_parent
+            actual_root = frappe.db.get_value(
+                "Budget Line",
+                {
+                    "project": project_for_root,
+                    "parent_budget_line": ["is", "not set"],
+                    "is_group": 1,
+                },
+                "name",
+            )
+            if not actual_root:
+                return []
+            current_parent = actual_root
+            selected_project = project_for_root
 
     node_filters = {}
     if selected_project:
@@ -199,4 +234,3 @@ def get_tree_nodes(doctype=None, parent=None, filters=None, project=None, is_roo
             }
         )
     return nodes
-
