@@ -643,7 +643,7 @@ function task_add_supervisor_remark_button(frm) {
                         {
                             fieldname: "remark",
                             label: __("Supervisor Remark"),
-                            fieldtype: "Text Editor",
+                            fieldtype: "Small Text",
                             default: current,
                             reqd: 1,
                             description: __("Saving this remark notifies the Employee assigned to the Task.")
@@ -667,6 +667,9 @@ function task_add_supervisor_remark_button(frm) {
                     }
                 });
                 dialog.show();
+                if (dialog.fields_dict.remark && dialog.fields_dict.remark.$input) {
+                    dialog.fields_dict.remark.$input.attr("dir", "auto");
+                }
             }, __("Actions"));
         }
     });
