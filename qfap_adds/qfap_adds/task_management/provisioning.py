@@ -12,6 +12,7 @@ BASE = Path(__file__).resolve().parent
 ADMIN_ROLE = "Task Management Administrator"
 REPORT_ROLE = "Reports Viewer"
 DEFAULT_SUMMARY_EMAIL_TEMPLATE = "Farabi Configurable Task Summary v4"
+EMPLOYEE_ANNOUNCEMENT_EMAIL_TEMPLATE = "New Employee Announcement - Bilingual"
 WORKFLOW_NAME = "Task Assignment Request Approval"
 WORKFLOW_DOCTYPE = "Task Assignment Request"
 
@@ -97,6 +98,27 @@ def _ensure_notification(data: dict) -> None:
     existing.flags.ignore_permissions = True
     existing.save(ignore_permissions=True)
 
+
+
+def _ensure_employee_announcement_email_template() -> None:
+    """Create the editable employee announcement template without overwriting customizations."""
+    if not frappe.db.exists("DocType", "Email Template"):
+        return
+
+    template_data = _load_json("employee_announcement_email_template.json")
+    template_name = template_data.get("name") or EMPLOYEE_ANNOUNCEMENT_EMAIL_TEMPLATE
+    if frappe.db.exists("Email Template", template_name):
+        return
+
+    frappe.get_doc(
+        {
+            "doctype": "Email Template",
+            "name": template_name,
+            "subject": template_data.get("subject") or "",
+            "use_html": int(template_data.get("use_html") or 1),
+            "response_html": template_data.get("response_html") or "",
+        }
+    ).insert(ignore_permissions=True)
 
 
 def _ensure_task_summary_email_template() -> None:
@@ -377,6 +399,7 @@ def provision_task_integration() -> None:
     _configure_task_properties()
     _configure_task_quick_entry_fields()
     _provision_notifications()
+    _ensure_employee_announcement_email_template()
     _ensure_task_summary_email_template()
     _set_task_management_defaults()
     _ensure_workflow()
