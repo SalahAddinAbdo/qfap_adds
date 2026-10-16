@@ -79,19 +79,22 @@
       "fieldname": "enabled",
       "label": "Enable Task Management",
       "fieldtype": "Check",
-      "default": "1"
+      "default": "1",
+      "description": "Enables or disables the custom task-management controls."
     },
     {
       "fieldname": "administration_section",
       "label": "Administration",
-      "fieldtype": "Section Break"
+      "fieldtype": "Section Break",
+      "description": "Global administration and privileged-access settings."
     },
     {
       "fieldname": "administrative_role",
       "label": "Administrative Role",
       "fieldtype": "Link",
       "default": "Task Management Administrator",
-      "options": "Role"
+      "options": "Role",
+      "description": "Role with full task-management administration rights."
     },
     {
       "fieldname": "global_reopen_roles",
@@ -100,222 +103,260 @@
       "default": "System Manager\nTask Management Administrator",
       "hidden": 1,
       "read_only": 1,
-      "description": "Legacy field retained for safe migration and backward compatibility."
+      "description": "Legacy migration field; use the Role table above."
     },
     {
       "fieldname": "scope_section",
       "label": "Assignment Scope",
-      "fieldtype": "Section Break"
+      "fieldtype": "Section Break",
+      "description": "Controls assignable Employees using the reporting hierarchy."
     },
     {
       "fieldname": "scope_mode",
       "label": "Scope Mode",
       "fieldtype": "Select",
       "default": "Full Reporting Tree",
-      "options": "Direct Reports Only\nFull Reporting Tree"
+      "options": "Direct Reports Only\nFull Reporting Tree",
+      "description": "Select direct reports only or the complete reporting tree."
     },
     {
       "fieldname": "hierarchy_max_depth",
       "label": "Maximum Hierarchy Depth",
       "fieldtype": "Int",
       "default": "100",
-      "non_negative": 1
+      "non_negative": 1,
+      "description": "Maximum reports_to levels traversed."
     },
     {
       "fieldname": "same_company_only",
       "label": "Restrict to Same Company",
       "fieldtype": "Check",
-      "default": "1"
+      "default": "1",
+      "description": "Restricts scope and assignment to the same Company."
     },
     {
       "fieldname": "allow_self_assignment",
       "label": "Allow Self Assignment",
       "fieldtype": "Check",
-      "default": "1"
+      "default": "1",
+      "description": "Allows users to assign tasks to themselves."
     },
     {
       "fieldname": "outside_scope_policy",
       "label": "Outside Scope Policy",
       "fieldtype": "Select",
       "default": "Create Assignment Request",
-      "options": "Block\nCreate Assignment Request\nAdministrative Role Only"
+      "options": "Block\nCreate Assignment Request\nAdministrative Role Only",
+      "description": "Policy for assignments outside the user hierarchy."
     },
     {
       "fieldname": "project_section",
       "label": "Project Period",
-      "fieldtype": "Section Break"
+      "fieldtype": "Section Break",
+      "description": "Rules controlling Task dates against the Project period."
     },
     {
       "fieldname": "enforce_project_period",
       "label": "Enforce Project Period",
       "fieldtype": "Check",
-      "default": "1"
+      "default": "1",
+      "description": "Enforces Project date boundaries."
     },
     {
       "fieldname": "allow_before_project_start",
       "label": "Allow Before Project Start",
       "fieldtype": "Check",
-      "default": "0"
+      "default": "0",
+      "description": "Allows Tasks to start before the Project."
     },
     {
       "fieldname": "allow_after_project_end",
       "label": "Allow After Project End",
       "fieldtype": "Check",
-      "default": "0"
+      "default": "0",
+      "description": "Allows Tasks to start after the Project ends."
     },
     {
       "fieldname": "allow_cross_project_end",
       "label": "Allow Crossing Project End",
       "fieldtype": "Check",
-      "default": "0"
+      "default": "0",
+      "description": "Allows a Task to cross the Project end date."
     },
     {
       "fieldname": "allow_workplan_outside_period",
       "label": "Allow Workplan Outside Period",
       "fieldtype": "Check",
-      "default": "1"
+      "default": "1",
+      "description": "Allows Project Workplan Tasks outside Project dates."
     },
     {
       "fieldname": "missing_project_dates_policy",
       "label": "Missing Project Dates Policy",
       "fieldtype": "Select",
       "default": "Allow with Warning",
-      "options": "Block\nAllow with Warning\nAllow"
+      "options": "Block\nAllow with Warning\nAllow",
+      "description": "Policy when Project dates are missing."
     },
     {
       "fieldname": "parent_section",
       "label": "Main and Child Tasks",
-      "fieldtype": "Section Break"
+      "fieldtype": "Section Break",
+      "description": "Main and child Task hierarchy settings."
     },
     {
       "fieldname": "allow_workplan_as_parent",
       "label": "Allow Workplan as Main Task",
       "fieldtype": "Check",
-      "default": "1"
+      "default": "1",
+      "description": "Allows Project Workplan Tasks as parents."
     },
     {
       "fieldname": "exclude_locked_parents",
       "label": "Exclude Locked Main Tasks",
       "fieldtype": "Check",
-      "default": "1"
+      "default": "1",
+      "description": "Excludes locked Tasks from parent selection."
     },
     {
       "fieldname": "maximum_task_tree_depth",
       "label": "Maximum Task Tree Depth",
       "fieldtype": "Int",
       "default": "100",
-      "non_negative": 1
+      "non_negative": 1,
+      "description": "Maximum Task hierarchy depth."
     },
     {
       "fieldname": "lock_parent_with_children",
       "label": "Lock Main Task When Children Exist",
       "fieldtype": "Check",
-      "default": "1"
+      "default": "1",
+      "description": "Locks a parent Task when children exist."
     },
     {
       "fieldname": "require_children_completed",
       "label": "Require All Children Completed",
       "fieldtype": "Check",
-      "default": "1"
+      "default": "1",
+      "description": "Requires all active children to be completed first."
     },
     {
       "fieldname": "rollup_section",
       "label": "Rollup",
-      "fieldtype": "Section Break"
+      "fieldtype": "Section Break",
+      "description": "Controls child-to-parent rollup."
     },
     {
       "fieldname": "progress_calculation",
       "label": "Progress Calculation",
       "fieldtype": "Select",
       "default": "Weighted by Expected Hours",
-      "options": "Average\nWeighted by Expected Hours"
+      "options": "Average\nWeighted by Expected Hours",
+      "description": "Parent progress calculation method."
     },
     {
       "fieldname": "rollup_expected_hours",
       "label": "Roll Up Expected Hours",
       "fieldtype": "Check",
-      "default": "1"
+      "default": "1",
+      "description": "Rolls child Expected Hours into the parent."
     },
     {
       "fieldname": "rollup_actual_hours",
       "label": "Roll Up Actual Hours",
       "fieldtype": "Check",
-      "default": "1"
+      "default": "1",
+      "description": "Rolls child Actual Hours into the parent."
     },
     {
       "fieldname": "sharing_section",
       "label": "Sharing",
-      "fieldtype": "Section Break"
+      "fieldtype": "Section Break",
+      "description": "Managed Task sharing settings."
     },
     {
       "fieldname": "enable_managed_sharing",
       "label": "Enable Managed DocShare",
       "fieldtype": "Check",
-      "default": "1"
+      "default": "1",
+      "description": "Enables application-managed DocShare records."
     },
     {
       "fieldname": "share_with_assignee",
       "label": "Share with Assignee",
       "fieldtype": "Check",
-      "default": "1"
+      "default": "1",
+      "description": "Shares the Task with the assignee User."
     },
     {
       "fieldname": "share_with_supervisor_chain",
       "label": "Share with Supervisor Chain",
       "fieldtype": "Check",
-      "default": "1"
+      "default": "1",
+      "description": "Shares the Task with the supervisor chain."
     },
     {
       "fieldname": "managed_share_write",
       "label": "Managed Share Write Permission",
       "fieldtype": "Check",
-      "default": "1"
+      "default": "1",
+      "description": "Grants write access through managed shares."
     },
     {
       "fieldname": "protect_manual_shares",
       "label": "Protect Manual Shares",
       "fieldtype": "Check",
-      "default": "1"
+      "default": "1",
+      "description": "Preserves manual DocShare records."
     },
     {
       "fieldname": "remove_obsolete_managed_shares",
       "label": "Remove Obsolete Managed Shares",
       "fieldtype": "Check",
-      "default": "1"
+      "default": "1",
+      "description": "Removes obsolete application-managed shares only."
     },
     {
       "fieldname": "request_section",
       "label": "Assignment Requests",
-      "fieldtype": "Section Break"
+      "fieldtype": "Section Break",
+      "description": "Task Assignment Request settings."
     },
     {
       "fieldname": "enable_assignment_requests",
       "label": "Enable Assignment Requests",
       "fieldtype": "Check",
-      "default": "1"
+      "default": "1",
+      "description": "Enables assignment requests and supervisor approval."
     },
     {
       "fieldname": "prevent_self_approval",
       "label": "Prevent Self Approval",
       "fieldtype": "Check",
-      "default": "1"
+      "default": "1",
+      "description": "Prevents requesters from deciding their own requests."
     },
     {
       "fieldname": "notification_section",
       "label": "Notifications and Summary",
-      "fieldtype": "Section Break"
+      "fieldtype": "Section Break",
+      "description": "Notifications and scheduled summary settings."
     },
     {
       "fieldname": "enable_notifications",
       "label": "Enable Notifications",
       "fieldtype": "Check",
-      "default": "1"
+      "default": "1",
+      "description": "Enables application Task notifications."
     },
     {
       "fieldname": "weekly_summary_enabled",
       "label": "Enable Weekly Summary",
       "fieldtype": "Check",
-      "default": "1"
+      "default": "1",
+      "hidden": 1,
+      "read_only": 1,
+      "description": "Legacy setting; use the new schedule switch."
     },
     {
       "fieldname": "weekly_summary_recipients",
@@ -323,81 +364,91 @@
       "fieldtype": "Small Text",
       "hidden": 1,
       "read_only": 1,
-      "description": "Legacy field retained for safe migration and backward compatibility."
+      "description": "Legacy recipients field."
     },
     {
       "fieldname": "migration_section",
       "label": "Migration and Diagnostics",
-      "fieldtype": "Section Break"
+      "fieldtype": "Section Break",
+      "description": "Migration, reconciliation, and diagnostics."
     },
     {
       "fieldname": "migration_batch_size",
       "label": "Migration Batch Size",
       "fieldtype": "Int",
       "default": "200",
-      "non_negative": 1
+      "non_negative": 1,
+      "description": "Migration batch size."
     },
     {
       "fieldname": "reconciliation_batch_size",
       "label": "Reconciliation Batch Size",
       "fieldtype": "Int",
       "default": "200",
-      "non_negative": 1
+      "non_negative": 1,
+      "description": "Reconciliation batch size."
     },
     {
       "fieldname": "warn_legacy_scripts",
       "label": "Warn About Legacy Scripts",
       "fieldtype": "Check",
-      "default": "1"
+      "default": "1",
+      "description": "Warns about conflicting legacy scripts."
     },
     {
       "fieldname": "last_reconciliation_on",
       "label": "Last Reconciliation On",
       "fieldtype": "Datetime",
-      "read_only": 1
+      "read_only": 1,
+      "description": "Last reconciliation time."
     },
     {
       "fieldname": "last_reconciliation_status",
       "label": "Last Reconciliation Status",
       "fieldtype": "Data",
-      "read_only": 1
+      "read_only": 1,
+      "description": "Latest reconciliation status."
     },
     {
       "fieldname": "last_reconciliation_summary",
       "label": "Last Reconciliation Summary",
       "fieldtype": "Long Text",
-      "read_only": 1
+      "read_only": 1,
+      "description": "Latest reconciliation statistics."
     },
     {
       "fieldname": "parent_must_same_project",
       "label": "Main Task Must Belong to Same Project",
       "fieldtype": "Check",
-      "default": "1"
+      "default": "1",
+      "description": "Requires parent and child Tasks to use the same Project."
     },
     {
       "fieldname": "allow_unassigned_standard_tasks",
       "label": "Allow Unassigned Standard Tasks",
       "fieldtype": "Check",
       "default": "1",
-      "description": "Preserves compatibility with standard ERPNext processes that create Task records without the custom employee assignment fields."
+      "description": "Allows standard unassigned ERPNext Tasks."
     },
     {
       "fieldname": "global_reopen_role_rows",
       "label": "Roles Allowed to Reopen Globally",
       "fieldtype": "Table",
       "options": "Task Management Role Row",
-      "description": "Select existing system Roles. Existing rows are never replaced during updates."
+      "description": "System Roles allowed to reopen completed tasks globally."
     },
     {
       "fieldname": "summary_schedule_section",
       "label": "Scheduled Task Summary",
-      "fieldtype": "Section Break"
+      "fieldtype": "Section Break",
+      "description": "Configurable scheduled Task summary."
     },
     {
       "fieldname": "summary_schedule_enabled",
       "label": "Enable Scheduled Task Summary",
       "fieldtype": "Check",
-      "default": "1"
+      "default": "1",
+      "description": "Enables scheduled summary delivery."
     },
     {
       "fieldname": "summary_frequency",
@@ -405,14 +456,16 @@
       "fieldtype": "Select",
       "options": "Daily\nWeekly\nMonthly",
       "default": "Weekly",
-      "depends_on": "eval:doc.summary_schedule_enabled"
+      "depends_on": "eval:doc.summary_schedule_enabled",
+      "description": "Summary delivery frequency."
     },
     {
       "fieldname": "summary_send_time",
       "label": "Send Time",
       "fieldtype": "Time",
       "default": "08:00:00",
-      "depends_on": "eval:doc.summary_schedule_enabled"
+      "depends_on": "eval:doc.summary_schedule_enabled",
+      "description": "Send time in the site timezone."
     },
     {
       "fieldname": "summary_weekly_day",
@@ -420,7 +473,8 @@
       "fieldtype": "Select",
       "options": "Monday\nTuesday\nWednesday\nThursday\nFriday\nSaturday\nSunday",
       "default": "Sunday",
-      "depends_on": "eval:doc.summary_schedule_enabled && doc.summary_frequency == \"Weekly\""
+      "depends_on": "eval:doc.summary_schedule_enabled && doc.summary_frequency == \"Weekly\"",
+      "description": "Delivery weekday for Weekly frequency."
     },
     {
       "fieldname": "summary_monthly_day",
@@ -428,72 +482,78 @@
       "fieldtype": "Int",
       "default": "1",
       "depends_on": "eval:doc.summary_schedule_enabled && doc.summary_frequency == \"Monthly\"",
-      "non_negative": 1
+      "description": "Monthly delivery day, 1–28."
     },
     {
       "fieldname": "summary_recipients",
       "label": "Additional Recipients",
       "fieldtype": "Table",
       "options": "Task Summary Recipient",
-      "description": "Additional system users or external email addresses receiving employee summary copies."
+      "description": "Additional system or external recipients."
     },
     {
       "fieldname": "summary_email_subject",
       "label": "Email Subject Template",
       "fieldtype": "Data",
       "default": "Task Summary | {employee_name} | {report_date}",
-      "description": "Supported placeholders: {employee_name}, {report_date}, {frequency}."
+      "description": "Fallback subject template."
     },
     {
       "fieldname": "summary_email_template",
       "label": "Email Template",
       "fieldtype": "Link",
       "options": "Email Template",
-      "description": "Editable Email Template used for scheduled and manual task summaries. The application creates Farabi Task Summary once and never overwrites user changes."
+      "description": "Editable Email Template for task summaries."
     },
     {
       "fieldname": "summary_send_to_employees",
       "label": "Send to Assigned Employees",
       "fieldtype": "Check",
-      "default": "1"
+      "default": "1",
+      "description": "Sends each employee their own summary."
     },
     {
       "fieldname": "summary_last_period_key",
       "label": "Last Period Key",
       "fieldtype": "Data",
       "read_only": 1,
-      "hidden": 1
+      "hidden": 1,
+      "description": "Internal duplicate-prevention key."
     },
     {
       "fieldname": "summary_last_sent_on",
       "label": "Last Sent On",
       "fieldtype": "Datetime",
-      "read_only": 1
+      "read_only": 1,
+      "description": "Last actual summary send time."
     },
     {
       "fieldname": "summary_next_send_on",
       "label": "Next Scheduled Send",
       "fieldtype": "Datetime",
-      "read_only": 1
+      "read_only": 1,
+      "description": "Calculated next scheduled send."
     },
     {
       "fieldname": "summary_last_send_status",
       "label": "Last Send Status",
       "fieldtype": "Data",
-      "read_only": 1
+      "read_only": 1,
+      "description": "Status of the latest send attempt."
     },
     {
       "fieldname": "summary_last_send_summary",
       "label": "Last Send Summary",
       "fieldtype": "Long Text",
-      "read_only": 1
+      "read_only": 1,
+      "description": "Technical result of the latest send run."
     },
     {
       "fieldname": "auto_calculate_expected_hours",
       "label": "Auto Calculate Expected Hours",
       "fieldtype": "Check",
       "default": "1",
-      "description": "Calculate Expected Hours from the inclusive date range and Working Hours per Day."
+      "description": "Auto-calculates Expected Hours from dates."
     },
     {
       "fieldname": "working_hours_per_day",
@@ -502,7 +562,7 @@
       "default": "8",
       "non_negative": 1,
       "depends_on": "eval:doc.auto_calculate_expected_hours",
-      "description": "Used only for automatic Expected Hours calculation."
+      "description": "Hours per day used by automatic calculation."
     }
   ],
   "permissions": [
