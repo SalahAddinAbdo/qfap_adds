@@ -93,7 +93,18 @@ def _ensure_task_summary_email_template() -> None:
         current = frappe.db.get_single_value(
             "Task Management Settings", "summary_email_template"
         )
-        if not current:
+        use_new_template = not current
+        if current == "Farabi Task Summary" and frappe.db.exists("Email Template", current):
+            current_body = frappe.db.get_value(
+                "Email Template", current, "response_html"
+            ) or ""
+            # Switch only when the previous template is still the original wrapper.
+            # A customized legacy template remains selected and untouched.
+            use_new_template = (
+                "generated_summary_html" in current_body
+                and len(current_body.strip()) < 1500
+            )
+        if use_new_template:
             frappe.db.set_single_value(
                 "Task Management Settings",
                 "summary_email_template",
