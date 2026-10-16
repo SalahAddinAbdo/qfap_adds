@@ -11,7 +11,7 @@ BASE = Path(__file__).resolve().parent
 
 ADMIN_ROLE = "Task Management Administrator"
 REPORT_ROLE = "Reports Viewer"
-DEFAULT_SUMMARY_EMAIL_TEMPLATE = "Farabi Task Summary"
+DEFAULT_SUMMARY_EMAIL_TEMPLATE = "Farabi Configurable Task Summary v2"
 WORKFLOW_NAME = "Task Assignment Request Approval"
 WORKFLOW_DOCTYPE = "Task Assignment Request"
 
@@ -71,46 +71,25 @@ def _ensure_notification(data: dict) -> None:
 
 
 def _ensure_task_summary_email_template() -> None:
-    """Create the editable default template once and preserve later user changes."""
+    """Create the polished v2 template once and preserve user customizations."""
     if not frappe.db.exists("DocType", "Email Template"):
         return
-
     template_data = _load_json("task_summary_email_template.json")
     template_name = template_data["name"]
-
     if not frappe.db.exists("Email Template", template_name):
-        frappe.get_doc(
-            {
-                "doctype": "Email Template",
-                "name": template_name,
-                "subject": template_data["subject"],
-                "use_html": int(template_data.get("use_html") or 1),
-                "response_html": template_data["response_html"],
-            }
-        ).insert(ignore_permissions=True)
-
-    if frappe.db.exists("DocType", "Task Management Settings"):
-        current = frappe.db.get_single_value(
-            "Task Management Settings", "summary_email_template"
-        )
-        use_new_template = not current
-        if current == "Farabi Task Summary" and frappe.db.exists("Email Template", current):
-            current_body = frappe.db.get_value(
-                "Email Template", current, "response_html"
-            ) or ""
-            # Switch only when the previous template is still the original wrapper.
-            # A customized legacy template remains selected and untouched.
-            use_new_template = (
-                "generated_summary_html" in current_body
-                and len(current_body.strip()) < 1500
-            )
-        if use_new_template:
-            frappe.db.set_single_value(
-                "Task Management Settings",
-                "summary_email_template",
-                template_name,
-            )
-
+        frappe.get_doc({
+            "doctype": "Email Template",
+            "name": template_name,
+            "subject": template_data["subject"],
+            "use_html": int(template_data.get("use_html") or 1),
+            "response_html": template_data["response_html"],
+        }).insert(ignore_permissions=True)
+    if not frappe.db.exists("DocType", "Task Management Settings"):
+        return
+    current = frappe.db.get_single_value("Task Management Settings", "summary_email_template") or ""
+    default_templates = {"", "Farabi Task Summary", "Farabi Configurable Task Summary"}
+    if current in default_templates:
+        frappe.db.set_single_value("Task Management Settings", "summary_email_template", template_name)
 
 def _ensure_workflow_state(state_name: str, style: str) -> None:
     existing_name = frappe.db.get_value(
