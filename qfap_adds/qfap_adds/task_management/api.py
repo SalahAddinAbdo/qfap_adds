@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import frappe
 
-from qfap_adds.qfap_adds.task_management.settings import get_global_reopen_roles, get_settings
+from qfap_adds.qfap_adds.task_management.settings import get_settings, role_lines
 
 @frappe.whitelist()
 def task_assignment_scope(target_employee=None):
@@ -127,9 +127,7 @@ def task_assignment_scope(target_employee=None):
         "assignable_employee_names": assignees,
         "supervisor_names": supervisors,
         "target_employee": requested_target,
-        "target_allowed": 1 if requested_target and requested_target in assignees else 0,
-        "auto_calculate_expected_hours": int(settings.auto_calculate_expected_hours or 0),
-        "working_hours_per_day": float(settings.working_hours_per_day or 8),
+        "target_allowed": 1 if requested_target and requested_target in assignees else 0
     }
 
     return result
@@ -397,6 +395,8 @@ def reopen_task(task=None):
     # ---------------------------------------------------------
     # Reopen task
     # ---------------------------------------------------------
+    rollup_values = rebuild(task_name)
+
     frappe.db.set_value(
         "Task",
         task_name,
@@ -470,6 +470,8 @@ def task_unlock_parent_summary(task=None):
 
     if int(values.get("custom_child_task_count") or 0) < 1:
         frappe.throw("This task has no active child tasks.")
+
+    rollup_values = rebuild(task_name)
 
     frappe.db.set_value(
         "Task",
@@ -577,6 +579,8 @@ def task_complete_parent_summary(task=None):
             "All active child tasks must be completed before completing the main task."
         )
 
+    rollup_values = rebuild(task_name)
+
     frappe.db.set_value(
         "Task",
         task_name,
@@ -589,7 +593,11 @@ def task_complete_parent_summary(task=None):
             "custom_task_locked": 1,
             "custom_parent_rollup_locked": 1,
             "custom_child_task_count": len(children),
-            "custom_completed_child_task_count": len(children)
+            "custom_completed_child_task_count": len(children),
+            "expected_time": rollup_values.get("expected_time", 0),
+            "actual_time": rollup_values.get("actual_time", 0),
+            "exp_end_date": rollup_values.get("exp_end_date"),
+            "custom_expected_days": rollup_values.get("custom_expected_days", 0),
         },
         update_modified=True
     )
