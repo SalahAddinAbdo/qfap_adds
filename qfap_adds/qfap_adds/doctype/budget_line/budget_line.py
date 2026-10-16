@@ -135,3 +135,68 @@ class BudgetLine(NestedSet):
             children = frappe.get_all(self.doctype,
                 filters={"parent_budget_line": group.name, "status": "Approved"}, pluck="line_cost", limit_page_length=0)
             frappe.db.set_value(self.doctype, group.name, "line_cost", sum(flt(v) for v in children), update_modified=False)
+
+
+@frappe.whitelist()
+def get_tree_nodes(doctype=None, parent=None, filters=None, project=None, is_root=False, **kwargs):
+    """Return Budget Line nodes using the real per-Project root records.
+
+    Without a Project filter, the first tree level contains the root Budget Line
+    of every Project. With a Project filter, only that Project root is returned.
+    Expanding a node always reads children by ``parent_budget_line``.
+    """
+    parsed_filters = filters
+    if isinstance(parsed_filters, str):
+        try:
+            parsed_filters = frappe.parse_json(parsed_filters)
+        except Exception:
+            parsed_filters = {}
+    if not isinstance(parsed_filters, dict):
+        parsed_filters = {}
+
+    selected_project = project or parsed_filters.get("project") or ""
+    current_parent = (parent or "").strip()
+    root_labels = {"", "Budget Line", "Budget Lines", _("Budget Lines")}
+    root_request = bool(frappe.utils.cint(is_root) or current_parent in root_labels)
+
+    node_filters = {}
+    if selected_project:
+        node_filters["project"] = selected_project
+
+    if root_request:
+        node_filters["parent_budget_line"] = ["is", "not set"]
+        node_filters["is_group"] = 1
+    else:
+        node_filters["parent_budget_line"] = current_parent
+
+    rows = frappe.get_list(
+        "Budget Line",
+        filters=node_filters,
+        fields=[
+            "name",
+            "name1",
+            "budget_line",
+            "project",
+            "parent_budget_line",
+            "is_group",
+            "lft",
+            "rgt",
+        ],
+        order_by="project asc, lft asc",
+        limit_page_length=0,
+    )
+
+    nodes = []
+    for row in rows:
+        is_project_root = not row.parent_budget_line
+        nodes.append(
+            {
+                "value": row.name,
+                "title": row.project if is_project_root else (row.name1 or row.budget_line or row.name),
+                "expandable": 1 if frappe.utils.cint(row.is_group) else 0,
+                "project": row.project,
+                "is_project_root": 1 if is_project_root else 0,
+            }
+        )
+    return nodes
+
