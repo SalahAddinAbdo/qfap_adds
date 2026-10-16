@@ -2,7 +2,7 @@
   "doctype": "DocType",
   "name": "Task Management Settings",
   "module": "QFap Adds",
-  "is_single": 1,
+  "issingle": 1,
   "track_changes": 1,
   "field_order": [
     "enabled",
