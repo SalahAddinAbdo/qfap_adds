@@ -12,12 +12,19 @@ app_include_js = [
 ]
 
 doctype_js = {
+    "Task Assignment Request": "public/js/task_assignment_request.js",
+    "Task": "public/js/task.js",
     "Employee": "public/js/employee_announcement.js",
     "Notification": "public/js/notification_configuration.js",
     "Workflow": "public/js/workflow_engine.js",
 }
 
 doc_events = {
+    "Task": {
+        "before_validate": "qfap_adds.qfap_adds.task_management.events.before_validate",
+        "on_update": "qfap_adds.qfap_adds.task_management.events.on_update",
+        "after_delete": "qfap_adds.qfap_adds.task_management.events.after_delete",
+    },
     "Workflow": {
         "validate": (
             "qfap_adds.qfap_adds.workflow.provisioning."
@@ -65,8 +72,29 @@ fixtures = [
     ]]]},
 ]
 
-after_install = "qfap_adds.qfap_adds.install.after_install"
+after_install = [
+    "qfap_adds.qfap_adds.install.after_install",
+    "qfap_adds.qfap_adds.task_management.provisioning.provision_task_integration",
+]
 after_migrate = [
     "qfap_adds.qfap_adds.install.after_migrate",
     "qfap_adds.printing.provisioning.provision_universal_print_formats",
+    "qfap_adds.qfap_adds.task_management.provisioning.provision_task_integration",
 ]
+
+
+scheduler_events = {
+    "cron": {
+        "0 8 * * 0": ["qfap_adds.qfap_adds.task_management.scheduler.weekly_employee_task_summary"]
+    }
+}
+
+permission_query_conditions = {
+    "Task": "qfap_adds.qfap_adds.task_management.permissions.task_query_condition",
+    "Task Assignment Request": "qfap_adds.qfap_adds.task_management.permissions.request_query_condition",
+}
+
+has_permission = {
+    "Task": "qfap_adds.qfap_adds.task_management.permissions.has_task_permission",
+    "Task Assignment Request": "qfap_adds.qfap_adds.task_management.permissions.has_request_permission",
+}
