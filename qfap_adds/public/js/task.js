@@ -619,6 +619,7 @@ function task_add_parent_buttons(frm) {
 
 function task_add_supervisor_remark_button(frm) {
     if (frm.is_new() || cint(frm.doc.custom_project_workplan || 0)) return;
+    if (frm.doc.custom_user_id && frm.doc.custom_user_id === frappe.session.user) return;
     frappe.call({
         method: "qfap_adds.qfap_adds.task_management.api.get_supervisor_remark_access",
         args: {task: frm.doc.name},
