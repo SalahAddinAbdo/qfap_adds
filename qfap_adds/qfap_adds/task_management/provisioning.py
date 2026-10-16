@@ -268,11 +268,68 @@ def _configure_task_properties() -> None:
         "Task",
         None,
         "quick_entry",
-        0,
+        1,
         "Check",
         validate_fields_for_doctype=False,
     )
 
+
+
+def _configure_task_quick_entry_fields() -> None:
+    """Expose the minimum complete Task creation fields in Quick Entry."""
+    meta = frappe.get_meta("Task")
+    quick_entry_fields = (
+        "company",
+        "project",
+        "type",
+        "priority",
+        "subject",
+        "custom_assign_to",
+        "department",
+        "custom_task_assigned_by",
+        "exp_start_date",
+        "exp_end_date",
+        "custom_expected_days",
+        "expected_time",
+        "parent_task",
+        "description",
+    )
+    hidden_from_quick_entry = ("is_template",)
+
+    for fieldname in quick_entry_fields:
+        if not meta.has_field(fieldname):
+            continue
+        make_property_setter(
+            "Task",
+            fieldname,
+            "allow_in_quick_entry",
+            1,
+            "Check",
+            validate_fields_for_doctype=False,
+        )
+
+    for fieldname in hidden_from_quick_entry:
+        if not meta.has_field(fieldname):
+            continue
+        make_property_setter(
+            "Task",
+            fieldname,
+            "allow_in_quick_entry",
+            0,
+            "Check",
+            validate_fields_for_doctype=False,
+        )
+
+    # Keep calculated Expected Days visible but read-only.
+    if meta.has_field("custom_expected_days"):
+        make_property_setter(
+            "Task",
+            "custom_expected_days",
+            "read_only",
+            1,
+            "Check",
+            validate_fields_for_doctype=False,
+        )
 
 def _provision_notifications() -> None:
     for notification in _load_json("notifications.json"):
@@ -310,6 +367,7 @@ def provision_task_integration() -> None:
 
     _create_or_update_task_custom_fields()
     _configure_task_properties()
+    _configure_task_quick_entry_fields()
     _provision_notifications()
     _ensure_task_summary_email_template()
     _set_task_management_defaults()
