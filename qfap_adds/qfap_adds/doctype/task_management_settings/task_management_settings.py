@@ -11,6 +11,7 @@ class TaskManagementSettings(Document):
         self._validate_roles()
         self._validate_recipients()
         self._validate_schedule()
+        self._validate_summary_configuration()
         if self.auto_calculate_expected_hours and float(self.working_hours_per_day or 0) <= 0:
             frappe.throw(_("Working Hours per Day must be greater than zero."))
         self._set_next_send()
@@ -68,3 +69,25 @@ class TaskManagementSettings(Document):
             return
         from qfap_adds.qfap_adds.task_management.scheduler import get_next_send_datetime
         self.summary_next_send_on = get_next_send_datetime(self)
+
+
+    def _validate_summary_configuration(self):
+        if self.summary_period_mode == "Custom Rolling Days" and int(self.summary_rolling_days or 0) <= 0:
+            frappe.throw(_("Rolling Days must be greater than zero."))
+        if int(self.summary_due_soon_days or 0) < 0:
+            frappe.throw(_("Due Soon Days cannot be negative."))
+        if int(self.summary_stale_days or 0) < 0:
+            frappe.throw(_("Stale Task Days cannot be negative."))
+        if int(self.summary_max_tasks or 0) <= 0:
+            frappe.throw(_("Maximum Tasks per Section must be greater than zero."))
+        seen = set()
+        for row in self.summary_filter_rows or []:
+            if not row.enabled:
+                continue
+            value = row.get(frappe.scrub(row.filter_type))
+            key = (row.filter_type, value)
+            if not value:
+                frappe.throw(_("Select a value in Task Summary Filter row {0}.").format(row.idx))
+            if key in seen:
+                frappe.throw(_("Duplicate Task Summary Filter in row {0}.").format(row.idx))
+            seen.add(key)

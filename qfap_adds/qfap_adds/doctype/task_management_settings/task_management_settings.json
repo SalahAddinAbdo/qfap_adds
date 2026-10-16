@@ -66,6 +66,36 @@
     "summary_next_send_on",
     "summary_last_send_status",
     "summary_last_send_summary",
+    "summary_period_section",
+    "summary_period_mode",
+    "summary_rolling_days",
+    "summary_include_carried_forward",
+    "summary_include_undated",
+    "summary_filters_section",
+    "summary_include_operational",
+    "summary_include_main_tasks",
+    "summary_include_workplan",
+    "summary_include_completed",
+    "summary_include_overdue",
+    "summary_include_due_soon",
+    "summary_due_soon_days",
+    "summary_only_attention",
+    "summary_progress_warning",
+    "summary_stale_days",
+    "summary_exclude_zero_hours",
+    "summary_filter_rows",
+    "summary_display_section",
+    "summary_detail_level",
+    "summary_max_tasks",
+    "summary_show_project",
+    "summary_show_status",
+    "summary_show_priority",
+    "summary_show_progress",
+    "summary_show_due_date",
+    "summary_show_expected_hours",
+    "summary_show_actual_hours",
+    "summary_show_task_type",
+    "summary_show_assigned_by",
     "migration_section",
     "migration_batch_size",
     "reconciliation_batch_size",
@@ -563,6 +593,214 @@
       "non_negative": 1,
       "depends_on": "eval:doc.auto_calculate_expected_hours",
       "description": "Hours per day used by automatic calculation."
+    },
+    {
+      "fieldname": "summary_period_section",
+      "label": "Task Summary Period",
+      "fieldtype": "Section Break",
+      "description": "Controls the date range used to select Tasks for each summary."
+    },
+    {
+      "fieldname": "summary_period_mode",
+      "label": "Report Period",
+      "fieldtype": "Select",
+      "options": "Automatic by Frequency\nCurrent Day\nCurrent Week\nCurrent Month\nPrevious Day\nPrevious Week\nPrevious Month\nCustom Rolling Days",
+      "default": "Automatic by Frequency",
+      "description": "Select the reporting period. Automatic follows the Daily, Weekly, or Monthly delivery frequency."
+    },
+    {
+      "fieldname": "summary_rolling_days",
+      "label": "Rolling Days",
+      "fieldtype": "Int",
+      "default": "7",
+      "depends_on": "eval:doc.summary_period_mode == \"Custom Rolling Days\"",
+      "non_negative": 1,
+      "description": "Number of calendar days ending on the reference date."
+    },
+    {
+      "fieldname": "summary_include_carried_forward",
+      "label": "Include Carried-Forward Tasks",
+      "fieldtype": "Check",
+      "default": "1",
+      "description": "Includes incomplete Tasks whose expected end date is before the report period."
+    },
+    {
+      "fieldname": "summary_include_undated",
+      "label": "Include Tasks Without Dates",
+      "fieldtype": "Check",
+      "default": "0",
+      "description": "Includes Tasks that do not have expected dates."
+    },
+    {
+      "fieldname": "summary_filters_section",
+      "label": "Task Summary Filters",
+      "fieldtype": "Section Break",
+      "description": "Controls which Tasks are included in the email summary."
+    },
+    {
+      "fieldname": "summary_include_operational",
+      "label": "Include Operational Tasks",
+      "fieldtype": "Check",
+      "default": "1",
+      "description": "Includes non-group Tasks assigned to the Employee."
+    },
+    {
+      "fieldname": "summary_include_main_tasks",
+      "label": "Include Main Tasks",
+      "fieldtype": "Check",
+      "default": "1",
+      "description": "Includes group Tasks in a separate section without double-counting their rolled-up hours."
+    },
+    {
+      "fieldname": "summary_include_workplan",
+      "label": "Include Project Workplan Tasks",
+      "fieldtype": "Check",
+      "default": "0",
+      "description": "Includes Tasks marked as Project Workplan Tasks."
+    },
+    {
+      "fieldname": "summary_include_completed",
+      "label": "Include Completed Tasks",
+      "fieldtype": "Check",
+      "default": "1",
+      "description": "Includes completed Tasks whose completion date falls inside the selected period."
+    },
+    {
+      "fieldname": "summary_include_overdue",
+      "label": "Include Overdue Tasks",
+      "fieldtype": "Check",
+      "default": "1",
+      "description": "Includes incomplete Tasks that are past their expected end date."
+    },
+    {
+      "fieldname": "summary_include_due_soon",
+      "label": "Include Due Soon Tasks",
+      "fieldtype": "Check",
+      "default": "1",
+      "description": "Includes incomplete Tasks due within the configured number of days."
+    },
+    {
+      "fieldname": "summary_due_soon_days",
+      "label": "Due Soon Days",
+      "fieldtype": "Int",
+      "default": "7",
+      "depends_on": "eval:doc.summary_include_due_soon",
+      "non_negative": 1,
+      "description": "Number of days used to classify a Task as due soon."
+    },
+    {
+      "fieldname": "summary_only_attention",
+      "label": "Only Tasks Requiring Attention",
+      "fieldtype": "Check",
+      "default": "0",
+      "description": "Includes only overdue, due-soon, stale, low-progress, or zero-hour Tasks."
+    },
+    {
+      "fieldname": "summary_progress_warning",
+      "label": "Progress Warning Threshold (%)",
+      "fieldtype": "Percent",
+      "default": "25",
+      "depends_on": "eval:doc.summary_only_attention",
+      "description": "Tasks below this progress are marked as requiring attention."
+    },
+    {
+      "fieldname": "summary_stale_days",
+      "label": "Stale Task Days",
+      "fieldtype": "Int",
+      "default": "7",
+      "depends_on": "eval:doc.summary_only_attention",
+      "non_negative": 1,
+      "description": "Tasks not modified within this many days are marked as requiring attention."
+    },
+    {
+      "fieldname": "summary_exclude_zero_hours",
+      "label": "Exclude Zero-Hour Tasks",
+      "fieldtype": "Check",
+      "default": "0",
+      "description": "Excludes Tasks whose Expected Hours are zero."
+    },
+    {
+      "fieldname": "summary_filter_rows",
+      "label": "Optional Filter Values",
+      "fieldtype": "Table",
+      "options": "Task Summary Filter Row",
+      "description": "Optional filters for Status, Priority, Task Type, and Project. Leave empty to include all values."
+    },
+    {
+      "fieldname": "summary_display_section",
+      "label": "Task Summary Display",
+      "fieldtype": "Section Break",
+      "description": "Controls the amount of detail and the columns shown in the email."
+    },
+    {
+      "fieldname": "summary_detail_level",
+      "label": "Report Detail Level",
+      "fieldtype": "Select",
+      "options": "Summary Only\nSummary and Attention Tasks\nFull Task Details",
+      "default": "Full Task Details",
+      "description": "Select whether the email contains KPIs only, attention Tasks, or full Task details."
+    },
+    {
+      "fieldname": "summary_max_tasks",
+      "label": "Maximum Tasks per Section",
+      "fieldtype": "Int",
+      "default": "25",
+      "non_negative": 1,
+      "description": "Maximum number of rows shown in each email section."
+    },
+    {
+      "fieldname": "summary_show_project",
+      "label": "Show Project",
+      "fieldtype": "Check",
+      "default": "1"
+    },
+    {
+      "fieldname": "summary_show_status",
+      "label": "Show Status",
+      "fieldtype": "Check",
+      "default": "1"
+    },
+    {
+      "fieldname": "summary_show_priority",
+      "label": "Show Priority",
+      "fieldtype": "Check",
+      "default": "1"
+    },
+    {
+      "fieldname": "summary_show_progress",
+      "label": "Show Progress",
+      "fieldtype": "Check",
+      "default": "1"
+    },
+    {
+      "fieldname": "summary_show_due_date",
+      "label": "Show Due Date",
+      "fieldtype": "Check",
+      "default": "1"
+    },
+    {
+      "fieldname": "summary_show_expected_hours",
+      "label": "Show Expected Hours",
+      "fieldtype": "Check",
+      "default": "1"
+    },
+    {
+      "fieldname": "summary_show_actual_hours",
+      "label": "Show Actual Hours",
+      "fieldtype": "Check",
+      "default": "1"
+    },
+    {
+      "fieldname": "summary_show_task_type",
+      "label": "Show Task Type",
+      "fieldtype": "Check",
+      "default": "1"
+    },
+    {
+      "fieldname": "summary_show_assigned_by",
+      "label": "Show Assigned By",
+      "fieldtype": "Check",
+      "default": "0"
     }
   ],
   "permissions": [
