@@ -186,13 +186,17 @@ def sync(task):
     tracked = {row.user: row for row in trackers}
     for user, (employee, reason) in wanted.items():
         if user in tracked:
-            frappe.db.set_value("QFAP Managed Task Share", tracked[user].name, "last_reconciled_on", now(), update_modified=False)
+            tracker = tracked[user]
+            if tracker.docshare and frappe.db.exists("DocShare", tracker.docshare):
+                # Managed shares are always read-only. Manual shares remain untouched.
+                frappe.db.set_value("DocShare", tracker.docshare, "write", 0, update_modified=False)
+            frappe.db.set_value("QFAP Managed Task Share", tracker.name, "last_reconciled_on", now(), update_modified=False)
             continue
         manual_share = frappe.db.get_value("DocShare", {"share_doctype": "Task", "share_name": task.name, "user": user}, "name")
         if manual_share and int(settings.protect_manual_shares or 0):
             continue
         if not manual_share:
-            add("Task", task.name, user, read=1, write=int(settings.managed_share_write or 0), share=0, notify=0)
+            add("Task", task.name, user, read=1, write=0, share=0, notify=0)
         share_name = frappe.db.get_value("DocShare", {"share_doctype": "Task", "share_name": task.name, "user": user}, "name")
         frappe.get_doc({
             "doctype": "QFAP Managed Task Share", "task": task.name, "user": user,
