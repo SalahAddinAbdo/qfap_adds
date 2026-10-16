@@ -616,6 +616,62 @@ function task_add_parent_buttons(frm) {
     }
 }
 
+
+function task_add_supervisor_remark_button(frm) {
+    if (frm.is_new() || cint(frm.doc.custom_project_workplan || 0)) return;
+    frappe.call({
+        method: "qfap_adds.qfap_adds.task_management.api.get_supervisor_remark_access",
+        args: {task: frm.doc.name},
+        freeze: false,
+        callback(response) {
+            const access = (response && response.message) || {};
+            if (!cint(access.allowed || 0)) return;
+            const current = access.current_remark || "";
+            const label = current ? __("Update Supervisor Remark") : __("Add Supervisor Remark");
+            frm.add_custom_button(label, () => {
+                const dialog = new frappe.ui.Dialog({
+                    title: label,
+                    size: "large",
+                    fields: [
+                        {
+                            fieldname: "current_remark",
+                            label: __("Current Supervisor Remark"),
+                            fieldtype: "Small Text",
+                            default: current,
+                            read_only: 1
+                        },
+                        {
+                            fieldname: "remark",
+                            label: __("Supervisor Remark"),
+                            fieldtype: "Text Editor",
+                            default: current,
+                            reqd: 1,
+                            description: __("Saving this remark notifies the Employee assigned to the Task.")
+                        }
+                    ],
+                    primary_action_label: __("Save Remark"),
+                    primary_action(values) {
+                        frappe.call({
+                            method: "qfap_adds.qfap_adds.task_management.api.save_supervisor_remark",
+                            args: {task: frm.doc.name, remark: values.remark},
+                            freeze: true,
+                            freeze_message: __("Saving Supervisor Remark..."),
+                            callback(r) {
+                                dialog.hide();
+                                if (r.message && r.message.changed) {
+                                    frappe.show_alert({message: __("Supervisor Remark saved."), indicator: "green"});
+                                }
+                                frm.reload_doc();
+                            }
+                        });
+                    }
+                });
+                dialog.show();
+            }, __("Actions"));
+        }
+    });
+}
+
 frappe.ui.form.on("Task", {
     setup(frm) {
         frm.__task_scope = {
@@ -646,6 +702,7 @@ frappe.ui.form.on("Task", {
         task_add_parent_unlock_button(frm);
         task_add_complete_parent_button(frm);
         task_add_parent_buttons(frm);
+        task_add_supervisor_remark_button(frm);
         frm.toggle_display("task_weight", false);
     },
 
