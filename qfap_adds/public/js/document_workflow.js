@@ -11,6 +11,9 @@ window.qfap_initialize_document_workflow = function (frm) {
         setup(current) {
             wf_restrict_employee_signatures(current);
         },
+        onload(current) {
+            wf_prepare_new_document(current);
+        },
         refresh(current) {
             wf_restrict_employee_signatures(current);
             if (current.is_new() || !wf_protect_document(current)) return;
@@ -19,12 +22,31 @@ window.qfap_initialize_document_workflow = function (frm) {
     });
 
     wf_restrict_employee_signatures(frm);
+    wf_prepare_new_document(frm);
     if (!frm.is_new() && wf_protect_document(frm)) {
         setTimeout(() => wf_setup(frm), 150);
     }
 };
 
 window.qfap_initialize_document_workflow(window.cur_frm);
+
+// Clear responsibility copied from a source document. The server repeats this
+// protection for imports and API-created documents.
+function wf_prepare_new_document(frm) {
+    if (!frm.is_new() || frm.__wf_new_document_prepared) return;
+    const workflow = frappe.workflow?.workflows?.[frm.doctype];
+    const fields = new Set(["custom_current_responsible_user"]);
+    (workflow?.transitions || []).forEach(transition => {
+        const fieldname = String(transition.custom_target_user_field || "").trim();
+        if (fieldname) fields.add(fieldname);
+    });
+    fields.forEach(fieldname => {
+        if (frm.fields_dict?.[fieldname] && frm.doc[fieldname]) {
+            frappe.model.set_value(frm.doc.doctype, frm.doc.name, fieldname, "");
+        }
+    });
+    frm.__wf_new_document_prepared = true;
+}
 
 // Restrict every visible/editable Employee Signature link to the session user.
 function wf_restrict_employee_signatures(frm) {
@@ -404,33 +426,119 @@ function wf_protect_document(frm) {
     const responsible = String(
         frm.doc.custom_current_responsible_user || ""
     ).trim();
-    if (!responsible) return true;
-
+    if (!responsible) {
+        wf_unlock_document_fields(frm);
+        return true;
+    }
     const can_override =
         frappe.session.user === "Administrator" ||
         frappe.user.has_role("Workflow Admin") ||
         frappe.user.has_role("System Manager");
     const is_responsible =
         wf_normalize(frappe.session.user) === wf_normalize(responsible);
-    if (is_responsible || can_override) return true;
+    if (is_responsible || can_override) {
+        wf_unlock_document_fields(frm);
+        return true;
+    }
 
-    frm.disable_form();
-    frm.page.clear_actions_menu?.();
-    frm.page.clear_menu?.();
+    // Lock document data only. Do not call disable_form(), clear_menu(), or
+    // clear_actions_menu(), because ERPNext places permitted related-document
+    // actions such as Request for Quotation and Purchase Order in those menus.
+    wf_lock_document_fields(frm);
+    wf_hide_workflow_actions_only(frm);
 
+    if (!frm.__wf_responsibility_alert_shown) {
+        frm.__wf_responsibility_alert_shown = true;
+        frappe.show_alert({
+            message: __("This document is assigned to {0}. You may read it and use permitted standard actions, but only the responsible user can edit it or perform workflow actions.", [responsible]),
+            indicator: "orange"
+        });
+    }
+    return false;
+}
+
+function wf_lock_document_fields(frm) {
+    if (frm.__wf_fields_locked) return;
+    frm.__wf_original_field_state = {};
+    (frm.meta?.fields || []).forEach(df => {
+        const control = frm.fields_dict?.[df.fieldname];
+        if (!df.fieldname || !control || [
+            "Section Break", "Column Break", "Tab Break", "HTML",
+            "Button", "Heading", "Fold"
+        ].includes(df.fieldtype)) return;
+        frm.__wf_original_field_state[df.fieldname] = {
+            read_only: Boolean(df.read_only),
+            cannot_add_rows: control.grid?.cannot_add_rows ?? null,
+            cannot_delete_rows: control.grid?.cannot_delete_rows ?? null
+        };
+        frm.set_df_property(df.fieldname, "read_only", 1);
+        if (control.grid) {
+            control.grid.cannot_add_rows = true;
+            control.grid.cannot_delete_rows = true;
+            control.grid.wrapper
+                .find(".grid-add-row,.grid-remove-rows,.grid-delete-row")
+                .hide();
+        }
+    });
+    frm.__wf_fields_locked = true;
+    frm.refresh_fields();
+}
+
+function wf_unlock_document_fields(frm) {
+    if (!frm.__wf_fields_locked) return;
+    Object.entries(frm.__wf_original_field_state || {}).forEach(([fieldname, state]) => {
+        const control = frm.fields_dict?.[fieldname];
+        if (!control) return;
+        frm.set_df_property(fieldname, "read_only", state.read_only ? 1 : 0);
+        if (control.grid) {
+            if (state.cannot_add_rows !== null) {
+                control.grid.cannot_add_rows = state.cannot_add_rows;
+            }
+            if (state.cannot_delete_rows !== null) {
+                control.grid.cannot_delete_rows = state.cannot_delete_rows;
+            }
+            if (!state.cannot_add_rows) control.grid.wrapper.find(".grid-add-row").show();
+            if (!state.cannot_delete_rows) {
+                control.grid.wrapper.find(".grid-remove-rows,.grid-delete-row").show();
+            }
+        }
+    });
+    frm.__wf_fields_locked = false;
+    frm.refresh_fields();
+}
+
+function wf_current_transition_labels(frm) {
+    const workflow = frappe.workflow?.workflows?.[frm.doctype];
+    const state = wf_normalize(frm.doc.workflow_state);
+    return new Set(
+        (workflow?.transitions || [])
+            .filter(row => wf_normalize(row.state) === state)
+            .flatMap(row => [wf_normalize(row.action), wf_normalize(__(row.action || ""))])
+            .filter(Boolean)
+    );
+}
+
+function wf_hide_workflow_actions_only(frm) {
+    const labels = wf_current_transition_labels(frm);
+    if (!labels.size) return;
     const hide = () => {
-        $(frm.page?.wrapper || frm.wrapper)
-            .find(".workflow-button-group,.actions-btn-group,.custom-actions")
-            .hide();
+        const wrapper = $(frm.page?.wrapper || frm.wrapper);
+        // Dedicated workflow controls may be hidden as a group.
+        wrapper.find(".workflow-button-group").hide();
+        // In shared Actions menus, hide only entries whose label is a current
+        // workflow transition. Preserve Create and all standard ERPNext actions.
+        wrapper.find(".custom-actions li, .custom-actions .dropdown-item, .actions-btn-group li").each(function () {
+            const item = $(this);
+            const control = item.find("a,button").first();
+            const candidates = [
+                item.attr("data-label"), control.attr("data-label"),
+                control.text(), item.clone().children().remove().end().text(), item.text()
+            ].map(wf_normalize).filter(Boolean);
+            if (candidates.some(label => labels.has(label))) item.hide();
+        });
     };
     hide();
-    [300, 700, 1200].forEach(delay => setTimeout(hide, delay));
-
-    frappe.show_alert({
-        message: __("This document is assigned to {0}. Only the responsible user can perform workflow actions.", [responsible]),
-        indicator: "orange"
-    });
-    return false;
+    [200, 500, 1000].forEach(delay => setTimeout(hide, delay));
 }
 
 function wf_hide_standard_action(frm, action) {
