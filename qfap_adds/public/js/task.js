@@ -37,7 +37,6 @@ function task_scope_payload(response) {
         ),
         privileged: cint(scope.privileged || 0),
         can_manage_selected: cint(scope.can_manage_selected || 0),
-        auto_calculate_expected_hours: cint(scope.auto_calculate_expected_hours || 0),
         working_hours_per_day: flt(scope.working_hours_per_day || 8)
     };
 }
@@ -79,7 +78,6 @@ function task_load_assignment_scope(frm, target_employee, preserve_values) {
             const scope = task_scope_payload(response);
             frm.__task_scope = scope;
             task_set_employee_queries(frm);
-            task_calculate_expected_values(frm);
 
             if (
                 frm.is_new() &&
@@ -389,6 +387,12 @@ function task_apply_parent_rollup_ui(frm) {
         frm.page.clear_primary_action();
     }
 
+    if (child_count > 0) {
+        ["expected_time", "actual_time", "custom_expected_days", "exp_end_date", "progress"].forEach((fieldname) => {
+            if (frm.fields_dict[fieldname]) frm.toggle_display(fieldname, true);
+        });
+    }
+
     // Rollup values always remain calculated when children exist, even
     // during an authorized one-time manual edit of other parent fields.
     ["progress", "expected_time", "actual_time"].forEach((fieldname) => {
@@ -440,7 +444,7 @@ function task_apply_timing_ui(frm) {
     );
 }
 
-function task_calculate_expected_values(frm) {
+function task_calculate_expected_values(frm, force_hours = false) {
     if (!frm.doc.exp_start_date || !frm.doc.exp_end_date) {
         if (flt(frm.doc.custom_expected_days || 0) !== 0) frm.set_value("custom_expected_days", 0);
         return;
@@ -453,13 +457,10 @@ function task_calculate_expected_values(frm) {
     const days = Math.round((endDate.getTime() - startDate.getTime()) / 86400000) + 1;
     frm.set_value("custom_expected_days", flt(days, 2));
 
-    const scope = frm.__task_scope || {};
-    if (
-        cint(scope.auto_calculate_expected_hours || 0) &&
-        !cint(frm.doc.is_group || 0) &&
-        !cint(frm.doc.custom_project_workplan || 0)
-    ) {
-        frm.set_value("expected_time", flt(days * flt(scope.working_hours_per_day || 8), 2));
+    const hasChildren = cint(frm.doc.custom_child_task_count || 0) > 0;
+    if (!hasChildren && (force_hours || flt(frm.doc.expected_time || 0) <= 0)) {
+        const hoursPerDay = flt((frm.__task_scope || {}).working_hours_per_day || 8);
+        frm.set_value("expected_time", flt(days * hoursPerDay, 2));
     }
 }
 
@@ -641,7 +642,6 @@ frappe.ui.form.on("Task", {
         task_apply_completion_lock_ui(frm);
         task_apply_parent_rollup_ui(frm);
         task_apply_timing_ui(frm);
-        task_calculate_expected_values(frm);
         task_add_reopen_button(frm);
         task_add_parent_unlock_button(frm);
         task_add_complete_parent_button(frm);
@@ -677,11 +677,11 @@ frappe.ui.form.on("Task", {
     },
 
     exp_start_date(frm) {
-        task_calculate_expected_values(frm);
+        task_calculate_expected_values(frm, true);
     },
 
     exp_end_date(frm) {
-        task_calculate_expected_values(frm);
+        task_calculate_expected_values(frm, true);
     },
 
     status(frm) {
