@@ -8,6 +8,7 @@
     "enabled",
     "administration_section",
     "administrative_role",
+    "global_reopen_role_rows",
     "global_reopen_roles",
     "scope_section",
     "scope_mode",
@@ -48,6 +49,21 @@
     "enable_notifications",
     "weekly_summary_enabled",
     "weekly_summary_recipients",
+    "summary_schedule_section",
+    "summary_schedule_enabled",
+    "summary_frequency",
+    "summary_send_time",
+    "summary_weekly_day",
+    "summary_monthly_day",
+    "summary_recipients",
+    "summary_email_subject",
+    "summary_email_template",
+    "summary_send_to_employees",
+    "summary_last_period_key",
+    "summary_last_sent_on",
+    "summary_next_send_on",
+    "summary_last_send_status",
+    "summary_last_send_summary",
     "migration_section",
     "migration_batch_size",
     "reconciliation_batch_size",
@@ -79,7 +95,10 @@
       "fieldname": "global_reopen_roles",
       "label": "Global Reopen Roles",
       "fieldtype": "Small Text",
-      "default": "System Manager\nTask Management Administrator"
+      "default": "System Manager\nTask Management Administrator",
+      "hidden": 1,
+      "read_only": 1,
+      "description": "Legacy field retained for safe migration and backward compatibility."
     },
     {
       "fieldname": "scope_section",
@@ -299,7 +318,10 @@
     {
       "fieldname": "weekly_summary_recipients",
       "label": "Additional Weekly Recipients",
-      "fieldtype": "Small Text"
+      "fieldtype": "Small Text",
+      "hidden": 1,
+      "read_only": 1,
+      "description": "Legacy field retained for safe migration and backward compatibility."
     },
     {
       "fieldname": "migration_section",
@@ -356,6 +378,113 @@
       "fieldtype": "Check",
       "default": "1",
       "description": "Preserves compatibility with standard ERPNext processes that create Task records without the custom employee assignment fields."
+    },
+    {
+      "fieldname": "global_reopen_role_rows",
+      "label": "Roles Allowed to Reopen Globally",
+      "fieldtype": "Table",
+      "options": "Task Management Role Row",
+      "description": "Select existing system Roles. Existing rows are never replaced during updates."
+    },
+    {
+      "fieldname": "summary_schedule_section",
+      "label": "Scheduled Task Summary",
+      "fieldtype": "Section Break"
+    },
+    {
+      "fieldname": "summary_schedule_enabled",
+      "label": "Enable Scheduled Task Summary",
+      "fieldtype": "Check",
+      "default": "1"
+    },
+    {
+      "fieldname": "summary_frequency",
+      "label": "Frequency",
+      "fieldtype": "Select",
+      "options": "Daily\nWeekly\nMonthly",
+      "default": "Weekly",
+      "depends_on": "eval:doc.summary_schedule_enabled"
+    },
+    {
+      "fieldname": "summary_send_time",
+      "label": "Send Time",
+      "fieldtype": "Time",
+      "default": "08:00:00",
+      "depends_on": "eval:doc.summary_schedule_enabled"
+    },
+    {
+      "fieldname": "summary_weekly_day",
+      "label": "Weekly Send Day",
+      "fieldtype": "Select",
+      "options": "Monday\nTuesday\nWednesday\nThursday\nFriday\nSaturday\nSunday",
+      "default": "Sunday",
+      "depends_on": "eval:doc.summary_schedule_enabled && doc.summary_frequency == \"Weekly\""
+    },
+    {
+      "fieldname": "summary_monthly_day",
+      "label": "Monthly Send Day",
+      "fieldtype": "Int",
+      "default": "1",
+      "depends_on": "eval:doc.summary_schedule_enabled && doc.summary_frequency == \"Monthly\"",
+      "non_negative": 1
+    },
+    {
+      "fieldname": "summary_recipients",
+      "label": "Additional Recipients",
+      "fieldtype": "Table",
+      "options": "Task Summary Recipient",
+      "description": "Additional system users or external email addresses receiving employee summary copies."
+    },
+    {
+      "fieldname": "summary_email_subject",
+      "label": "Email Subject Template",
+      "fieldtype": "Data",
+      "default": "Task Summary | {employee_name} | {report_date}",
+      "description": "Supported placeholders: {employee_name}, {report_date}, {frequency}."
+    },
+    {
+      "fieldname": "summary_email_template",
+      "label": "Email Template",
+      "fieldtype": "Link",
+      "options": "Email Template",
+      "description": "Optional editable Email Template. If empty, the built-in formatted message is used."
+    },
+    {
+      "fieldname": "summary_send_to_employees",
+      "label": "Send to Assigned Employees",
+      "fieldtype": "Check",
+      "default": "1"
+    },
+    {
+      "fieldname": "summary_last_period_key",
+      "label": "Last Period Key",
+      "fieldtype": "Data",
+      "read_only": 1,
+      "hidden": 1
+    },
+    {
+      "fieldname": "summary_last_sent_on",
+      "label": "Last Sent On",
+      "fieldtype": "Datetime",
+      "read_only": 1
+    },
+    {
+      "fieldname": "summary_next_send_on",
+      "label": "Next Scheduled Send",
+      "fieldtype": "Datetime",
+      "read_only": 1
+    },
+    {
+      "fieldname": "summary_last_send_status",
+      "label": "Last Send Status",
+      "fieldtype": "Data",
+      "read_only": 1
+    },
+    {
+      "fieldname": "summary_last_send_summary",
+      "label": "Last Send Summary",
+      "fieldtype": "Long Text",
+      "read_only": 1
     }
   ],
   "permissions": [
