@@ -1,0 +1,75 @@
+{
+  "doctype": "DocType",
+  "name": "Task Summary Filter Row",
+  "module": "QFap Adds",
+  "istable": 1,
+  "editable_grid": 1,
+  "field_order": [
+    "filter_type",
+    "status",
+    "priority",
+    "task_type",
+    "project",
+    "enabled"
+  ],
+  "fields": [
+    {
+      "fieldname": "filter_type",
+      "label": "Filter Type",
+      "fieldtype": "Select",
+      "options": "Status\nPriority\nTask Type\nProject",
+      "reqd": 1,
+      "in_list_view": 1,
+      "columns": 2
+    },
+    {
+      "fieldname": "status",
+      "label": "Status",
+      "fieldtype": "Select",
+      "options": "Open\nWorking\nPending Review\nOverdue\nCompleted",
+      "depends_on": "eval:doc.filter_type == \"Status\"",
+      "mandatory_depends_on": "eval:doc.filter_type == \"Status\"",
+      "in_list_view": 1,
+      "columns": 2
+    },
+    {
+      "fieldname": "priority",
+      "label": "Priority",
+      "fieldtype": "Select",
+      "options": "Low\nMedium\nHigh\nUrgent",
+      "depends_on": "eval:doc.filter_type == \"Priority\"",
+      "mandatory_depends_on": "eval:doc.filter_type == \"Priority\"",
+      "in_list_view": 1,
+      "columns": 2
+    },
+    {
+      "fieldname": "task_type",
+      "label": "Task Type",
+      "fieldtype": "Link",
+      "options": "Task Type",
+      "depends_on": "eval:doc.filter_type == \"Task Type\"",
+      "mandatory_depends_on": "eval:doc.filter_type == \"Task Type\"",
+      "in_list_view": 1,
+      "columns": 2
+    },
+    {
+      "fieldname": "project",
+      "label": "Project",
+      "fieldtype": "Link",
+      "options": "Project",
+      "depends_on": "eval:doc.filter_type == \"Project\"",
+      "mandatory_depends_on": "eval:doc.filter_type == \"Project\"",
+      "in_list_view": 1,
+      "columns": 3
+    },
+    {
+      "fieldname": "enabled",
+      "label": "Enabled",
+      "fieldtype": "Check",
+      "default": "1",
+      "in_list_view": 1,
+      "columns": 1
+    }
+  ],
+  "permissions": []
+}
