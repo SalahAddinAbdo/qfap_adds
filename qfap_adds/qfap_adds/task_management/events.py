@@ -3,15 +3,9 @@ from __future__ import annotations
 import frappe
 from frappe.utils import date_diff, flt, getdate, nowdate
 
-from qfap_adds.qfap_adds.task_management.scope import (
-    can_manage_employee,
-    employee_for_user,
-)
-from qfap_adds.qfap_adds.task_management.services import validate_task_tree
-from qfap_adds.qfap_adds.task_management.services import validate_period
-from qfap_adds.qfap_adds.task_management.services import rebuild_chain
+from qfap_adds.qfap_adds.task_management.scope import can_manage_employee, employee_for_user
+from qfap_adds.qfap_adds.task_management.services import rebuild_chain, sync, validate_period, validate_task_tree
 from qfap_adds.qfap_adds.task_management.settings import get_settings
-from qfap_adds.qfap_adds.task_management.services import sync
 
 PROTECTED_FIELDS = (
     "status", "project", "subject", "type", "priority", "custom_assign_to",
@@ -25,9 +19,7 @@ def _validate_completed_lock(doc):
     if doc.is_new():
         return
     old = doc.get_doc_before_save()
-    if not old or not int(old.get("custom_task_locked") or 0):
-        return
-    if getattr(doc.flags, "qfap_reopen", False):
+    if not old or not int(old.get("custom_task_locked") or 0) or getattr(doc.flags, "qfap_reopen", False):
         return
     changed = [field for field in PROTECTED_FIELDS if str(old.get(field) or "") != str(doc.get(field) or "")]
     if changed:
@@ -38,10 +30,7 @@ def _validate_parent(doc, settings):
     validate_task_tree(None if doc.is_new() else doc.name, doc.parent_task)
     if not doc.parent_task:
         return
-    parent = frappe.db.get_value(
-        "Task", doc.parent_task,
-        ["project", "is_group", "status", "custom_task_locked"], as_dict=True,
-    )
+    parent = frappe.db.get_value("Task", doc.parent_task, ["project", "is_group", "status", "custom_task_locked"], as_dict=True)
     if not parent:
         frappe.throw("The selected main task does not exist.")
     if settings.get("parent_must_same_project", 1) and (parent.project or "") != (doc.project or ""):
@@ -63,7 +52,6 @@ def _prepare_assignment(doc, settings):
         doc.custom_self_assigned = 0
         doc.department = None
         return
-
     assignee = doc.get("custom_assign_to")
     if not assignee:
         if int(settings.allow_unassigned_standard_tasks or 0):
@@ -72,24 +60,18 @@ def _prepare_assignment(doc, settings):
             doc.custom_self_assigned = 0
             return
         frappe.throw("Assign To is required for employee tasks.")
-    employee = frappe.db.get_value(
-        "Employee", assignee,
-        ["status", "user_id", "department", "company"], as_dict=True,
-    )
+    employee = frappe.db.get_value("Employee", assignee, ["status", "user_id", "department"], as_dict=True)
     if not employee or employee.status != "Active":
         frappe.throw("The assigned Employee must be active.")
     if not employee.user_id or not frappe.db.get_value("User", employee.user_id, "enabled"):
         frappe.throw("The assigned Employee must be linked to an enabled User account.")
-
     current_employee = employee_for_user()
     is_self = bool(current_employee and current_employee == assignee)
     if is_self and not int(settings.allow_self_assignment or 0):
         frappe.throw("Self-assignment is disabled in Task Management Settings.")
     if not can_manage_employee(assignee) and not getattr(doc.flags, "from_assignment_request", False):
         frappe.throw("You cannot assign a task outside your administrative scope. Create a Task Assignment Request instead.")
-
     doc.custom_user_id = employee.user_id
-    # Preserve an explicitly selected Department. Use the Employee Department only when blank.
     if not doc.get("department") and employee.department:
         doc.department = employee.department
     doc.custom_self_assigned = 1 if is_self else 0
@@ -101,27 +83,20 @@ def _prepare_assignment(doc, settings):
         frappe.throw("Assigned By could not be determined from the current User.")
 
 
-
 def _prepare_expected_values(doc, settings):
     if not doc.exp_start_date or not doc.exp_end_date:
         doc.custom_expected_days = 0
         return
-
     start_date = getdate(doc.exp_start_date)
     end_date = getdate(doc.exp_end_date)
     if end_date < start_date:
         frappe.throw("Expected End Date cannot be before Expected Start Date.")
-
-    expected_days = date_diff(end_date, start_date) + 1
-    doc.custom_expected_days = flt(expected_days, 2)
-
-    if (
-        int(settings.auto_calculate_expected_hours or 0)
-        and not int(doc.get("is_group") or 0)
-        and not int(doc.get("custom_project_workplan") or 0)
-    ):
-        hours_per_day = flt(settings.working_hours_per_day or 8)
-        doc.expected_time = flt(expected_days * hours_per_day, 2)
+    days = date_diff(end_date, start_date) + 1
+    doc.custom_expected_days = flt(days, 2)
+    # Always propose hours if missing. A positive user value remains editable and is preserved.
+    # Parent Tasks with children are overwritten by the authoritative rollup after child updates.
+    if flt(doc.expected_time) <= 0:
+        doc.expected_time = flt(days * flt(settings.working_hours_per_day or 8), 2)
 
 
 def _prepare_completion(doc):
@@ -139,10 +114,7 @@ def before_validate(doc, method=None):
         return
     _validate_completed_lock(doc)
     _validate_parent(doc, settings)
-    validate_period(
-        doc.project, doc.exp_start_date, doc.exp_end_date,
-        bool(doc.get("custom_project_workplan")), True,
-    )
+    validate_period(doc.project, doc.exp_start_date, doc.exp_end_date, bool(doc.get("custom_project_workplan")), True)
     _prepare_assignment(doc, settings)
     _prepare_expected_values(doc, settings)
     _prepare_completion(doc)
