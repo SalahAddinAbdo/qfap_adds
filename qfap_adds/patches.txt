@@ -1,5 +1,5 @@
-qfap_adds.qfap_adds.patches.v3_0.provision_task_management.execute
-qfap_adds.qfap_adds.patches.v3_0.normalize_legacy_tasks.execute
-qfap_adds.qfap_adds.patches.v3_0.rebuild_task_rollups.execute
-qfap_adds.qfap_adds.patches.v3_0.reconcile_task_shares.execute
-qfap_adds.qfap_adds.patches.v3_0_2.migrate_task_management_settings.execute
+qfap_adds.qfap_adds.patches.v3_0.provision_task_management
+qfap_adds.qfap_adds.patches.v3_0.normalize_legacy_tasks
+qfap_adds.qfap_adds.patches.v3_0.rebuild_task_rollups
+qfap_adds.qfap_adds.patches.v3_0.reconcile_task_shares
+qfap_adds.qfap_adds.patches.v3_0_2.migrate_task_management_settings
