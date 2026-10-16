@@ -64,9 +64,38 @@ def _ensure_role(role_name: str) -> None:
 
 
 def _ensure_notification(data: dict) -> None:
-    # Preserve administrator changes. Provision only records that do not exist.
-    if not frappe.db.exists("Notification", data["name"]):
+    """Create official Notification records and safely upgrade QFAP defaults.
+
+    Existing administrator customizations are preserved. Only known legacy
+    QFAP templates, or templates carrying the QFAP managed marker, are upgraded.
+    """
+    name = data["name"]
+    if not frappe.db.exists("Notification", name):
         frappe.get_doc(data).insert(ignore_permissions=True)
+        return
+
+    existing = frappe.get_doc("Notification", name)
+    existing_message = existing.message or ""
+    legacy_markers = (
+        "SUPERVISOR REMARK ON TASK - BILINGUAL PROFESSIONAL",
+        "TASK ASSIGNMENT - BILINGUAL PROFESSIONAL",
+        "QFAP-MANAGED-NOTIFICATION:",
+    )
+    if not any(marker in existing_message for marker in legacy_markers):
+        return
+
+    managed_fields = (
+        "subject", "message", "channel", "event", "value_changed",
+        "condition", "message_type", "enabled",
+    )
+    for fieldname in managed_fields:
+        if fieldname in data:
+            existing.set(fieldname, data.get(fieldname))
+    existing.set("recipients", [])
+    for recipient in data.get("recipients") or []:
+        existing.append("recipients", recipient)
+    existing.flags.ignore_permissions = True
+    existing.save(ignore_permissions=True)
 
 
 
