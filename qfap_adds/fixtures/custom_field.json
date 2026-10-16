@@ -101,7 +101,7 @@
     "fieldname": "custom_target_user_field",
     "insert_after": "custom_assignment_required",
     "fieldtype": "Select",
-    "options": "",
+    "options": "custom_current_responsible_user",
     "read_only": 1,
     "hidden": 0,
     "print_hide": 0,
