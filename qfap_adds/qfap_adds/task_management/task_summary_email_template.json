@@ -1,0 +1,6 @@
+{
+  "name": "Farabi Task Summary",
+  "subject": "Task Summary | {{ employee_name }} | {{ report_date }}",
+  "use_html": 1,
+  "response_html": "<!--\nFarabi Task Summary\nEditable context variables:\nemployee, employee_id, employee_name, department, designation, company,\nfrequency, report_date, report_url, operational_task_count, main_task_count,\noverdue_tasks, due_soon_tasks, completed_this_month, average_progress,\nexpected_hours, actual_hours, generated_summary_html.\n-->\n{{ generated_summary_html | safe }}"
+}
