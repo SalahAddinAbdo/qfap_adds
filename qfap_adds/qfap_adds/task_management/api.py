@@ -1,12 +1,94 @@
 from __future__ import annotations
 
 import frappe
+from frappe import _
+
+from qfap_adds.qfap_adds.task_management.scope import can_manage_employee, employee_for_user
 
 from qfap_adds.qfap_adds.task_management.settings import (
     get_global_reopen_roles,
     get_settings,
 )
 from qfap_adds.qfap_adds.task_management.services import rebuild, rebuild_chain
+
+def _supervisor_remark_access(task_name, user=None):
+    user = user or frappe.session.user
+    settings = get_settings()
+    if not int(settings.enabled or 0):
+        return {"allowed": False, "reason": _("Task Management is disabled.")}
+
+    task = frappe.db.get_value(
+        "Task", task_name,
+        ["name", "custom_assign_to", "custom_supervisor_remarks"],
+        as_dict=True,
+    )
+    if not task:
+        frappe.throw(_("Task not found."))
+    if not task.custom_assign_to:
+        return {"allowed": False, "reason": _("The Task is not assigned to an Employee."), "task": task}
+
+    roles = frappe.get_roles(user)
+    administrative = user == "Administrator" or settings.administrative_role in roles
+    current_employee = employee_for_user(user)
+    is_actual_supervisor = bool(
+        current_employee
+        and current_employee != task.custom_assign_to
+        and can_manage_employee(task.custom_assign_to, user)
+    )
+    allowed = administrative or is_actual_supervisor
+    return {
+        "allowed": allowed,
+        "administrative": administrative,
+        "current_employee": current_employee,
+        "task": task,
+        "reason": "" if allowed else _("Only an authorized supervisor may add a Supervisor Remark."),
+    }
+
+
+@frappe.whitelist()
+def get_supervisor_remark_access(task=None):
+    task_name = task or ""
+    if not task_name:
+        frappe.throw(_("Task is required."))
+    access = _supervisor_remark_access(task_name)
+    task_doc = access.pop("task", None)
+    access["current_remark"] = (task_doc.custom_supervisor_remarks if task_doc else "") or ""
+    return access
+
+
+@frappe.whitelist()
+def save_supervisor_remark(task=None, remark=None):
+    task_name = task or ""
+    if not task_name:
+        frappe.throw(_("Task is required."))
+    access = _supervisor_remark_access(task_name)
+    if not access.get("allowed"):
+        frappe.throw(access.get("reason") or _("Not permitted."), frappe.PermissionError)
+
+    value = (remark or "").strip()
+    if not value:
+        frappe.throw(_("Supervisor Remark cannot be empty."))
+    if len(value) > 5000:
+        frappe.throw(_("Supervisor Remark cannot exceed 5,000 characters."))
+
+    doc = frappe.get_doc("Task", task_name)
+    previous = (doc.custom_supervisor_remarks or "").strip()
+    if previous == value:
+        return {"task": task_name, "changed": 0, "remark": value}
+
+    # This endpoint intentionally updates only the Supervisor Remark field.
+    # ignore_permissions is safe here because authorization is checked above,
+    # and no client-supplied fieldname is accepted.
+    doc.custom_supervisor_remarks = value
+    doc.flags.ignore_permissions = True
+    doc.flags.qfap_supervisor_remark_only = True
+    doc.save(ignore_permissions=True)
+    doc.add_comment(
+        "Info",
+        _("Supervisor Remark updated by {0}.").format(frappe.session.user),
+    )
+    return {"task": task_name, "changed": 1, "remark": value}
+
 
 @frappe.whitelist()
 def task_assignment_scope(target_employee=None):
