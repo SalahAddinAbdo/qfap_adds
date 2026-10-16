@@ -13,6 +13,17 @@ def validate_responsible_user(doc, method=None):
     The database value is authoritative. A valid transition may change the field
     from the current user to the next responsible user in the same save.
     """
+    if not doc.meta.has_field(RESPONSIBLE_FIELD):
+        return
+
+    # no_copy protects UI duplication, but Data Import, REST, and integrations
+    # can still provide the field. New documents start unassigned unless a
+    # trusted server process explicitly opts in.
+    if doc.is_new():
+        if not getattr(doc.flags, "qfap_allow_initial_responsible_user", False):
+            doc.set(RESPONSIBLE_FIELD, None)
+        return
+
     if _must_bypass(doc):
         return
     if not doc.meta.has_field(RESPONSIBLE_FIELD):
@@ -47,8 +58,6 @@ def validate_responsible_user(doc, method=None):
 
 
 def _must_bypass(doc):
-    if doc.is_new():
-        return True
     if frappe.session.user in {"Administrator", "Guest"}:
         return frappe.session.user == "Administrator"
     if BYPASS_ROLES.intersection(frappe.get_roles(frappe.session.user)):
