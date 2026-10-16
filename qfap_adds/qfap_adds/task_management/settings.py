@@ -27,6 +27,8 @@ DEFAULTS = {
     "progress_calculation": "Weighted by Expected Hours",
     "rollup_expected_hours": 1,
     "rollup_actual_hours": 1,
+    "auto_calculate_expected_hours": 1,
+    "working_hours_per_day": 8,
     "enable_managed_sharing": 1,
     "share_with_assignee": 1,
     "share_with_supervisor_chain": 1,
