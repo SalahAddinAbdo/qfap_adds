@@ -18,8 +18,10 @@
     "subject",
     "description",
     "requested_assignee",
+    "company",
     "project",
     "parent_task",
+    "task_type",
     "priority",
     "exp_start_date",
     "exp_end_date",
@@ -202,6 +204,22 @@
       "read_only": 1,
       "hidden": 1,
       "no_copy": 1
+    },
+    {
+      "fieldname": "company",
+      "label": "Company",
+      "fieldtype": "Link",
+      "options": "Company",
+      "reqd": 1,
+      "fetch_from": "requested_assignee.company",
+      "fetch_if_empty": 1
+    },
+    {
+      "fieldname": "task_type",
+      "label": "Task Type",
+      "fieldtype": "Link",
+      "options": "Task Type",
+      "reqd": 1
     }
   ],
   "permissions": [
