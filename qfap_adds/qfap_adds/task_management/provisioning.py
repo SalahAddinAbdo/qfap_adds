@@ -11,6 +11,7 @@ BASE = Path(__file__).resolve().parent
 
 ADMIN_ROLE = "Task Management Administrator"
 REPORT_ROLE = "Reports Viewer"
+DEFAULT_SUMMARY_EMAIL_TEMPLATE = "Farabi Task Summary"
 WORKFLOW_NAME = "Task Assignment Request Approval"
 WORKFLOW_DOCTYPE = "Task Assignment Request"
 
@@ -66,6 +67,38 @@ def _ensure_notification(data: dict) -> None:
     # Preserve administrator changes. Provision only records that do not exist.
     if not frappe.db.exists("Notification", data["name"]):
         frappe.get_doc(data).insert(ignore_permissions=True)
+
+
+
+def _ensure_task_summary_email_template() -> None:
+    """Create the editable default template once and preserve later user changes."""
+    if not frappe.db.exists("DocType", "Email Template"):
+        return
+
+    template_data = _load_json("task_summary_email_template.json")
+    template_name = template_data["name"]
+
+    if not frappe.db.exists("Email Template", template_name):
+        frappe.get_doc(
+            {
+                "doctype": "Email Template",
+                "name": template_name,
+                "subject": template_data["subject"],
+                "use_html": int(template_data.get("use_html") or 1),
+                "response_html": template_data["response_html"],
+            }
+        ).insert(ignore_permissions=True)
+
+    if frappe.db.exists("DocType", "Task Management Settings"):
+        current = frappe.db.get_single_value(
+            "Task Management Settings", "summary_email_template"
+        )
+        if not current:
+            frappe.db.set_single_value(
+                "Task Management Settings",
+                "summary_email_template",
+                template_name,
+            )
 
 
 def _ensure_workflow_state(state_name: str, style: str) -> None:
@@ -267,6 +300,7 @@ def provision_task_integration() -> None:
     _create_or_update_task_custom_fields()
     _configure_task_properties()
     _provision_notifications()
+    _ensure_task_summary_email_template()
     _set_task_management_defaults()
     _ensure_workflow()
 
