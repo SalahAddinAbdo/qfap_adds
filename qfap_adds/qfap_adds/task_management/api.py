@@ -2,7 +2,11 @@ from __future__ import annotations
 
 import frappe
 
-from qfap_adds.qfap_adds.task_management.settings import get_settings, role_lines
+from qfap_adds.qfap_adds.task_management.settings import (
+    get_global_reopen_roles,
+    get_settings,
+)
+from qfap_adds.qfap_adds.task_management.services import rebuild, rebuild_chain
 
 @frappe.whitelist()
 def task_assignment_scope(target_employee=None):
@@ -322,7 +326,7 @@ def reopen_task(task=None):
     task_values = frappe.db.get_value(
         "Task",
         task_name,
-        ["status", "custom_task_locked", "custom_assign_to"],
+        ["status", "custom_task_locked", "custom_assign_to", "parent_task"],
         as_dict=True
     )
 
@@ -395,8 +399,6 @@ def reopen_task(task=None):
     # ---------------------------------------------------------
     # Reopen task
     # ---------------------------------------------------------
-    rollup_values = rebuild(task_name)
-
     frappe.db.set_value(
         "Task",
         task_name,
@@ -409,6 +411,10 @@ def reopen_task(task=None):
         },
         update_modified=True
     )
+
+    parent_task = task_values.get("parent_task") or ""
+    if parent_task:
+        rebuild_chain(parent_task)
 
     comment_doc = frappe.get_doc({
         "doctype": "Comment",
@@ -470,8 +476,6 @@ def task_unlock_parent_summary(task=None):
 
     if int(values.get("custom_child_task_count") or 0) < 1:
         frappe.throw("This task has no active child tasks.")
-
-    rollup_values = rebuild(task_name)
 
     frappe.db.set_value(
         "Task",
@@ -597,7 +601,7 @@ def task_complete_parent_summary(task=None):
             "expected_time": rollup_values.get("expected_time", 0),
             "actual_time": rollup_values.get("actual_time", 0),
             "exp_end_date": rollup_values.get("exp_end_date"),
-            "custom_expected_days": rollup_values.get("custom_expected_days", 0),
+            "custom_expected_days": rollup_values.get("custom_expected_days", 0)
         },
         update_modified=True
     )
