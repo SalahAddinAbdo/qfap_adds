@@ -33,13 +33,23 @@ def _supervisor_remark_access(task_name, user=None):
 
     task = frappe.db.get_value(
         "Task", task_name,
-        ["name", "custom_assign_to", "custom_supervisor_remarks"],
+        ["name", "custom_assign_to", "custom_user_id", "custom_supervisor_remarks"],
         as_dict=True,
     )
     if not task:
         frappe.throw(_("Task not found."))
     if not task.custom_assign_to:
         return {"allowed": False, "reason": _("The Task is not assigned to an Employee."), "task": task}
+
+    # The assigned Employee is the recipient of supervisor feedback and may
+    # never use this supervisor-only endpoint, even through a shared Task.
+    if task.custom_user_id and task.custom_user_id == user:
+        return {
+            "allowed": False,
+            "assigned_user": True,
+            "reason": _("The Employee assigned to the Task cannot add a Supervisor Remark."),
+            "task": task,
+        }
 
     roles = frappe.get_roles(user)
     administrative = user == "Administrator" or settings.administrative_role in roles
