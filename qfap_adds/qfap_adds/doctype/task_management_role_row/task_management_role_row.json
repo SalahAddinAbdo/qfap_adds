@@ -1,0 +1,31 @@
+{
+  "doctype": "DocType",
+  "name": "Task Management Role Row",
+  "module": "QFap Adds",
+  "istable": 1,
+  "editable_grid": 1,
+  "field_order": [
+    "role",
+    "enabled"
+  ],
+  "fields": [
+    {
+      "fieldname": "role",
+      "label": "Role",
+      "fieldtype": "Link",
+      "options": "Role",
+      "reqd": 1,
+      "in_list_view": 1,
+      "columns": 10
+    },
+    {
+      "fieldname": "enabled",
+      "label": "Enabled",
+      "fieldtype": "Check",
+      "default": "1",
+      "in_list_view": 1,
+      "columns": 2
+    }
+  ],
+  "permissions": []
+}

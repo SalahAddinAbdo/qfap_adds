@@ -1,0 +1,54 @@
+{
+  "doctype": "DocType",
+  "name": "Task Summary Recipient",
+  "module": "QFap Adds",
+  "istable": 1,
+  "editable_grid": 1,
+  "field_order": [
+    "recipient_type",
+    "user",
+    "external_email",
+    "enabled"
+  ],
+  "fields": [
+    {
+      "fieldname": "recipient_type",
+      "label": "Recipient Type",
+      "fieldtype": "Select",
+      "options": "System User\nExternal Email",
+      "default": "System User",
+      "reqd": 1,
+      "in_list_view": 1,
+      "columns": 2
+    },
+    {
+      "fieldname": "user",
+      "label": "System User",
+      "fieldtype": "Link",
+      "options": "User",
+      "depends_on": "eval:doc.recipient_type == \"System User\"",
+      "mandatory_depends_on": "eval:doc.recipient_type == \"System User\"",
+      "in_list_view": 1,
+      "columns": 4
+    },
+    {
+      "fieldname": "external_email",
+      "label": "External Email",
+      "fieldtype": "Data",
+      "options": "Email",
+      "depends_on": "eval:doc.recipient_type == \"External Email\"",
+      "mandatory_depends_on": "eval:doc.recipient_type == \"External Email\"",
+      "in_list_view": 1,
+      "columns": 4
+    },
+    {
+      "fieldname": "enabled",
+      "label": "Enabled",
+      "fieldtype": "Check",
+      "default": "1",
+      "in_list_view": 1,
+      "columns": 2
+    }
+  ],
+  "permissions": []
+}
