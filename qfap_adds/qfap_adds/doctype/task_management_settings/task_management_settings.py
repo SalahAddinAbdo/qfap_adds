@@ -11,6 +11,8 @@ class TaskManagementSettings(Document):
         self._validate_roles()
         self._validate_recipients()
         self._validate_schedule()
+        if self.auto_calculate_expected_hours and float(self.working_hours_per_day or 0) <= 0:
+            frappe.throw(_("Working Hours per Day must be greater than zero."))
         self._set_next_send()
 
     def _validate_roles(self):
