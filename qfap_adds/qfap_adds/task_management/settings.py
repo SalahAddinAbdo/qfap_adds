@@ -45,6 +45,33 @@ DEFAULTS = {
     "summary_monthly_day": 1,
     "summary_email_subject": "Task Summary | {employee_name} | {report_date}",
     "summary_send_to_employees": 1,
+    "summary_period_mode": "Automatic by Frequency",
+    "summary_rolling_days": 7,
+    "summary_include_carried_forward": 1,
+    "summary_include_undated": 0,
+    "summary_include_operational": 1,
+    "summary_include_main_tasks": 1,
+    "summary_include_workplan": 0,
+    "summary_include_completed": 1,
+    "summary_include_overdue": 1,
+    "summary_include_due_soon": 1,
+    "summary_due_soon_days": 7,
+    "summary_only_attention": 0,
+    "summary_progress_warning": 25,
+    "summary_stale_days": 7,
+    "summary_exclude_zero_hours": 0,
+    "summary_detail_level": "Full Task Details",
+    "summary_max_tasks": 25,
+    "summary_show_project": 1,
+    "summary_show_status": 1,
+    "summary_show_priority": 1,
+    "summary_show_progress": 1,
+    "summary_show_due_date": 1,
+    "summary_show_expected_hours": 1,
+    "summary_show_actual_hours": 1,
+    "summary_show_task_type": 1,
+    "summary_show_assigned_by": 0,
+
     "summary_last_period_key": "",
     "migration_batch_size": 200,
     "reconciliation_batch_size": 200,
@@ -60,6 +87,7 @@ def get_settings():
     values.update({field: doc.get(field) for field in DEFAULTS if doc.get(field) not in (None, "")})
     values["global_reopen_role_rows"] = doc.get("global_reopen_role_rows") or []
     values["summary_recipients"] = doc.get("summary_recipients") or []
+    values["summary_filter_rows"] = doc.get("summary_filter_rows") or []
     values["summary_email_template"] = doc.get("summary_email_template")
     values["summary_last_period_key"] = doc.get("summary_last_period_key") or ""
     return frappe._dict(values)
