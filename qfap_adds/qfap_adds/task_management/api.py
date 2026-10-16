@@ -1,5 +1,8 @@
 from __future__ import annotations
 
+import html
+import re
+
 import frappe
 from frappe import _
 
@@ -10,6 +13,17 @@ from qfap_adds.qfap_adds.task_management.settings import (
     get_settings,
 )
 from qfap_adds.qfap_adds.task_management.services import rebuild, rebuild_chain
+
+def _supervisor_remark_to_plain_text(value):
+    """Convert Quill/HTML content to safe, readable plain text."""
+    text = str(value or "")
+    text = re.sub(r"(?i)<br\\s*/?>", "\\n", text)
+    text = re.sub(r"(?i)</(p|div|li|h[1-6])>", "\\n", text)
+    text = frappe.utils.strip_html(text)
+    text = html.unescape(text).replace("\\xa0", " ")
+    lines = [re.sub(r"[ \\t]+", " ", line).strip() for line in text.splitlines()]
+    return "\\n".join(line for line in lines if line).strip()
+
 
 def _supervisor_remark_access(task_name, user=None):
     user = user or frappe.session.user
@@ -52,7 +66,9 @@ def get_supervisor_remark_access(task=None):
         frappe.throw(_("Task is required."))
     access = _supervisor_remark_access(task_name)
     task_doc = access.pop("task", None)
-    access["current_remark"] = (task_doc.custom_supervisor_remarks if task_doc else "") or ""
+    access["current_remark"] = _supervisor_remark_to_plain_text(
+        task_doc.custom_supervisor_remarks if task_doc else ""
+    )
     return access
 
 
@@ -65,7 +81,7 @@ def save_supervisor_remark(task=None, remark=None):
     if not access.get("allowed"):
         frappe.throw(access.get("reason") or _("Not permitted."), frappe.PermissionError)
 
-    value = (remark or "").strip()
+    value = _supervisor_remark_to_plain_text(remark)
     if not value:
         frappe.throw(_("Supervisor Remark cannot be empty."))
     if len(value) > 5000:
