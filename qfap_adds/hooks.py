@@ -11,6 +11,12 @@ app_include_js = [
     "/assets/qfap_adds/js/qfap_form_bootstrap.js",
 ]
 
+extend_doctype_class = {
+    "Task": [
+        "qfap_adds.qfap_adds.task_management.task_controller.TaskProjectPeriodPolicyMixin"
+    ],
+}
+
 doctype_js = {
     "Task Assignment Request": "public/js/task_assignment_request.js",
     "Task": "public/js/task.js",
