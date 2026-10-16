@@ -11,29 +11,40 @@
     "request_details",
     "request_type",
     "workflow_state",
+    "layout_v2_column_break_1",
     "requested_by_user",
     "requested_by_employee",
+    "layout_v2_column_break_2",
     "requested_on",
     "task_data",
     "subject",
-    "description",
     "requested_assignee",
     "company",
+    "layout_v2_column_break_3",
     "project",
-    "parent_task",
     "task_type",
     "priority",
+    "layout_v2_column_break_4",
+    "parent_task",
     "exp_start_date",
     "exp_end_date",
+    "layout_v2_section_break_5",
     "expected_days",
     "expected_time",
+    "layout_v2_section_break_6",
+    "description",
+    "layout_v2_section_break_7",
     "request_reason",
     "decision",
     "decision_by",
+    "layout_v2_column_break_8",
     "decision_on",
-    "decision_remarks",
-    "created_task",
+    "layout_v2_column_break_9",
     "application_status",
+    "created_task",
+    "layout_v2_section_break_10",
+    "decision_remarks",
+    "layout_v2_section_break_11",
     "application_error",
     "application_fingerprint",
     "duplicate_key"
@@ -244,6 +255,56 @@
       "read_only": 1,
       "non_negative": 1,
       "description": "Calculated automatically from the inclusive expected date range."
+    },
+    {
+      "fieldname": "layout_v2_column_break_1",
+      "fieldtype": "Column Break"
+    },
+    {
+      "fieldname": "layout_v2_column_break_2",
+      "fieldtype": "Column Break"
+    },
+    {
+      "fieldname": "layout_v2_column_break_3",
+      "fieldtype": "Column Break"
+    },
+    {
+      "fieldname": "layout_v2_column_break_4",
+      "fieldtype": "Column Break"
+    },
+    {
+      "fieldname": "layout_v2_section_break_5",
+      "fieldtype": "Section Break",
+      "label": "Task Schedule"
+    },
+    {
+      "fieldname": "layout_v2_section_break_6",
+      "fieldtype": "Section Break",
+      "label": "Task Description"
+    },
+    {
+      "fieldname": "layout_v2_section_break_7",
+      "fieldtype": "Section Break",
+      "label": "Request Justification"
+    },
+    {
+      "fieldname": "layout_v2_column_break_8",
+      "fieldtype": "Column Break"
+    },
+    {
+      "fieldname": "layout_v2_column_break_9",
+      "fieldtype": "Column Break"
+    },
+    {
+      "fieldname": "layout_v2_section_break_10",
+      "fieldtype": "Section Break",
+      "label": "Decision Remarks"
+    },
+    {
+      "fieldname": "layout_v2_section_break_11",
+      "fieldtype": "Section Break",
+      "label": "Application Error",
+      "depends_on": "eval:doc.application_error"
     }
   ],
   "permissions": [
