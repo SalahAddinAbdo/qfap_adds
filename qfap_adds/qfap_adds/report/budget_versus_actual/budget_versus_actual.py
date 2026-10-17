@@ -1,4 +1,5 @@
 from __future__ import annotations
+from qfap_adds.qfap_adds.project_management.report_link_titles import finalize_report_result
 import re
 import frappe
 from frappe import _
@@ -75,4 +76,4 @@ def execute(filters=None):
     for x in rows:
       if not x.get("is_account_row"):counts[x.get("performance_status")]=counts.get(x.get("performance_status"),0)+1
     chart={"data":{"labels":list(counts),"datasets":[{"name":_("Budget Lines"),"values":list(counts.values())}]},"type":"donut","height":300}
-    return columns,rows,"",chart,summary,1
+    return finalize_report_result((columns, rows, "", chart, summary, 1))

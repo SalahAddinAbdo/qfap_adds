@@ -24,3 +24,27 @@ onload(report){bva_toggle_asset_filter(report);report.page.add_inner_button(__("
  `;
  document.head.appendChild(style);
 })();
+
+
+// QFAP Link title display v2.8.4.
+;(function qfap_link_title_display(){
+ const config=frappe.query_reports["Budget Versus Actual"];
+ if(!config||config.__qfap_link_titles_wrapped) return;
+ const original=config.formatter;
+ config.formatter=function(value,row,column,data,default_formatter){
+  let rendered=original?original.call(this,value,row,column,data,default_formatter):default_formatter(value,row,column,data);
+  if(data&&column&&column.fieldtype==="Link"&&column.fieldname){
+   const title=data[column.fieldname+"__title"];
+   if(title&&String(title)!==String(value||"")){
+    rendered+=`<span class="qfap-link-title">${frappe.utils.escape_html(String(title))}</span>`;
+   }
+  }
+  return rendered;
+ };
+ config.__qfap_link_titles_wrapped=true;
+})();
+
+;(function qfap_link_title_style(){
+ const id="qfap-link-title-style-v284";if(document.getElementById(id))return;
+ const s=document.createElement("style");s.id=id;s.textContent=`.query-report .qfap-link-title{display:block;margin-top:2px;color:var(--text-muted,#6b7280);font-size:11px;line-height:1.25;white-space:normal}`;document.head.appendChild(s);
+})();
