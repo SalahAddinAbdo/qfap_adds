@@ -90,6 +90,10 @@ fixtures = [
     ]]]},
 ]
 
+before_migrate = [
+    "qfap_adds.qfap_adds.project_management.workspace_migration.prepare_qfap_management_hub",
+]
+
 after_install = [
     "qfap_adds.qfap_adds.install.after_install",
     "qfap_adds.qfap_adds.task_management.provisioning.provision_task_integration",
