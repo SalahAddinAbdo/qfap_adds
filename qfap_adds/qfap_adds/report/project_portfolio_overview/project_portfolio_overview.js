@@ -1,1 +1,0 @@
-frappe.query_reports["Project Portfolio Overview"] = {filters: [{fieldname:"project",label:__("Project"),fieldtype:"Link",options:"Project"},{fieldname:"status",label:__("Status"),fieldtype:"Data"}]};
