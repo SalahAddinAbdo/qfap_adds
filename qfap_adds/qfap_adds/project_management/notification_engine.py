@@ -20,23 +20,25 @@ def _field(meta,candidates):
     return None
 
 
+def _split_recipients(value):
+    text=str(value or "").replace("\r", "\n").replace(",", "\n").replace(";", "\n")
+    return [item.strip() for item in text.split("\n") if item.strip()]
+
+
 def _recipients(rule,doc):
     users=set()
 
-    # Explicit users have the highest priority and support multiple recipients.
-    for row in rule.get("recipient_users") or []:
-        if row.enabled and row.user:
-            users.add(row.user)
+    for user in _split_recipients(rule.get("recipient_users")):
+        if frappe.db.exists("User",user):
+            users.add(user)
 
-    # Employees are resolved through Employee.user_id.
-    for row in rule.get("recipient_employees") or []:
-        if not row.enabled or not row.employee:
+    for employee in _split_recipients(rule.get("recipient_employees")):
+        if not frappe.db.exists("Employee",employee):
             continue
-        user=frappe.db.get_value("Employee",row.employee,"user_id")
+        user=frappe.db.get_value("Employee",employee,"user_id")
         if user:
             users.add(user)
 
-    # Backward compatibility with the earlier single Employee custom field.
     legacy_employee=rule.get("recipient_employee")
     if legacy_employee and frappe.db.exists("Employee",legacy_employee):
         user=frappe.db.get_value("Employee",legacy_employee,"user_id")
@@ -63,10 +65,7 @@ def _recipients(rule,doc):
                         users.add(user)
             break
 
-    return [
-        user for user in users
-        if frappe.db.exists("User",user) and frappe.db.get_value("User",user,"enabled")
-    ]
+    return [user for user in users if frappe.db.exists("User",user) and frappe.db.get_value("User",user,"enabled")]
 
 
 def _template(rule,doc):

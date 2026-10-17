@@ -20,8 +20,8 @@ CHILD_FIELDS = [
     {"fieldname":"reference_doctype","label":"Reference DocType","fieldtype":"Link","options":"DocType","read_only":1,"in_list_view":1,"insert_after":"description"},
     {"fieldname":"trigger_type","label":"Trigger Type","fieldtype":"Select","options":"On Save\nDaily","read_only":1,"in_list_view":1,"insert_after":"reference_doctype"},
     {"fieldname":"delivery_channel","label":"Delivery Channel","fieldtype":"Select","options":"System Notification\nEmail and System Notification","default":"System Notification","in_list_view":1,"insert_after":"trigger_type"},
-    {"fieldname":"recipient_users","label":"Recipient Users","fieldtype":"Table","options":"Notify User","insert_after":"recipient_role","description":"Select one or more active system users."},
-    {"fieldname":"recipient_employees","label":"Recipient Employees","fieldtype":"Table","options":"Notify Employee","insert_after":"recipient_users","description":"Select one or more employees. Each employee must be linked to an active User through Employee.user_id."},
+    {"fieldname":"recipient_users","label":"Recipient Users","fieldtype":"Small Text","insert_after":"recipient_role","description":"Enter active User IDs or email addresses, separated by commas or new lines."},
+    {"fieldname":"recipient_employees","label":"Recipient Employees","fieldtype":"Small Text","insert_after":"recipient_users","description":"Enter Employee IDs, separated by commas or new lines. Each Employee must have Employee.user_id."},
     {"fieldname":"fallback_to_project_manager","label":"Fallback to Project Manager","fieldtype":"Check","default":"1","insert_after":"recipient_employees"},
     {"fieldname":"notification_record","label":"Notification Template","fieldtype":"Link","options":"Notification","read_only":1,"insert_after":"fallback_to_project_manager"},
 ]
@@ -52,21 +52,30 @@ def _ensure_template(key, label, doctype, description):
 
 
 
-def _remove_obsolete_long_recipient_doctypes():
-    for old_name in (
-        "Project Notification Recipient User",
-        "Project Notification Recipient Employee",
-    ):
-        if frappe.db.exists("DocType", old_name):
-            frappe.delete_doc("DocType", old_name, ignore_permissions=True, force=True)
+def _repair_recipient_fields():
+    """Replace unsupported nested Table fields in the child rule DocType."""
+    for fieldname in ("recipient_users", "recipient_employees"):
+        custom_name="Project Notification Rule-"+fieldname
+        if not frappe.db.exists("Custom Field",custom_name):
+            continue
+        fieldtype=frappe.db.get_value("Custom Field",custom_name,"fieldtype")
+        if fieldtype=="Table":
+            frappe.delete_doc("Custom Field",custom_name,ignore_permissions=True,force=True)
 
 def provision_project_notifications():
-    _remove_obsolete_long_recipient_doctypes()
+    _repair_recipient_fields()
     if not frappe.db.exists("DocType","Project Notification Rule"):
         return
     create_custom_fields({"Project Notification Rule":CHILD_FIELDS,"Projects Settings":SETTINGS_HELP},update=True)
     if frappe.get_meta("Project Notification Rule").has_field("recipient_employee_field"):
         make_property_setter("Project Notification Rule", "recipient_employee_field", "hidden", 1, "Check", validate_fields_for_doctype=False)
+    make_property_setter("Projects Settings", "project_notification_rules", "read_only", 0, "Check", validate_fields_for_doctype=False)
+    for editable_field in (
+        "delivery_channel", "enabled", "due_soon_days", "recipient_role",
+        "recipient_users", "recipient_employees", "fallback_to_project_manager",
+    ):
+        if frappe.get_meta("Project Notification Rule").has_field(editable_field):
+            make_property_setter("Project Notification Rule", editable_field, "read_only", 0, "Check", validate_fields_for_doctype=False)
     settings=frappe.get_single("Projects Settings")
     existing={row.notification_key:row for row in settings.get("project_notification_rules") or []}
     for key, spec in RULES.items():

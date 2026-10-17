@@ -235,10 +235,6 @@ def _save_desktop_icon():
     if not _exists("DocType", "Desktop Icon"):
         return
     sidebar_name = "QFap Adds"
-    if not _exists("Workspace Sidebar", sidebar_name):
-        # The sidebar is normally synchronized by Frappe from the public Workspace.
-        # Do not invent an invalid sidebar record; the apps-screen hook remains available.
-        return
     meta = frappe.get_meta("Desktop Icon")
     values = {
         "doctype": "Desktop Icon",
@@ -264,6 +260,17 @@ def _save_desktop_icon():
         doc.save(ignore_permissions=True)
     else:
         frappe.get_doc(values).insert(ignore_permissions=True)
+
+
+def _refresh_desktop_layouts():
+    """Remove only cached layouts that predate the QFap app tile."""
+    if not _exists("DocType", "Desktop Layout"):
+        return
+    for name in frappe.get_all("Desktop Layout", pluck="name", limit_page_length=0):
+        doc=frappe.get_doc("Desktop Layout",name)
+        serialized=str(doc.as_dict())
+        if WORKSPACE not in serialized:
+            frappe.delete_doc("Desktop Layout",name,ignore_permissions=True,force=True)
 
 def provision_project_navigation():
     app_doctypes = _app_doctypes()
@@ -332,4 +339,5 @@ def provision_project_navigation():
     _remove_old_workspace()
     _save_workspace(data)
     _save_desktop_icon()
+    _refresh_desktop_layouts()
     frappe.clear_cache()
