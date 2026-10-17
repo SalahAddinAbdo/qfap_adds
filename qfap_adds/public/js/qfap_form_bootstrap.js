@@ -33,7 +33,9 @@
         return (meta?.fields || []).some((field) => {
             if (!field.fieldname) return false;
             if (PROJECT_FIELDS.includes(field.fieldname)) return true;
-            if (BUDGET_FIELDS.includes(field.fieldname)) return true;
+            if (BUDGET_FIELDS.includes(field.fieldname)) {
+                return field.fieldtype === "Link" && field.options === "Budget Line";
+            }
             if (dimension_names.has(field.fieldname)) return true;
             return field.fieldtype === "Link" &&
                 dimension_names.has(frappe.scrub(field.options || ""));
@@ -41,6 +43,7 @@
     }
 
     async function form_has_dimensions(frm) {
+        if (frm.doctype === "Budget Line") return false;
         const names = configured_dimension_names();
         if (meta_has_dimensions(frm.meta, names)) return true;
 
