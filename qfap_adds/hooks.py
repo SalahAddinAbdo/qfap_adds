@@ -6,7 +6,7 @@ app_email = ""
 app_license = "MIT"
 
 app_logo_url = "/assets/qfap_adds/images/qfap_project_cycle.png"
-app_home = "/desk/project-cycle-management"
+app_home = "/desk/qfap-management-hub"
 
 add_to_apps_screen = [{
     "name": app_name,
