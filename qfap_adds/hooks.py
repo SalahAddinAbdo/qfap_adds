@@ -79,19 +79,19 @@ fixtures = [
 ]
 
 before_migrate = [
-    "qfap_adds.project_management.migration.prepare_standard_project_doctypes",
+    "qfap_adds.qfap_adds.project_management.migration.prepare_standard_project_doctypes",
 ]
 
 after_install = [
     "qfap_adds.qfap_adds.install.after_install",
     "qfap_adds.qfap_adds.task_management.provisioning.provision_task_integration",
-    "qfap_adds.project_management.provisioning.provision_project_management",
+    "qfap_adds.qfap_adds.project_management.provisioning.provision_project_management",
 ]
 after_migrate = [
     "qfap_adds.qfap_adds.install.after_migrate",
     "qfap_adds.printing.provisioning.provision_universal_print_formats",
     "qfap_adds.qfap_adds.task_management.provisioning.provision_task_integration",
-    "qfap_adds.project_management.provisioning.provision_project_management",
+    "qfap_adds.qfap_adds.project_management.provisioning.provision_project_management",
 ]
 
 
