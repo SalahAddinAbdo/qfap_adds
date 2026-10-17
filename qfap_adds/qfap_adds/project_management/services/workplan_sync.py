@@ -10,6 +10,19 @@ ACTIVITY_DOCTYPE = "Project Workplan Activity"
 TASK_DOCTYPE = "Task"
 
 
+
+def _get_workplan_task_type(settings):
+    task_type = str(settings.get("default_workplan_task_type") or "Workplan").strip()
+    if not task_type:
+        frappe.throw(_("Default Workplan Task Type is not configured in Projects Settings."))
+    if not frappe.db.exists("Task Type", task_type):
+        frappe.throw(
+            _("Task Type {0} does not exist. Configure Default Workplan Task Type in Projects Settings.").format(
+                frappe.bold(task_type)
+            )
+        )
+    return task_type
+
 def sync_activity_task(activity):
     settings = get_project_cycle_settings()
     if not cint(settings.create_workplan_tasks_automatically):
@@ -28,7 +41,9 @@ def sync_activity_task(activity):
     task.custom_project_workplan = 1
     task.custom_workplan_activity = activity.name
     task.is_group = 1
-    if task.is_new(): task.status = "Open"
+    if task.is_new():
+        task.status = "Open"
+        task.type = _get_workplan_task_type(settings)
     task.flags.qfap_workplan_sync = True
     task.save(ignore_permissions=True)
     if activity.linked_workplan_task != task.name:
