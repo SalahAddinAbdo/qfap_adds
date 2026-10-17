@@ -229,43 +229,6 @@ def _save_workspace(data):
     frappe.get_doc(values).insert(ignore_permissions=True)
 
 
-def _save_desktop_icon():
-    if not _exists("DocType", "Desktop Icon"):
-        return
-    meta = frappe.get_meta("Desktop Icon")
-    values = {
-        "doctype": "Desktop Icon",
-        "name": WORKSPACE,
-        "label": WORKSPACE,
-        "app": "qfap_adds",
-        "icon": "project",
-        "icon_type": "Link",
-        "link_to": WORKSPACE,
-        "link_type": "Workspace",
-        "logo_url": "/assets/qfap_adds/images/qfap_project_cycle.png",
-        "hidden": 0,
-        "standard": 1,
-        "restrict_removal": 1,
-        "idx": 1,
-    }
-    values = {
-        key: value
-        for key, value in values.items()
-        if key in ("doctype", "name") or meta.has_field(key)
-    }
-    for old_name in OLD_WORKSPACES:
-        if old_name != WORKSPACE and _exists("Desktop Icon", old_name):
-            frappe.delete_doc("Desktop Icon", old_name, ignore_permissions=True, force=True)
-    if _exists("Desktop Icon", WORKSPACE):
-        doc = frappe.get_doc("Desktop Icon", WORKSPACE)
-        for key, value in values.items():
-            if key not in ("doctype", "name"):
-                doc.set(key, value)
-        doc.save(ignore_permissions=True)
-    else:
-        frappe.get_doc(values).insert(ignore_permissions=True)
-
-
 def provision_project_navigation():
     app_doctypes = _app_doctypes()
 
@@ -332,5 +295,4 @@ def provision_project_navigation():
 
     _remove_old_workspace()
     _save_workspace(data)
-    _save_desktop_icon()
     frappe.clear_cache()
