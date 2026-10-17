@@ -98,7 +98,7 @@ frappe.query_reports["Project Portfolio Overview"]={
 };
 
 // QFAP KPI card refinement. Column freezing is native through sticky: true.
-(function qfap_kpi_card_refinement(){
+;(function qfap_kpi_card_refinement(){
  const STYLE_ID="qfap-kpi-card-refinement-v282";
  if(document.getElementById(STYLE_ID)) return;
  const style=document.createElement("style");

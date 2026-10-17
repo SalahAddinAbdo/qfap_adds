@@ -11,7 +11,7 @@ formatter(value,row,column,data,df){value=df(value,row,column,data);if(!data)ret
 onload(report){bva_toggle_asset_filter(report);report.page.add_inner_button(__("Reset Filters"),()=>{["project","from_date","to_date"].forEach(x=>report.set_filter_value(x,""));report.set_filter_value("accounts",[]);report.set_filter_value("asset_accounts",[]);report.set_filter_value("include_asset_expenses",0);report.set_filter_value("under_utilized_threshold",70);report.set_filter_value("show_account_details",1);report.refresh();});}}
 
 // QFAP KPI card refinement. Column freezing is native through sticky: true.
-(function qfap_kpi_card_refinement(){
+;(function qfap_kpi_card_refinement(){
  const STYLE_ID="qfap-kpi-card-refinement-v282";
  if(document.getElementById(STYLE_ID)) return;
  const style=document.createElement("style");

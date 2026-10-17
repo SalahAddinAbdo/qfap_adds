@@ -11,7 +11,7 @@ function ctx(f,t){const q=(t||"").toLowerCase(),vals=[];(frappe.query_report.dat
 function desc(f,v){let c=0,ps=[];(frappe.query_report.data||[]).forEach(r=>{if(String(r[f]||"").split(",").map(i=>i.trim()).includes(v)){c++;if(r.project&&!ps.includes(r.project))ps.push(r.project);}});return `${c} record${c===1?"":"s"}${ps.length?" • "+ps.slice(0,3).join(" • "):""}${ps.length>3?" • +"+(ps.length-3)+" more":""}`;}
 
 // QFAP KPI card refinement. Column freezing is native through sticky: true.
-(function qfap_kpi_card_refinement(){
+;(function qfap_kpi_card_refinement(){
  const STYLE_ID="qfap-kpi-card-refinement-v282";
  if(document.getElementById(STYLE_ID)) return;
  const style=document.createElement("style");

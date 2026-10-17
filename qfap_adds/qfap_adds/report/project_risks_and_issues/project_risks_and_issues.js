@@ -19,7 +19,7 @@ formatter(value,row,column,data,default_formatter){let v=default_formatter(value
 onload(report){report.page.add_inner_button(__("Reset Filters"),()=>{(report.filters||[]).forEach(f=>f.set_value(f.df.fieldname==="view"?"Executive Assurance":(f.df.fieldtype==="Check"?0:null)));report.refresh();});const st=document.createElement("style");st.textContent='.query-report .dt-cell__content{white-space:normal!important;line-height:1.35}.query-report .datatable{border:1px solid var(--border-color);border-radius:10px;overflow:hidden}';document.head.appendChild(st);}}
 
 // QFAP KPI card refinement. Column freezing is native through sticky: true.
-(function qfap_kpi_card_refinement(){
+;(function qfap_kpi_card_refinement(){
  const STYLE_ID="qfap-kpi-card-refinement-v282";
  if(document.getElementById(STYLE_ID)) return;
  const style=document.createElement("style");
