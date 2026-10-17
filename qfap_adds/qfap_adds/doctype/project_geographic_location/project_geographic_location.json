@@ -37,11 +37,11 @@
    "non_negative": 0,
    "allow_on_submit": 0,
    "bold": 0,
-   "columns": 2,
    "search_index": 0,
    "allow_in_quick_entry": 0,
    "print_hide": 0,
-   "report_hide": 0
+   "report_hide": 0,
+   "columns": 2
   },
   {
    "fieldname": "governorate",
@@ -62,11 +62,11 @@
    "non_negative": 0,
    "allow_on_submit": 0,
    "bold": 0,
-   "columns": 2,
    "search_index": 0,
    "allow_in_quick_entry": 0,
    "print_hide": 0,
-   "report_hide": 0
+   "report_hide": 0,
+   "columns": 2
   },
   {
    "fieldname": "district",
@@ -87,11 +87,11 @@
    "non_negative": 0,
    "allow_on_submit": 0,
    "bold": 0,
-   "columns": 2,
    "search_index": 0,
    "allow_in_quick_entry": 0,
    "print_hide": 0,
-   "report_hide": 0
+   "report_hide": 0,
+   "columns": 2
   },
   {
    "fieldname": "specific_location",
@@ -112,11 +112,11 @@
    "non_negative": 0,
    "allow_on_submit": 0,
    "bold": 0,
-   "columns": 2,
    "search_index": 0,
    "allow_in_quick_entry": 0,
    "print_hide": 0,
-   "report_hide": 0
+   "report_hide": 0,
+   "columns": 2
   },
   {
    "fieldname": "column_break_mrja",
@@ -135,7 +135,6 @@
    "non_negative": 0,
    "allow_on_submit": 0,
    "bold": 0,
-   "columns": 0,
    "search_index": 0,
    "allow_in_quick_entry": 0,
    "print_hide": 0,
@@ -160,11 +159,11 @@
    "non_negative": 0,
    "allow_on_submit": 0,
    "bold": 0,
-   "columns": 1,
    "search_index": 0,
    "allow_in_quick_entry": 0,
    "print_hide": 0,
-   "report_hide": 0
+   "report_hide": 0,
+   "columns": 1
   },
   {
    "fieldname": "location_status",
@@ -186,11 +185,11 @@
    "non_negative": 0,
    "allow_on_submit": 0,
    "bold": 0,
-   "columns": 2,
    "search_index": 0,
    "allow_in_quick_entry": 0,
    "print_hide": 0,
-   "report_hide": 0
+   "report_hide": 0,
+   "columns": 2
   },
   {
    "fieldname": "latitude",
@@ -211,7 +210,6 @@
    "non_negative": 0,
    "allow_on_submit": 0,
    "bold": 0,
-   "columns": 1,
    "search_index": 0,
    "allow_in_quick_entry": 0,
    "print_hide": 0,
@@ -236,7 +234,6 @@
    "non_negative": 0,
    "allow_on_submit": 0,
    "bold": 0,
-   "columns": 1,
    "search_index": 0,
    "allow_in_quick_entry": 0,
    "print_hide": 0,
@@ -259,7 +256,6 @@
    "non_negative": 0,
    "allow_on_submit": 0,
    "bold": 0,
-   "columns": 0,
    "search_index": 0,
    "allow_in_quick_entry": 0,
    "print_hide": 0,
@@ -283,7 +279,6 @@
    "non_negative": 0,
    "allow_on_submit": 0,
    "bold": 0,
-   "columns": 3,
    "search_index": 0,
    "allow_in_quick_entry": 0,
    "print_hide": 0,

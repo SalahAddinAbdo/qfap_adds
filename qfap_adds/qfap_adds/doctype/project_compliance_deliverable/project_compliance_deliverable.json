@@ -7,16 +7,17 @@
   "naming_series",
   "project",
   "deliverable_code",
+  "ui_col_1",
   "deliverable_title",
-  "column_break_identity",
   "deliverable_type",
   "compliance_source",
+  "ui_col_2",
   "priority",
   "reference_section",
   "donor",
   "agreement_reference",
   "recipient",
-  "column_break_reference",
+  "ui_col_3",
   "required_format",
   "submission_method",
   "language",
@@ -24,43 +25,54 @@
   "reporting_period_start",
   "reporting_period_end",
   "internal_review_due_date",
-  "column_break_dates",
+  "ui_col_4",
   "submission_due_date",
   "revision_due_date",
   "responsibility_section",
   "responsible_employee",
   "responsible_department",
-  "column_break_responsibility",
+  "ui_col_5",
   "review_responsible",
   "review_department",
   "requirements_section",
+  "layout_full_6",
+  "ui_text_section_6",
   "description",
+  "ui_text_col_7",
   "special_instructions",
+  "ui_full_section_8",
   "attachment_requirements",
   "workflow_section",
   "workflow_state",
+  "ui_col_9",
   "status",
   "submission_section",
   "submission_date",
   "submission_reference",
+  "ui_col_10",
   "submitted_by",
-  "column_break_submission",
   "submission_attachment",
+  "layout_full_8",
+  "ui_text_section_11",
   "submission_notes",
   "response_section",
   "response_date",
   "approval_date",
+  "ui_col_12",
   "response_reference",
-  "column_break_response",
   "response_attachment",
+  "layout_full_10",
+  "ui_text_section_13",
   "response_notes",
   "monitoring_section",
   "monitoring_status",
   "monitoring_days",
+  "ui_col_14",
   "last_reminder_date",
-  "column_break_monitoring",
-  "monitoring_message",
-  "amended_from"
+  "amended_from",
+  "layout_full_12",
+  "ui_text_section_15",
+  "monitoring_message"
  ],
  "fields": [
   {
@@ -123,6 +135,10 @@
    "report_hide": 0
   },
   {
+   "fieldname": "ui_col_1",
+   "fieldtype": "Column Break"
+  },
+  {
    "fieldname": "deliverable_title",
    "fieldtype": "Data",
    "label": "Deliverable Title",
@@ -141,29 +157,6 @@
    "allow_on_submit": 0,
    "bold": 1,
    "columns": 4,
-   "search_index": 0,
-   "allow_in_quick_entry": 0,
-   "print_hide": 0,
-   "report_hide": 0
-  },
-  {
-   "fieldname": "column_break_identity",
-   "fieldtype": "Column Break",
-   "reqd": 0,
-   "read_only": 0,
-   "hidden": 0,
-   "in_list_view": 0,
-   "in_standard_filter": 0,
-   "in_global_search": 0,
-   "in_preview": 0,
-   "unique": 0,
-   "no_copy": 0,
-   "set_only_once": 0,
-   "fetch_if_empty": 0,
-   "non_negative": 0,
-   "allow_on_submit": 0,
-   "bold": 0,
-   "columns": 0,
    "search_index": 0,
    "allow_in_quick_entry": 0,
    "print_hide": 0,
@@ -218,6 +211,10 @@
    "allow_in_quick_entry": 0,
    "print_hide": 0,
    "report_hide": 0
+  },
+  {
+   "fieldname": "ui_col_2",
+   "fieldtype": "Column Break"
   },
   {
    "fieldname": "priority",
@@ -343,27 +340,8 @@
    "report_hide": 0
   },
   {
-   "fieldname": "column_break_reference",
-   "fieldtype": "Column Break",
-   "reqd": 0,
-   "read_only": 0,
-   "hidden": 0,
-   "in_list_view": 0,
-   "in_standard_filter": 0,
-   "in_global_search": 0,
-   "in_preview": 0,
-   "unique": 0,
-   "no_copy": 0,
-   "set_only_once": 0,
-   "fetch_if_empty": 0,
-   "non_negative": 0,
-   "allow_on_submit": 0,
-   "bold": 0,
-   "columns": 0,
-   "search_index": 0,
-   "allow_in_quick_entry": 0,
-   "print_hide": 0,
-   "report_hide": 0
+   "fieldname": "ui_col_3",
+   "fieldtype": "Column Break"
   },
   {
    "fieldname": "required_format",
@@ -536,27 +514,8 @@
    "report_hide": 0
   },
   {
-   "fieldname": "column_break_dates",
-   "fieldtype": "Column Break",
-   "reqd": 0,
-   "read_only": 0,
-   "hidden": 0,
-   "in_list_view": 0,
-   "in_standard_filter": 0,
-   "in_global_search": 0,
-   "in_preview": 0,
-   "unique": 0,
-   "no_copy": 0,
-   "set_only_once": 0,
-   "fetch_if_empty": 0,
-   "non_negative": 0,
-   "allow_on_submit": 0,
-   "bold": 0,
-   "columns": 0,
-   "search_index": 0,
-   "allow_in_quick_entry": 0,
-   "print_hide": 0,
-   "report_hide": 0
+   "fieldname": "ui_col_4",
+   "fieldtype": "Column Break"
   },
   {
    "fieldname": "submission_due_date",
@@ -682,27 +641,8 @@
    "report_hide": 0
   },
   {
-   "fieldname": "column_break_responsibility",
-   "fieldtype": "Column Break",
-   "reqd": 0,
-   "read_only": 0,
-   "hidden": 0,
-   "in_list_view": 0,
-   "in_standard_filter": 0,
-   "in_global_search": 0,
-   "in_preview": 0,
-   "unique": 0,
-   "no_copy": 0,
-   "set_only_once": 0,
-   "fetch_if_empty": 0,
-   "non_negative": 0,
-   "allow_on_submit": 0,
-   "bold": 0,
-   "columns": 0,
-   "search_index": 0,
-   "allow_in_quick_entry": 0,
-   "print_hide": 0,
-   "report_hide": 0
+   "fieldname": "ui_col_5",
+   "fieldtype": "Column Break"
   },
   {
    "fieldname": "review_responsible",
@@ -779,6 +719,14 @@
    "report_hide": 0
   },
   {
+   "fieldname": "layout_full_6",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "ui_text_section_6",
+   "fieldtype": "Section Break"
+  },
+  {
    "fieldname": "description",
    "fieldtype": "Text Editor",
    "label": "Description",
@@ -801,6 +749,10 @@
    "allow_in_quick_entry": 0,
    "print_hide": 0,
    "report_hide": 0
+  },
+  {
+   "fieldname": "ui_text_col_7",
+   "fieldtype": "Column Break"
   },
   {
    "fieldname": "special_instructions",
@@ -827,10 +779,14 @@
    "report_hide": 0
   },
   {
+   "fieldname": "ui_full_section_8",
+   "fieldtype": "Section Break"
+  },
+  {
    "fieldname": "attachment_requirements",
    "fieldtype": "Table",
    "label": "Attachment Requirements",
-   "options": "Project Deliverable Attachment Requirement",
+   "options": "Deliverable Requirement",
    "reqd": 0,
    "read_only": 0,
    "hidden": 0,
@@ -899,6 +855,10 @@
    "allow_in_quick_entry": 0,
    "print_hide": 0,
    "report_hide": 0
+  },
+  {
+   "fieldname": "ui_col_9",
+   "fieldtype": "Column Break"
   },
   {
    "fieldname": "status",
@@ -1000,6 +960,10 @@
    "report_hide": 0
   },
   {
+   "fieldname": "ui_col_10",
+   "fieldtype": "Column Break"
+  },
+  {
    "fieldname": "submitted_by",
    "fieldtype": "Link",
    "label": "Submitted By",
@@ -1019,29 +983,6 @@
    "allow_on_submit": 0,
    "bold": 0,
    "columns": 3,
-   "search_index": 0,
-   "allow_in_quick_entry": 0,
-   "print_hide": 0,
-   "report_hide": 0
-  },
-  {
-   "fieldname": "column_break_submission",
-   "fieldtype": "Column Break",
-   "reqd": 0,
-   "read_only": 0,
-   "hidden": 0,
-   "in_list_view": 0,
-   "in_standard_filter": 0,
-   "in_global_search": 0,
-   "in_preview": 0,
-   "unique": 0,
-   "no_copy": 0,
-   "set_only_once": 0,
-   "fetch_if_empty": 0,
-   "non_negative": 0,
-   "allow_on_submit": 0,
-   "bold": 0,
-   "columns": 0,
    "search_index": 0,
    "allow_in_quick_entry": 0,
    "print_hide": 0,
@@ -1070,6 +1011,14 @@
    "allow_in_quick_entry": 0,
    "print_hide": 0,
    "report_hide": 0
+  },
+  {
+   "fieldname": "layout_full_8",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "ui_text_section_11",
+   "fieldtype": "Section Break"
   },
   {
    "fieldname": "submission_notes",
@@ -1170,6 +1119,10 @@
    "report_hide": 0
   },
   {
+   "fieldname": "ui_col_12",
+   "fieldtype": "Column Break"
+  },
+  {
    "fieldname": "response_reference",
    "fieldtype": "Data",
    "label": "Response Reference",
@@ -1188,29 +1141,6 @@
    "allow_on_submit": 0,
    "bold": 0,
    "columns": 3,
-   "search_index": 0,
-   "allow_in_quick_entry": 0,
-   "print_hide": 0,
-   "report_hide": 0
-  },
-  {
-   "fieldname": "column_break_response",
-   "fieldtype": "Column Break",
-   "reqd": 0,
-   "read_only": 0,
-   "hidden": 0,
-   "in_list_view": 0,
-   "in_standard_filter": 0,
-   "in_global_search": 0,
-   "in_preview": 0,
-   "unique": 0,
-   "no_copy": 0,
-   "set_only_once": 0,
-   "fetch_if_empty": 0,
-   "non_negative": 0,
-   "allow_on_submit": 0,
-   "bold": 0,
-   "columns": 0,
    "search_index": 0,
    "allow_in_quick_entry": 0,
    "print_hide": 0,
@@ -1239,6 +1169,14 @@
    "allow_in_quick_entry": 0,
    "print_hide": 0,
    "report_hide": 0
+  },
+  {
+   "fieldname": "layout_full_10",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "ui_text_section_13",
+   "fieldtype": "Section Break"
   },
   {
    "fieldname": "response_notes",
@@ -1339,6 +1277,10 @@
    "report_hide": 0
   },
   {
+   "fieldname": "ui_col_14",
+   "fieldtype": "Column Break"
+  },
+  {
    "fieldname": "last_reminder_date",
    "fieldtype": "Date",
    "label": "Last Reminder Date",
@@ -1357,53 +1299,6 @@
    "allow_on_submit": 0,
    "bold": 0,
    "columns": 2,
-   "search_index": 0,
-   "allow_in_quick_entry": 0,
-   "print_hide": 0,
-   "report_hide": 0
-  },
-  {
-   "fieldname": "column_break_monitoring",
-   "fieldtype": "Column Break",
-   "reqd": 0,
-   "read_only": 0,
-   "hidden": 0,
-   "in_list_view": 0,
-   "in_standard_filter": 0,
-   "in_global_search": 0,
-   "in_preview": 0,
-   "unique": 0,
-   "no_copy": 0,
-   "set_only_once": 0,
-   "fetch_if_empty": 0,
-   "non_negative": 0,
-   "allow_on_submit": 0,
-   "bold": 0,
-   "columns": 0,
-   "search_index": 0,
-   "allow_in_quick_entry": 0,
-   "print_hide": 0,
-   "report_hide": 0
-  },
-  {
-   "fieldname": "monitoring_message",
-   "fieldtype": "Small Text",
-   "label": "Monitoring Message",
-   "reqd": 0,
-   "read_only": 1,
-   "hidden": 0,
-   "in_list_view": 0,
-   "in_standard_filter": 0,
-   "in_global_search": 0,
-   "in_preview": 0,
-   "unique": 0,
-   "no_copy": 0,
-   "set_only_once": 0,
-   "fetch_if_empty": 0,
-   "non_negative": 0,
-   "allow_on_submit": 0,
-   "bold": 0,
-   "columns": 0,
    "search_index": 0,
    "allow_in_quick_entry": 0,
    "print_hide": 0,
@@ -1432,6 +1327,38 @@
    "search_index": 1,
    "allow_in_quick_entry": 0,
    "print_hide": 1,
+   "report_hide": 0
+  },
+  {
+   "fieldname": "layout_full_12",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "ui_text_section_15",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "monitoring_message",
+   "fieldtype": "Small Text",
+   "label": "Monitoring Message",
+   "reqd": 0,
+   "read_only": 1,
+   "hidden": 0,
+   "in_list_view": 0,
+   "in_standard_filter": 0,
+   "in_global_search": 0,
+   "in_preview": 0,
+   "unique": 0,
+   "no_copy": 0,
+   "set_only_once": 0,
+   "fetch_if_empty": 0,
+   "non_negative": 0,
+   "allow_on_submit": 0,
+   "bold": 0,
+   "columns": 0,
+   "search_index": 0,
+   "allow_in_quick_entry": 0,
+   "print_hide": 0,
    "report_hide": 0
   }
  ],

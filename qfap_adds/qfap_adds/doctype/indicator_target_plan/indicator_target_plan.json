@@ -7,39 +7,48 @@
   "naming_series",
   "project",
   "indicator",
+  "ui_col_1",
   "project_result",
-  "column_break_linkage",
   "sector",
   "unit_of_measure",
+  "ui_col_2",
   "aggregation_method",
   "status",
   "period_section",
   "period_type",
   "period_label",
   "period_start_date",
-  "column_break_period",
+  "ui_col_3",
   "period_end_date",
   "sequence",
   "fiscal_year",
   "target_section",
   "period_target",
   "cumulative_target",
+  "ui_col_4",
   "numerator_target",
   "denominator_target",
+  "layout_full_5",
+  "ui_text_section_5",
   "target_notes",
   "breakdown_section",
   "target_scope",
   "governorate",
   "district",
+  "ui_col_6",
   "specific_location",
-  "column_break_breakdown",
   "implementation_partner",
   "donor",
+  "ui_col_7",
   "breakdown_reference",
   "control_section",
-  "remarks",
   "monitoring_status",
+  "ui_col_8",
   "monitoring_days",
+  "layout_full_8",
+  "ui_text_section_9",
+  "remarks",
+  "ui_text_col_10",
   "monitoring_message",
   "system_section",
   "target_locked"
@@ -106,6 +115,10 @@
    "report_hide": 0
   },
   {
+   "fieldname": "ui_col_1",
+   "fieldtype": "Column Break"
+  },
+  {
    "fieldname": "project_result",
    "fieldtype": "Link",
    "label": "Project Result",
@@ -125,29 +138,6 @@
    "allow_on_submit": 0,
    "bold": 0,
    "columns": 3,
-   "search_index": 0,
-   "allow_in_quick_entry": 0,
-   "print_hide": 0,
-   "report_hide": 0
-  },
-  {
-   "fieldname": "column_break_linkage",
-   "fieldtype": "Column Break",
-   "reqd": 0,
-   "read_only": 0,
-   "hidden": 0,
-   "in_list_view": 0,
-   "in_standard_filter": 0,
-   "in_global_search": 0,
-   "in_preview": 0,
-   "unique": 0,
-   "no_copy": 0,
-   "set_only_once": 0,
-   "fetch_if_empty": 0,
-   "non_negative": 0,
-   "allow_on_submit": 0,
-   "bold": 0,
-   "columns": 0,
    "search_index": 0,
    "allow_in_quick_entry": 0,
    "print_hide": 0,
@@ -201,6 +191,10 @@
    "allow_in_quick_entry": 0,
    "print_hide": 0,
    "report_hide": 0
+  },
+  {
+   "fieldname": "ui_col_2",
+   "fieldtype": "Column Break"
   },
   {
    "fieldname": "aggregation_method",
@@ -350,27 +344,8 @@
    "report_hide": 0
   },
   {
-   "fieldname": "column_break_period",
-   "fieldtype": "Column Break",
-   "reqd": 0,
-   "read_only": 0,
-   "hidden": 0,
-   "in_list_view": 0,
-   "in_standard_filter": 0,
-   "in_global_search": 0,
-   "in_preview": 0,
-   "unique": 0,
-   "no_copy": 0,
-   "set_only_once": 0,
-   "fetch_if_empty": 0,
-   "non_negative": 0,
-   "allow_on_submit": 0,
-   "bold": 0,
-   "columns": 0,
-   "search_index": 0,
-   "allow_in_quick_entry": 0,
-   "print_hide": 0,
-   "report_hide": 0
+   "fieldname": "ui_col_3",
+   "fieldtype": "Column Break"
   },
   {
    "fieldname": "period_end_date",
@@ -518,6 +493,10 @@
    "report_hide": 0
   },
   {
+   "fieldname": "ui_col_4",
+   "fieldtype": "Column Break"
+  },
+  {
    "fieldname": "numerator_target",
    "fieldtype": "Float",
    "label": "Numerator Target",
@@ -568,6 +547,14 @@
    "allow_in_quick_entry": 0,
    "print_hide": 0,
    "report_hide": 0
+  },
+  {
+   "fieldname": "layout_full_5",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "ui_text_section_5",
+   "fieldtype": "Section Break"
   },
   {
    "fieldname": "target_notes",
@@ -696,6 +683,10 @@
    "report_hide": 0
   },
   {
+   "fieldname": "ui_col_6",
+   "fieldtype": "Column Break"
+  },
+  {
    "fieldname": "specific_location",
    "fieldtype": "Data",
    "label": "Specific Location",
@@ -715,29 +706,6 @@
    "allow_on_submit": 0,
    "bold": 0,
    "columns": 2,
-   "search_index": 0,
-   "allow_in_quick_entry": 0,
-   "print_hide": 0,
-   "report_hide": 0
-  },
-  {
-   "fieldname": "column_break_breakdown",
-   "fieldtype": "Column Break",
-   "reqd": 0,
-   "read_only": 0,
-   "hidden": 0,
-   "in_list_view": 0,
-   "in_standard_filter": 0,
-   "in_global_search": 0,
-   "in_preview": 0,
-   "unique": 0,
-   "no_copy": 0,
-   "set_only_once": 0,
-   "fetch_if_empty": 0,
-   "non_negative": 0,
-   "allow_on_submit": 0,
-   "bold": 0,
-   "columns": 0,
    "search_index": 0,
    "allow_in_quick_entry": 0,
    "print_hide": 0,
@@ -796,6 +764,10 @@
    "report_hide": 0
   },
   {
+   "fieldname": "ui_col_7",
+   "fieldtype": "Column Break"
+  },
+  {
    "fieldname": "breakdown_reference",
    "fieldtype": "Data",
    "label": "Breakdown Reference",
@@ -844,30 +816,6 @@
    "report_hide": 0
   },
   {
-   "fieldname": "remarks",
-   "fieldtype": "Small Text",
-   "label": "Remarks",
-   "reqd": 0,
-   "read_only": 0,
-   "hidden": 0,
-   "in_list_view": 0,
-   "in_standard_filter": 0,
-   "in_global_search": 0,
-   "in_preview": 0,
-   "unique": 0,
-   "no_copy": 0,
-   "set_only_once": 0,
-   "fetch_if_empty": 0,
-   "non_negative": 0,
-   "allow_on_submit": 0,
-   "bold": 0,
-   "columns": 5,
-   "search_index": 0,
-   "allow_in_quick_entry": 0,
-   "print_hide": 0,
-   "report_hide": 0
-  },
-  {
    "fieldname": "monitoring_status",
    "fieldtype": "Select",
    "label": "Monitoring Status",
@@ -894,6 +842,10 @@
    "report_hide": 0
   },
   {
+   "fieldname": "ui_col_8",
+   "fieldtype": "Column Break"
+  },
+  {
    "fieldname": "monitoring_days",
    "fieldtype": "Int",
    "label": "Monitoring Days",
@@ -917,6 +869,42 @@
    "allow_in_quick_entry": 0,
    "print_hide": 0,
    "report_hide": 0
+  },
+  {
+   "fieldname": "layout_full_8",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "ui_text_section_9",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "remarks",
+   "fieldtype": "Small Text",
+   "label": "Remarks",
+   "reqd": 0,
+   "read_only": 0,
+   "hidden": 0,
+   "in_list_view": 0,
+   "in_standard_filter": 0,
+   "in_global_search": 0,
+   "in_preview": 0,
+   "unique": 0,
+   "no_copy": 0,
+   "set_only_once": 0,
+   "fetch_if_empty": 0,
+   "non_negative": 0,
+   "allow_on_submit": 0,
+   "bold": 0,
+   "columns": 5,
+   "search_index": 0,
+   "allow_in_quick_entry": 0,
+   "print_hide": 0,
+   "report_hide": 0
+  },
+  {
+   "fieldname": "ui_text_col_10",
+   "fieldtype": "Column Break"
   },
   {
    "fieldname": "monitoring_message",

@@ -7,51 +7,69 @@
   "naming_series",
   "project",
   "change_request_code",
+  "ui_col_1",
   "change_title",
-  "column_break_identity",
   "request_date",
   "requested_by",
+  "ui_col_2",
   "requesting_department",
   "status",
   "classification_section",
   "change_type",
   "change_category",
   "change_priority",
-  "column_break_classification",
+  "ui_col_3",
   "change_scope",
   "external_requirement",
   "external_reference",
   "affected_items_section",
+  "layout_full_4",
+  "ui_full_section_4",
   "affected_items",
   "beneficiary_target_change_section",
   "beneficiary_plan",
+  "layout_full_5",
+  "ui_text_section_5",
   "beneficiary_change_summary",
   "details_section",
+  "layout_full_6",
+  "ui_text_section_6",
   "current_situation",
+  "ui_text_col_7",
   "proposed_change",
+  "ui_text_section_8",
   "change_justification",
   "supporting_details_section",
+  "layout_full_7",
+  "ui_text_section_9",
   "alternatives_considered",
+  "ui_text_col_10",
   "consequence_if_not_approved",
   "impact_section",
   "schedule_impact",
   "budget_impact",
   "scope_impact",
+  "ui_col_11",
   "indicator_impact",
   "beneficiary_impact",
   "compliance_impact",
+  "ui_col_12",
   "risk_impact",
   "overall_impact_level",
+  "layout_full_10",
+  "ui_text_section_13",
   "impact_analysis",
+  "ui_text_col_14",
   "new_or_changed_risks",
   "quantified_section",
   "current_project_end_date",
   "proposed_project_end_date",
   "schedule_change_days",
-  "column_break_budget",
+  "ui_col_15",
   "project_currency",
   "current_project_budget",
   "proposed_project_budget",
+  "ui_col_16",
   "budget_change_amount",
   "budget_change_percentage",
   "budget_reallocation_only",
@@ -59,31 +77,41 @@
   "donor_approval_required",
   "donor_approval_status",
   "donor_submission_date",
-  "column_break_donor",
+  "ui_col_17",
   "donor_response_date",
   "donor_reference",
   "donor_approval_attachment",
+  "layout_full_14",
+  "ui_text_section_18",
   "donor_conditions",
   "approval_section",
   "reviewed_by",
   "review_date",
-  "review_notes",
-  "column_break_approval",
+  "ui_col_19",
   "approved_by",
   "approval_date",
+  "layout_full_16",
+  "ui_text_section_20",
+  "review_notes",
+  "ui_text_col_21",
   "approval_notes",
+  "ui_text_section_22",
   "rejection_reason",
   "implementation_section",
   "implementation_status",
   "implementation_responsible",
   "target_implementation_date",
+  "ui_col_23",
   "actual_implementation_date",
-  "column_break_implementation",
-  "implementation_notes",
   "implementation_evidence",
   "change_applied",
-  "remarks",
-  "amended_from"
+  "ui_col_24",
+  "amended_from",
+  "layout_full_19",
+  "ui_text_section_25",
+  "implementation_notes",
+  "ui_text_col_26",
+  "remarks"
  ],
  "fields": [
   {
@@ -146,6 +174,10 @@
    "report_hide": 0
   },
   {
+   "fieldname": "ui_col_1",
+   "fieldtype": "Column Break"
+  },
+  {
    "fieldname": "change_title",
    "fieldtype": "Data",
    "label": "Change Title",
@@ -164,29 +196,6 @@
    "allow_on_submit": 0,
    "bold": 1,
    "columns": 4,
-   "search_index": 0,
-   "allow_in_quick_entry": 0,
-   "print_hide": 0,
-   "report_hide": 0
-  },
-  {
-   "fieldname": "column_break_identity",
-   "fieldtype": "Column Break",
-   "reqd": 0,
-   "read_only": 0,
-   "hidden": 0,
-   "in_list_view": 0,
-   "in_standard_filter": 0,
-   "in_global_search": 0,
-   "in_preview": 0,
-   "unique": 0,
-   "no_copy": 0,
-   "set_only_once": 0,
-   "fetch_if_empty": 0,
-   "non_negative": 0,
-   "allow_on_submit": 0,
-   "bold": 0,
-   "columns": 0,
    "search_index": 0,
    "allow_in_quick_entry": 0,
    "print_hide": 0,
@@ -240,6 +249,10 @@
    "allow_in_quick_entry": 0,
    "print_hide": 0,
    "report_hide": 0
+  },
+  {
+   "fieldname": "ui_col_2",
+   "fieldtype": "Column Break"
   },
   {
    "fieldname": "requesting_department",
@@ -393,27 +406,8 @@
    "report_hide": 0
   },
   {
-   "fieldname": "column_break_classification",
-   "fieldtype": "Column Break",
-   "reqd": 0,
-   "read_only": 0,
-   "hidden": 0,
-   "in_list_view": 0,
-   "in_standard_filter": 0,
-   "in_global_search": 0,
-   "in_preview": 0,
-   "unique": 0,
-   "no_copy": 0,
-   "set_only_once": 0,
-   "fetch_if_empty": 0,
-   "non_negative": 0,
-   "allow_on_submit": 0,
-   "bold": 0,
-   "columns": 0,
-   "search_index": 0,
-   "allow_in_quick_entry": 0,
-   "print_hide": 0,
-   "report_hide": 0
+   "fieldname": "ui_col_3",
+   "fieldtype": "Column Break"
   },
   {
    "fieldname": "change_scope",
@@ -517,10 +511,18 @@
    "report_hide": 0
   },
   {
+   "fieldname": "layout_full_4",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "ui_full_section_4",
+   "fieldtype": "Section Break"
+  },
+  {
    "fieldname": "affected_items",
    "fieldtype": "Table",
    "label": "Affected Items",
-   "options": "Project Change Affected Item",
+   "options": "Change Affected Item",
    "reqd": 1,
    "read_only": 0,
    "hidden": 0,
@@ -593,6 +595,14 @@
    "report_hide": 0
   },
   {
+   "fieldname": "layout_full_5",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "ui_text_section_5",
+   "fieldtype": "Section Break"
+  },
+  {
    "fieldname": "beneficiary_change_summary",
    "fieldtype": "Small Text",
    "label": "Beneficiary Change Summary",
@@ -642,6 +652,14 @@
    "report_hide": 0
   },
   {
+   "fieldname": "layout_full_6",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "ui_text_section_6",
+   "fieldtype": "Section Break"
+  },
+  {
    "fieldname": "current_situation",
    "fieldtype": "Text Editor",
    "label": "Current Approved Situation",
@@ -666,6 +684,10 @@
    "report_hide": 0
   },
   {
+   "fieldname": "ui_text_col_7",
+   "fieldtype": "Column Break"
+  },
+  {
    "fieldname": "proposed_change",
    "fieldtype": "Text Editor",
    "label": "Proposed Change",
@@ -688,6 +710,10 @@
    "allow_in_quick_entry": 0,
    "print_hide": 0,
    "report_hide": 0
+  },
+  {
+   "fieldname": "ui_text_section_8",
+   "fieldtype": "Section Break"
   },
   {
    "fieldname": "change_justification",
@@ -738,6 +764,14 @@
    "report_hide": 0
   },
   {
+   "fieldname": "layout_full_7",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "ui_text_section_9",
+   "fieldtype": "Section Break"
+  },
+  {
    "fieldname": "alternatives_considered",
    "fieldtype": "Small Text",
    "label": "Alternatives Considered",
@@ -760,6 +794,10 @@
    "allow_in_quick_entry": 0,
    "print_hide": 0,
    "report_hide": 0
+  },
+  {
+   "fieldname": "ui_text_col_10",
+   "fieldtype": "Column Break"
   },
   {
    "fieldname": "consequence_if_not_approved",
@@ -888,6 +926,10 @@
    "report_hide": 0
   },
   {
+   "fieldname": "ui_col_11",
+   "fieldtype": "Column Break"
+  },
+  {
    "fieldname": "indicator_impact",
    "fieldtype": "Select",
    "label": "Indicator Impact",
@@ -966,6 +1008,10 @@
    "report_hide": 0
   },
   {
+   "fieldname": "ui_col_12",
+   "fieldtype": "Column Break"
+  },
+  {
    "fieldname": "risk_impact",
    "fieldtype": "Select",
    "label": "Risk Impact",
@@ -1018,6 +1064,14 @@
    "report_hide": 0
   },
   {
+   "fieldname": "layout_full_10",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "ui_text_section_13",
+   "fieldtype": "Section Break"
+  },
+  {
    "fieldname": "impact_analysis",
    "fieldtype": "Text Editor",
    "label": "Detailed Impact Analysis",
@@ -1040,6 +1094,10 @@
    "allow_in_quick_entry": 0,
    "print_hide": 0,
    "report_hide": 0
+  },
+  {
+   "fieldname": "ui_text_col_14",
+   "fieldtype": "Column Break"
   },
   {
    "fieldname": "new_or_changed_risks",
@@ -1163,27 +1221,8 @@
    "report_hide": 0
   },
   {
-   "fieldname": "column_break_budget",
-   "fieldtype": "Column Break",
-   "reqd": 0,
-   "read_only": 0,
-   "hidden": 0,
-   "in_list_view": 0,
-   "in_standard_filter": 0,
-   "in_global_search": 0,
-   "in_preview": 0,
-   "unique": 0,
-   "no_copy": 0,
-   "set_only_once": 0,
-   "fetch_if_empty": 0,
-   "non_negative": 0,
-   "allow_on_submit": 0,
-   "bold": 0,
-   "columns": 0,
-   "search_index": 0,
-   "allow_in_quick_entry": 0,
-   "print_hide": 0,
-   "report_hide": 0
+   "fieldname": "ui_col_15",
+   "fieldtype": "Column Break"
   },
   {
    "fieldname": "project_currency",
@@ -1260,6 +1299,10 @@
    "allow_in_quick_entry": 0,
    "print_hide": 0,
    "report_hide": 0
+  },
+  {
+   "fieldname": "ui_col_16",
+   "fieldtype": "Column Break"
   },
   {
    "fieldname": "budget_change_amount",
@@ -1438,27 +1481,8 @@
    "report_hide": 0
   },
   {
-   "fieldname": "column_break_donor",
-   "fieldtype": "Column Break",
-   "reqd": 0,
-   "read_only": 0,
-   "hidden": 0,
-   "in_list_view": 0,
-   "in_standard_filter": 0,
-   "in_global_search": 0,
-   "in_preview": 0,
-   "unique": 0,
-   "no_copy": 0,
-   "set_only_once": 0,
-   "fetch_if_empty": 0,
-   "non_negative": 0,
-   "allow_on_submit": 0,
-   "bold": 0,
-   "columns": 0,
-   "search_index": 0,
-   "allow_in_quick_entry": 0,
-   "print_hide": 0,
-   "report_hide": 0
+   "fieldname": "ui_col_17",
+   "fieldtype": "Column Break"
   },
   {
    "fieldname": "donor_response_date",
@@ -1534,6 +1558,14 @@
    "allow_in_quick_entry": 0,
    "print_hide": 0,
    "report_hide": 0
+  },
+  {
+   "fieldname": "layout_full_14",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "ui_text_section_18",
+   "fieldtype": "Section Break"
   },
   {
    "fieldname": "donor_conditions",
@@ -1635,51 +1667,8 @@
    "report_hide": 0
   },
   {
-   "fieldname": "review_notes",
-   "fieldtype": "Small Text",
-   "label": "Review Notes",
-   "reqd": 0,
-   "read_only": 0,
-   "hidden": 0,
-   "in_list_view": 0,
-   "in_standard_filter": 0,
-   "in_global_search": 0,
-   "in_preview": 0,
-   "unique": 0,
-   "no_copy": 0,
-   "set_only_once": 0,
-   "fetch_if_empty": 0,
-   "non_negative": 0,
-   "allow_on_submit": 0,
-   "bold": 0,
-   "columns": 5,
-   "search_index": 0,
-   "allow_in_quick_entry": 0,
-   "print_hide": 0,
-   "report_hide": 0
-  },
-  {
-   "fieldname": "column_break_approval",
-   "fieldtype": "Column Break",
-   "reqd": 0,
-   "read_only": 0,
-   "hidden": 0,
-   "in_list_view": 0,
-   "in_standard_filter": 0,
-   "in_global_search": 0,
-   "in_preview": 0,
-   "unique": 0,
-   "no_copy": 0,
-   "set_only_once": 0,
-   "fetch_if_empty": 0,
-   "non_negative": 0,
-   "allow_on_submit": 0,
-   "bold": 0,
-   "columns": 0,
-   "search_index": 0,
-   "allow_in_quick_entry": 0,
-   "print_hide": 0,
-   "report_hide": 0
+   "fieldname": "ui_col_19",
+   "fieldtype": "Column Break"
   },
   {
    "fieldname": "approved_by",
@@ -1731,6 +1720,42 @@
    "report_hide": 0
   },
   {
+   "fieldname": "layout_full_16",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "ui_text_section_20",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "review_notes",
+   "fieldtype": "Small Text",
+   "label": "Review Notes",
+   "reqd": 0,
+   "read_only": 0,
+   "hidden": 0,
+   "in_list_view": 0,
+   "in_standard_filter": 0,
+   "in_global_search": 0,
+   "in_preview": 0,
+   "unique": 0,
+   "no_copy": 0,
+   "set_only_once": 0,
+   "fetch_if_empty": 0,
+   "non_negative": 0,
+   "allow_on_submit": 0,
+   "bold": 0,
+   "columns": 5,
+   "search_index": 0,
+   "allow_in_quick_entry": 0,
+   "print_hide": 0,
+   "report_hide": 0
+  },
+  {
+   "fieldname": "ui_text_col_21",
+   "fieldtype": "Column Break"
+  },
+  {
    "fieldname": "approval_notes",
    "fieldtype": "Small Text",
    "label": "Approval Notes",
@@ -1753,6 +1778,10 @@
    "allow_in_quick_entry": 0,
    "print_hide": 0,
    "report_hide": 0
+  },
+  {
+   "fieldname": "ui_text_section_22",
+   "fieldtype": "Section Break"
   },
   {
    "fieldname": "rejection_reason",
@@ -1881,6 +1910,10 @@
    "report_hide": 0
   },
   {
+   "fieldname": "ui_col_23",
+   "fieldtype": "Column Break"
+  },
+  {
    "fieldname": "actual_implementation_date",
    "fieldtype": "Date",
    "label": "Actual Implementation Date",
@@ -1899,53 +1932,6 @@
    "allow_on_submit": 1,
    "bold": 0,
    "columns": 2,
-   "search_index": 0,
-   "allow_in_quick_entry": 0,
-   "print_hide": 0,
-   "report_hide": 0
-  },
-  {
-   "fieldname": "column_break_implementation",
-   "fieldtype": "Column Break",
-   "reqd": 0,
-   "read_only": 0,
-   "hidden": 0,
-   "in_list_view": 0,
-   "in_standard_filter": 0,
-   "in_global_search": 0,
-   "in_preview": 0,
-   "unique": 0,
-   "no_copy": 0,
-   "set_only_once": 0,
-   "fetch_if_empty": 0,
-   "non_negative": 0,
-   "allow_on_submit": 0,
-   "bold": 0,
-   "columns": 0,
-   "search_index": 0,
-   "allow_in_quick_entry": 0,
-   "print_hide": 0,
-   "report_hide": 0
-  },
-  {
-   "fieldname": "implementation_notes",
-   "fieldtype": "Text Editor",
-   "label": "Implementation Notes",
-   "reqd": 0,
-   "read_only": 0,
-   "hidden": 0,
-   "in_list_view": 0,
-   "in_standard_filter": 0,
-   "in_global_search": 0,
-   "in_preview": 0,
-   "unique": 0,
-   "no_copy": 0,
-   "set_only_once": 0,
-   "fetch_if_empty": 0,
-   "non_negative": 0,
-   "allow_on_submit": 1,
-   "bold": 0,
-   "columns": 0,
    "search_index": 0,
    "allow_in_quick_entry": 0,
    "print_hide": 0,
@@ -2001,28 +1987,8 @@
    "report_hide": 0
   },
   {
-   "fieldname": "remarks",
-   "fieldtype": "Small Text",
-   "label": "Remarks",
-   "reqd": 0,
-   "read_only": 0,
-   "hidden": 0,
-   "in_list_view": 0,
-   "in_standard_filter": 0,
-   "in_global_search": 0,
-   "in_preview": 0,
-   "unique": 0,
-   "no_copy": 0,
-   "set_only_once": 0,
-   "fetch_if_empty": 0,
-   "non_negative": 0,
-   "allow_on_submit": 0,
-   "bold": 0,
-   "columns": 5,
-   "search_index": 0,
-   "allow_in_quick_entry": 0,
-   "print_hide": 0,
-   "report_hide": 0
+   "fieldname": "ui_col_24",
+   "fieldtype": "Column Break"
   },
   {
    "fieldname": "amended_from",
@@ -2047,6 +2013,66 @@
    "search_index": 1,
    "allow_in_quick_entry": 0,
    "print_hide": 1,
+   "report_hide": 0
+  },
+  {
+   "fieldname": "layout_full_19",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "ui_text_section_25",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "implementation_notes",
+   "fieldtype": "Text Editor",
+   "label": "Implementation Notes",
+   "reqd": 0,
+   "read_only": 0,
+   "hidden": 0,
+   "in_list_view": 0,
+   "in_standard_filter": 0,
+   "in_global_search": 0,
+   "in_preview": 0,
+   "unique": 0,
+   "no_copy": 0,
+   "set_only_once": 0,
+   "fetch_if_empty": 0,
+   "non_negative": 0,
+   "allow_on_submit": 1,
+   "bold": 0,
+   "columns": 0,
+   "search_index": 0,
+   "allow_in_quick_entry": 0,
+   "print_hide": 0,
+   "report_hide": 0
+  },
+  {
+   "fieldname": "ui_text_col_26",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "remarks",
+   "fieldtype": "Small Text",
+   "label": "Remarks",
+   "reqd": 0,
+   "read_only": 0,
+   "hidden": 0,
+   "in_list_view": 0,
+   "in_standard_filter": 0,
+   "in_global_search": 0,
+   "in_preview": 0,
+   "unique": 0,
+   "no_copy": 0,
+   "set_only_once": 0,
+   "fetch_if_empty": 0,
+   "non_negative": 0,
+   "allow_on_submit": 0,
+   "bold": 0,
+   "columns": 5,
+   "search_index": 0,
+   "allow_in_quick_entry": 0,
+   "print_hide": 0,
    "report_hide": 0
   }
  ],

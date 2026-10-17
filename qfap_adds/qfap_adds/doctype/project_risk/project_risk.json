@@ -7,68 +7,88 @@
   "naming_series",
   "project",
   "risk_code",
+  "ui_col_1",
   "risk_title",
-  "column_break_identity",
   "risk_category",
   "risk_source",
+  "ui_col_2",
   "status",
   "statement_section",
+  "layout_full_3",
+  "ui_text_section_3",
   "risk_description",
+  "ui_text_col_4",
   "cause",
+  "ui_text_section_5",
   "potential_consequences",
+  "ui_text_col_6",
   "early_warning_indicators",
   "assessment_section",
   "probability",
   "impact",
-  "column_break_assessment",
   "risk_score",
+  "ui_col_7",
   "risk_level",
   "assessment_date",
   "response_section",
   "response_strategy",
   "risk_owner",
   "responsible_department",
-  "column_break_response",
+  "ui_col_8",
   "target_mitigation_date",
   "mitigation_progress",
+  "layout_full_6",
+  "ui_text_section_9",
   "mitigation_actions",
+  "ui_text_col_10",
   "contingency_actions",
   "linkage_section",
   "sector",
   "related_output",
   "related_activity",
-  "column_break_linkage",
+  "ui_col_11",
   "related_indicator",
   "related_partner",
   "residual_section",
   "residual_probability",
   "residual_impact",
-  "column_break_residual",
   "residual_risk_score",
+  "ui_col_12",
   "residual_risk_level",
   "residual_assessment_date",
   "review_section",
   "last_review_date",
   "next_review_date",
+  "ui_col_13",
   "review_frequency",
-  "column_break_review",
+  "layout_full_10",
+  "ui_text_section_14",
   "review_notes",
   "monitoring_section",
   "review_monitoring_status",
+  "ui_col_15",
   "review_monitoring_days",
+  "layout_full_11",
+  "ui_text_section_16",
   "review_monitoring_message",
   "occurrence_section",
   "occurred",
   "occurrence_date",
-  "column_break_occurrence",
+  "ui_col_17",
   "related_issue",
+  "layout_full_13",
+  "ui_text_section_18",
   "occurrence_notes",
   "control_section",
   "closure_date",
-  "closure_reason",
-  "column_break_control",
+  "ui_col_19",
   "escalation_required",
+  "layout_full_14",
+  "ui_text_section_20",
+  "closure_reason",
+  "ui_text_col_21",
   "escalation_notes",
+  "ui_text_section_22",
   "remarks",
   "system_section",
   "risk_locked"
@@ -135,6 +155,10 @@
    "report_hide": 0
   },
   {
+   "fieldname": "ui_col_1",
+   "fieldtype": "Column Break"
+  },
+  {
    "fieldname": "risk_title",
    "fieldtype": "Data",
    "label": "Risk Title",
@@ -153,29 +177,6 @@
    "allow_on_submit": 0,
    "bold": 1,
    "columns": 4,
-   "search_index": 0,
-   "allow_in_quick_entry": 0,
-   "print_hide": 0,
-   "report_hide": 0
-  },
-  {
-   "fieldname": "column_break_identity",
-   "fieldtype": "Column Break",
-   "reqd": 0,
-   "read_only": 0,
-   "hidden": 0,
-   "in_list_view": 0,
-   "in_standard_filter": 0,
-   "in_global_search": 0,
-   "in_preview": 0,
-   "unique": 0,
-   "no_copy": 0,
-   "set_only_once": 0,
-   "fetch_if_empty": 0,
-   "non_negative": 0,
-   "allow_on_submit": 0,
-   "bold": 0,
-   "columns": 0,
    "search_index": 0,
    "allow_in_quick_entry": 0,
    "print_hide": 0,
@@ -233,6 +234,10 @@
    "report_hide": 0
   },
   {
+   "fieldname": "ui_col_2",
+   "fieldtype": "Column Break"
+  },
+  {
    "fieldname": "status",
    "fieldtype": "Select",
    "label": "Status",
@@ -283,6 +288,14 @@
    "report_hide": 0
   },
   {
+   "fieldname": "layout_full_3",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "ui_text_section_3",
+   "fieldtype": "Section Break"
+  },
+  {
    "fieldname": "risk_description",
    "fieldtype": "Text Editor",
    "label": "Risk Description",
@@ -305,6 +318,10 @@
    "allow_in_quick_entry": 0,
    "print_hide": 0,
    "report_hide": 0
+  },
+  {
+   "fieldname": "ui_text_col_4",
+   "fieldtype": "Column Break"
   },
   {
    "fieldname": "cause",
@@ -331,6 +348,10 @@
    "report_hide": 0
   },
   {
+   "fieldname": "ui_text_section_5",
+   "fieldtype": "Section Break"
+  },
+  {
    "fieldname": "potential_consequences",
    "fieldtype": "Small Text",
    "label": "Potential Consequences",
@@ -353,6 +374,10 @@
    "allow_in_quick_entry": 0,
    "print_hide": 0,
    "report_hide": 0
+  },
+  {
+   "fieldname": "ui_text_col_6",
+   "fieldtype": "Column Break"
   },
   {
    "fieldname": "early_warning_indicators",
@@ -453,29 +478,6 @@
    "report_hide": 0
   },
   {
-   "fieldname": "column_break_assessment",
-   "fieldtype": "Column Break",
-   "reqd": 0,
-   "read_only": 0,
-   "hidden": 0,
-   "in_list_view": 0,
-   "in_standard_filter": 0,
-   "in_global_search": 0,
-   "in_preview": 0,
-   "unique": 0,
-   "no_copy": 0,
-   "set_only_once": 0,
-   "fetch_if_empty": 0,
-   "non_negative": 0,
-   "allow_on_submit": 0,
-   "bold": 0,
-   "columns": 0,
-   "search_index": 0,
-   "allow_in_quick_entry": 0,
-   "print_hide": 0,
-   "report_hide": 0
-  },
-  {
    "fieldname": "risk_score",
    "fieldtype": "Int",
    "label": "Risk Score",
@@ -499,6 +501,10 @@
    "allow_in_quick_entry": 0,
    "print_hide": 0,
    "report_hide": 0
+  },
+  {
+   "fieldname": "ui_col_7",
+   "fieldtype": "Column Break"
   },
   {
    "fieldname": "risk_level",
@@ -650,27 +656,8 @@
    "report_hide": 0
   },
   {
-   "fieldname": "column_break_response",
-   "fieldtype": "Column Break",
-   "reqd": 0,
-   "read_only": 0,
-   "hidden": 0,
-   "in_list_view": 0,
-   "in_standard_filter": 0,
-   "in_global_search": 0,
-   "in_preview": 0,
-   "unique": 0,
-   "no_copy": 0,
-   "set_only_once": 0,
-   "fetch_if_empty": 0,
-   "non_negative": 0,
-   "allow_on_submit": 0,
-   "bold": 0,
-   "columns": 0,
-   "search_index": 0,
-   "allow_in_quick_entry": 0,
-   "print_hide": 0,
-   "report_hide": 0
+   "fieldname": "ui_col_8",
+   "fieldtype": "Column Break"
   },
   {
    "fieldname": "target_mitigation_date",
@@ -722,6 +709,14 @@
    "report_hide": 0
   },
   {
+   "fieldname": "layout_full_6",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "ui_text_section_9",
+   "fieldtype": "Section Break"
+  },
+  {
    "fieldname": "mitigation_actions",
    "fieldtype": "Text Editor",
    "label": "Mitigation Actions",
@@ -745,6 +740,10 @@
    "allow_in_quick_entry": 0,
    "print_hide": 0,
    "report_hide": 0
+  },
+  {
+   "fieldname": "ui_text_col_10",
+   "fieldtype": "Column Break"
   },
   {
    "fieldname": "contingency_actions",
@@ -870,27 +869,8 @@
    "report_hide": 0
   },
   {
-   "fieldname": "column_break_linkage",
-   "fieldtype": "Column Break",
-   "reqd": 0,
-   "read_only": 0,
-   "hidden": 0,
-   "in_list_view": 0,
-   "in_standard_filter": 0,
-   "in_global_search": 0,
-   "in_preview": 0,
-   "unique": 0,
-   "no_copy": 0,
-   "set_only_once": 0,
-   "fetch_if_empty": 0,
-   "non_negative": 0,
-   "allow_on_submit": 0,
-   "bold": 0,
-   "columns": 0,
-   "search_index": 0,
-   "allow_in_quick_entry": 0,
-   "print_hide": 0,
-   "report_hide": 0
+   "fieldname": "ui_col_11",
+   "fieldtype": "Column Break"
   },
   {
    "fieldname": "related_indicator",
@@ -1018,29 +998,6 @@
    "report_hide": 0
   },
   {
-   "fieldname": "column_break_residual",
-   "fieldtype": "Column Break",
-   "reqd": 0,
-   "read_only": 0,
-   "hidden": 0,
-   "in_list_view": 0,
-   "in_standard_filter": 0,
-   "in_global_search": 0,
-   "in_preview": 0,
-   "unique": 0,
-   "no_copy": 0,
-   "set_only_once": 0,
-   "fetch_if_empty": 0,
-   "non_negative": 0,
-   "allow_on_submit": 0,
-   "bold": 0,
-   "columns": 0,
-   "search_index": 0,
-   "allow_in_quick_entry": 0,
-   "print_hide": 0,
-   "report_hide": 0
-  },
-  {
    "fieldname": "residual_risk_score",
    "fieldtype": "Int",
    "label": "Residual Risk Score",
@@ -1064,6 +1021,10 @@
    "allow_in_quick_entry": 0,
    "print_hide": 0,
    "report_hide": 0
+  },
+  {
+   "fieldname": "ui_col_12",
+   "fieldtype": "Column Break"
   },
   {
    "fieldname": "residual_risk_level",
@@ -1188,6 +1149,10 @@
    "report_hide": 0
   },
   {
+   "fieldname": "ui_col_13",
+   "fieldtype": "Column Break"
+  },
+  {
    "fieldname": "review_frequency",
    "fieldtype": "Select",
    "label": "Review Frequency",
@@ -1214,27 +1179,12 @@
    "report_hide": 0
   },
   {
-   "fieldname": "column_break_review",
-   "fieldtype": "Column Break",
-   "reqd": 0,
-   "read_only": 0,
-   "hidden": 0,
-   "in_list_view": 0,
-   "in_standard_filter": 0,
-   "in_global_search": 0,
-   "in_preview": 0,
-   "unique": 0,
-   "no_copy": 0,
-   "set_only_once": 0,
-   "fetch_if_empty": 0,
-   "non_negative": 0,
-   "allow_on_submit": 0,
-   "bold": 0,
-   "columns": 0,
-   "search_index": 0,
-   "allow_in_quick_entry": 0,
-   "print_hide": 0,
-   "report_hide": 0
+   "fieldname": "layout_full_10",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "ui_text_section_14",
+   "fieldtype": "Section Break"
   },
   {
    "fieldname": "review_notes",
@@ -1311,6 +1261,10 @@
    "report_hide": 0
   },
   {
+   "fieldname": "ui_col_15",
+   "fieldtype": "Column Break"
+  },
+  {
    "fieldname": "review_monitoring_days",
    "fieldtype": "Int",
    "label": "Review Monitoring Days",
@@ -1334,6 +1288,14 @@
    "allow_in_quick_entry": 0,
    "print_hide": 0,
    "report_hide": 0
+  },
+  {
+   "fieldname": "layout_full_11",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "ui_text_section_16",
+   "fieldtype": "Section Break"
   },
   {
    "fieldname": "review_monitoring_message",
@@ -1435,27 +1397,8 @@
    "report_hide": 0
   },
   {
-   "fieldname": "column_break_occurrence",
-   "fieldtype": "Column Break",
-   "reqd": 0,
-   "read_only": 0,
-   "hidden": 0,
-   "in_list_view": 0,
-   "in_standard_filter": 0,
-   "in_global_search": 0,
-   "in_preview": 0,
-   "unique": 0,
-   "no_copy": 0,
-   "set_only_once": 0,
-   "fetch_if_empty": 0,
-   "non_negative": 0,
-   "allow_on_submit": 0,
-   "bold": 0,
-   "columns": 0,
-   "search_index": 0,
-   "allow_in_quick_entry": 0,
-   "print_hide": 0,
-   "report_hide": 0
+   "fieldname": "ui_col_17",
+   "fieldtype": "Column Break"
   },
   {
    "fieldname": "related_issue",
@@ -1482,6 +1425,14 @@
    "allow_in_quick_entry": 0,
    "print_hide": 0,
    "report_hide": 0
+  },
+  {
+   "fieldname": "layout_full_13",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "ui_text_section_18",
+   "fieldtype": "Section Break"
   },
   {
    "fieldname": "occurrence_notes",
@@ -1559,53 +1510,8 @@
    "report_hide": 0
   },
   {
-   "fieldname": "closure_reason",
-   "fieldtype": "Small Text",
-   "label": "Closure Reason",
-   "reqd": 0,
-   "read_only": 0,
-   "depends_on": "eval:doc.status==\"Closed\"",
-   "mandatory_depends_on": "eval:doc.status==\"Closed\"",
-   "hidden": 0,
-   "in_list_view": 0,
-   "in_standard_filter": 0,
-   "in_global_search": 0,
-   "in_preview": 0,
-   "unique": 0,
-   "no_copy": 0,
-   "set_only_once": 0,
-   "fetch_if_empty": 0,
-   "non_negative": 0,
-   "allow_on_submit": 0,
-   "bold": 0,
-   "columns": 4,
-   "search_index": 0,
-   "allow_in_quick_entry": 0,
-   "print_hide": 0,
-   "report_hide": 0
-  },
-  {
-   "fieldname": "column_break_control",
-   "fieldtype": "Column Break",
-   "reqd": 0,
-   "read_only": 0,
-   "hidden": 0,
-   "in_list_view": 0,
-   "in_standard_filter": 0,
-   "in_global_search": 0,
-   "in_preview": 0,
-   "unique": 0,
-   "no_copy": 0,
-   "set_only_once": 0,
-   "fetch_if_empty": 0,
-   "non_negative": 0,
-   "allow_on_submit": 0,
-   "bold": 0,
-   "columns": 0,
-   "search_index": 0,
-   "allow_in_quick_entry": 0,
-   "print_hide": 0,
-   "report_hide": 0
+   "fieldname": "ui_col_19",
+   "fieldtype": "Column Break"
   },
   {
    "fieldname": "escalation_required",
@@ -1633,6 +1539,44 @@
    "report_hide": 0
   },
   {
+   "fieldname": "layout_full_14",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "ui_text_section_20",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "closure_reason",
+   "fieldtype": "Small Text",
+   "label": "Closure Reason",
+   "reqd": 0,
+   "read_only": 0,
+   "depends_on": "eval:doc.status==\"Closed\"",
+   "mandatory_depends_on": "eval:doc.status==\"Closed\"",
+   "hidden": 0,
+   "in_list_view": 0,
+   "in_standard_filter": 0,
+   "in_global_search": 0,
+   "in_preview": 0,
+   "unique": 0,
+   "no_copy": 0,
+   "set_only_once": 0,
+   "fetch_if_empty": 0,
+   "non_negative": 0,
+   "allow_on_submit": 0,
+   "bold": 0,
+   "columns": 4,
+   "search_index": 0,
+   "allow_in_quick_entry": 0,
+   "print_hide": 0,
+   "report_hide": 0
+  },
+  {
+   "fieldname": "ui_text_col_21",
+   "fieldtype": "Column Break"
+  },
+  {
    "fieldname": "escalation_notes",
    "fieldtype": "Small Text",
    "label": "Escalation Notes",
@@ -1656,6 +1600,10 @@
    "allow_in_quick_entry": 0,
    "print_hide": 0,
    "report_hide": 0
+  },
+  {
+   "fieldname": "ui_text_section_22",
+   "fieldtype": "Section Break"
   },
   {
    "fieldname": "remarks",

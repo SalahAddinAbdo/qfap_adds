@@ -8,51 +8,73 @@
   "project",
   "update_sequence",
   "update_type",
+  "ui_col_1",
   "reporting_period_label",
   "custom_period_title",
-  "column_break_header",
   "period_start_date",
   "period_end_date",
+  "ui_col_2",
   "cutoff_date",
   "workflow_state",
   "status",
   "summary_section",
+  "layout_full_3",
+  "ui_text_section_3",
   "executive_summary",
+  "ui_text_col_4",
   "challenges",
+  "ui_text_section_5",
   "current_status_summary",
-  "column_break_aoms",
+  "ui_text_col_6",
   "achievements",
+  "ui_text_section_7",
   "next_steps",
+  "ui_text_col_8",
   "reasons_for_delay",
   "management_actions_section",
+  "layout_full_4",
+  "ui_text_section_9",
   "corrective_actions",
+  "ui_text_col_10",
   "decisions_required",
   "activity_section",
+  "layout_full_5",
+  "ui_full_section_11",
   "activity_progress_entries",
   "indicator_section",
+  "layout_full_6",
+  "ui_full_section_12",
   "indicator_result_entries",
   "evidence_section",
   "general_evidence",
+  "ui_col_13",
   "general_evidence_reference",
   "history_section",
   "prepared_by",
   "prepared_on",
-  "column_break_history",
   "reviewed_by",
+  "ui_col_14",
   "reviewed_on",
   "approved_by",
   "approved_on",
+  "ui_col_15",
   "submission_date",
   "review_outcome_section",
+  "layout_full_9",
+  "ui_text_section_16",
   "review_notes",
+  "ui_text_col_17",
   "rejection_reason",
   "control_section",
   "is_correction",
   "corrects_update",
+  "ui_col_18",
+  "update_locked",
+  "layout_full_11",
+  "ui_text_section_19",
   "correction_reason",
-  "column_break_control",
-  "remarks",
-  "update_locked"
+  "ui_text_col_20",
+  "remarks"
  ],
  "fields": [
   {
@@ -141,6 +163,10 @@
    "report_hide": 0
   },
   {
+   "fieldname": "ui_col_1",
+   "fieldtype": "Column Break"
+  },
+  {
    "fieldname": "reporting_period_label",
    "fieldtype": "Data",
    "label": "Reporting Period Label",
@@ -185,29 +211,6 @@
    "allow_on_submit": 0,
    "bold": 0,
    "columns": 3,
-   "search_index": 0,
-   "allow_in_quick_entry": 0,
-   "print_hide": 0,
-   "report_hide": 0
-  },
-  {
-   "fieldname": "column_break_header",
-   "fieldtype": "Column Break",
-   "reqd": 0,
-   "read_only": 0,
-   "hidden": 0,
-   "in_list_view": 0,
-   "in_standard_filter": 0,
-   "in_global_search": 0,
-   "in_preview": 0,
-   "unique": 0,
-   "no_copy": 0,
-   "set_only_once": 0,
-   "fetch_if_empty": 0,
-   "non_negative": 0,
-   "allow_on_submit": 0,
-   "bold": 0,
-   "columns": 0,
    "search_index": 0,
    "allow_in_quick_entry": 0,
    "print_hide": 0,
@@ -260,6 +263,10 @@
    "allow_in_quick_entry": 0,
    "print_hide": 0,
    "report_hide": 0
+  },
+  {
+   "fieldname": "ui_col_2",
+   "fieldtype": "Column Break"
   },
   {
    "fieldname": "cutoff_date",
@@ -361,6 +368,14 @@
    "report_hide": 0
   },
   {
+   "fieldname": "layout_full_3",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "ui_text_section_3",
+   "fieldtype": "Section Break"
+  },
+  {
    "fieldname": "executive_summary",
    "fieldtype": "Text Editor",
    "label": "Executive Summary",
@@ -385,6 +400,10 @@
    "report_hide": 0
   },
   {
+   "fieldname": "ui_text_col_4",
+   "fieldtype": "Column Break"
+  },
+  {
    "fieldname": "challenges",
    "fieldtype": "Text Editor",
    "label": "Challenges and Deviations",
@@ -407,6 +426,10 @@
    "allow_in_quick_entry": 0,
    "print_hide": 0,
    "report_hide": 0
+  },
+  {
+   "fieldname": "ui_text_section_5",
+   "fieldtype": "Section Break"
   },
   {
    "fieldname": "current_status_summary",
@@ -434,27 +457,8 @@
    "report_hide": 0
   },
   {
-   "fieldname": "column_break_aoms",
-   "fieldtype": "Column Break",
-   "reqd": 0,
-   "read_only": 0,
-   "hidden": 0,
-   "in_list_view": 0,
-   "in_standard_filter": 0,
-   "in_global_search": 0,
-   "in_preview": 0,
-   "unique": 0,
-   "no_copy": 0,
-   "set_only_once": 0,
-   "fetch_if_empty": 0,
-   "non_negative": 0,
-   "allow_on_submit": 0,
-   "bold": 0,
-   "columns": 0,
-   "search_index": 0,
-   "allow_in_quick_entry": 0,
-   "print_hide": 0,
-   "report_hide": 0
+   "fieldname": "ui_text_col_6",
+   "fieldtype": "Column Break"
   },
   {
    "fieldname": "achievements",
@@ -481,6 +485,10 @@
    "report_hide": 0
   },
   {
+   "fieldname": "ui_text_section_7",
+   "fieldtype": "Section Break"
+  },
+  {
    "fieldname": "next_steps",
    "fieldtype": "Text Editor",
    "label": "Next Steps",
@@ -503,6 +511,10 @@
    "allow_in_quick_entry": 0,
    "print_hide": 0,
    "report_hide": 0
+  },
+  {
+   "fieldname": "ui_text_col_8",
+   "fieldtype": "Column Break"
   },
   {
    "fieldname": "reasons_for_delay",
@@ -554,6 +566,14 @@
    "report_hide": 0
   },
   {
+   "fieldname": "layout_full_4",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "ui_text_section_9",
+   "fieldtype": "Section Break"
+  },
+  {
    "fieldname": "corrective_actions",
    "fieldtype": "Text Editor",
    "label": "Corrective Actions",
@@ -576,6 +596,10 @@
    "allow_in_quick_entry": 0,
    "print_hide": 0,
    "report_hide": 0
+  },
+  {
+   "fieldname": "ui_text_col_10",
+   "fieldtype": "Column Break"
   },
   {
    "fieldname": "decisions_required",
@@ -626,6 +650,14 @@
    "report_hide": 0
   },
   {
+   "fieldname": "layout_full_5",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "ui_full_section_11",
+   "fieldtype": "Section Break"
+  },
+  {
    "fieldname": "activity_progress_entries",
    "fieldtype": "Table",
    "label": "Activity Progress Entries",
@@ -673,6 +705,14 @@
    "allow_in_quick_entry": 0,
    "print_hide": 0,
    "report_hide": 0
+  },
+  {
+   "fieldname": "layout_full_6",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "ui_full_section_12",
+   "fieldtype": "Section Break"
   },
   {
    "fieldname": "indicator_result_entries",
@@ -746,6 +786,10 @@
    "allow_in_quick_entry": 0,
    "print_hide": 0,
    "report_hide": 0
+  },
+  {
+   "fieldname": "ui_col_13",
+   "fieldtype": "Column Break"
   },
   {
    "fieldname": "general_evidence_reference",
@@ -845,29 +889,6 @@
    "report_hide": 0
   },
   {
-   "fieldname": "column_break_history",
-   "fieldtype": "Column Break",
-   "reqd": 0,
-   "read_only": 0,
-   "hidden": 0,
-   "in_list_view": 0,
-   "in_standard_filter": 0,
-   "in_global_search": 0,
-   "in_preview": 0,
-   "unique": 0,
-   "no_copy": 0,
-   "set_only_once": 0,
-   "fetch_if_empty": 0,
-   "non_negative": 0,
-   "allow_on_submit": 0,
-   "bold": 0,
-   "columns": 0,
-   "search_index": 0,
-   "allow_in_quick_entry": 0,
-   "print_hide": 0,
-   "report_hide": 0
-  },
-  {
    "fieldname": "reviewed_by",
    "fieldtype": "Link",
    "label": "Reviewed By",
@@ -891,6 +912,10 @@
    "allow_in_quick_entry": 0,
    "print_hide": 0,
    "report_hide": 0
+  },
+  {
+   "fieldname": "ui_col_14",
+   "fieldtype": "Column Break"
   },
   {
    "fieldname": "reviewed_on",
@@ -966,6 +991,10 @@
    "report_hide": 0
   },
   {
+   "fieldname": "ui_col_15",
+   "fieldtype": "Column Break"
+  },
+  {
    "fieldname": "submission_date",
    "fieldtype": "Date",
    "label": "Submission Date",
@@ -1015,6 +1044,14 @@
    "report_hide": 0
   },
   {
+   "fieldname": "layout_full_9",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "ui_text_section_16",
+   "fieldtype": "Section Break"
+  },
+  {
    "fieldname": "review_notes",
    "fieldtype": "Small Text",
    "label": "Review Notes",
@@ -1037,6 +1074,10 @@
    "allow_in_quick_entry": 0,
    "print_hide": 0,
    "report_hide": 0
+  },
+  {
+   "fieldname": "ui_text_col_17",
+   "fieldtype": "Column Break"
   },
   {
    "fieldname": "rejection_reason",
@@ -1141,6 +1182,43 @@
    "report_hide": 0
   },
   {
+   "fieldname": "ui_col_18",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "update_locked",
+   "fieldtype": "Check",
+   "label": "Locked",
+   "reqd": 0,
+   "read_only": 1,
+   "default": "0",
+   "hidden": 1,
+   "in_list_view": 0,
+   "in_standard_filter": 0,
+   "in_global_search": 0,
+   "in_preview": 0,
+   "unique": 0,
+   "no_copy": 0,
+   "set_only_once": 0,
+   "fetch_if_empty": 0,
+   "non_negative": 0,
+   "allow_on_submit": 0,
+   "bold": 0,
+   "columns": 0,
+   "search_index": 0,
+   "allow_in_quick_entry": 0,
+   "print_hide": 1,
+   "report_hide": 0
+  },
+  {
+   "fieldname": "layout_full_11",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "ui_text_section_19",
+   "fieldtype": "Section Break"
+  },
+  {
    "fieldname": "correction_reason",
    "fieldtype": "Small Text",
    "label": "Correction Reason",
@@ -1167,27 +1245,8 @@
    "report_hide": 0
   },
   {
-   "fieldname": "column_break_control",
-   "fieldtype": "Column Break",
-   "reqd": 0,
-   "read_only": 0,
-   "hidden": 0,
-   "in_list_view": 0,
-   "in_standard_filter": 0,
-   "in_global_search": 0,
-   "in_preview": 0,
-   "unique": 0,
-   "no_copy": 0,
-   "set_only_once": 0,
-   "fetch_if_empty": 0,
-   "non_negative": 0,
-   "allow_on_submit": 0,
-   "bold": 0,
-   "columns": 0,
-   "search_index": 0,
-   "allow_in_quick_entry": 0,
-   "print_hide": 0,
-   "report_hide": 0
+   "fieldname": "ui_text_col_20",
+   "fieldtype": "Column Break"
   },
   {
    "fieldname": "remarks",
@@ -1211,31 +1270,6 @@
    "search_index": 0,
    "allow_in_quick_entry": 0,
    "print_hide": 0,
-   "report_hide": 0
-  },
-  {
-   "fieldname": "update_locked",
-   "fieldtype": "Check",
-   "label": "Locked",
-   "reqd": 0,
-   "read_only": 1,
-   "default": "0",
-   "hidden": 1,
-   "in_list_view": 0,
-   "in_standard_filter": 0,
-   "in_global_search": 0,
-   "in_preview": 0,
-   "unique": 0,
-   "no_copy": 0,
-   "set_only_once": 0,
-   "fetch_if_empty": 0,
-   "non_negative": 0,
-   "allow_on_submit": 0,
-   "bold": 0,
-   "columns": 0,
-   "search_index": 0,
-   "allow_in_quick_entry": 0,
-   "print_hide": 1,
    "report_hide": 0
   }
  ],

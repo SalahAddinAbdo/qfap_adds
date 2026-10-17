@@ -7,76 +7,94 @@
   "project",
   "project_result",
   "use_custom_code",
+  "ui_col_1",
   "indicator_code",
-  "column_break_identity",
   "sector",
   "indicator_level",
+  "ui_col_2",
   "indicator_source",
-  "column_break_dmjh",
   "standard_indicator_reference",
   "status",
   "definition_section",
+  "layout_full_3",
+  "ui_text_section_3",
   "indicator_name",
+  "ui_text_col_4",
   "precise_definition",
   "measurement_section",
   "unit_of_measure",
   "aggregation_method",
+  "ui_col_5",
   "improvement_direction",
-  "column_break_measurement",
+  "layout_full_5",
+  "ui_text_section_6",
   "calculation_formula",
+  "ui_text_col_7",
   "numerator_definition",
-  "column_break_enbf",
+  "ui_text_section_8",
   "denominator_definition",
   "baseline_section",
   "baseline_value",
   "baseline_date",
-  "baseline_source",
-  "column_break_target",
+  "ui_col_9",
   "life_of_project_target",
-  "target_rationale",
   "reporting_frequency",
+  "layout_full_7",
+  "ui_text_section_10",
+  "baseline_source",
+  "ui_text_col_11",
+  "target_rationale",
   "data_section",
+  "layout_full_8",
+  "ui_text_section_12",
   "data_source",
+  "ui_text_col_13",
   "storage_location",
-  "column_break_rxec",
+  "ui_text_section_14",
   "data_collection_method",
+  "ui_text_col_15",
   "sampling_method",
-  "column_break_thzl",
+  "ui_text_section_16",
   "means_of_verification",
+  "ui_text_col_17",
   "data_quality_limitations",
   "responsibility_section",
   "data_collection_responsible",
   "responsible_department",
-  "column_break_responsibility",
+  "ui_col_18",
   "data_verification_responsible",
   "approval_responsible",
   "disaggregation_section",
   "disaggregate_by_sex",
   "disaggregate_by_age",
   "disaggregate_by_disability",
+  "ui_col_19",
   "disaggregate_by_location",
-  "column_break_auii",
   "disaggregate_by_partner",
   "disaggregate_by_donor",
+  "ui_col_20",
   "disaggregate_by_sector",
-  "column_break_fsgn",
+  "layout_full_12",
+  "ui_text_section_21",
   "other_disaggregation",
   "management_section",
   "sequence",
+  "ui_col_22",
   "weight",
-  "column_break_xvga",
+  "layout_full_13",
+  "ui_text_section_23",
   "remarks",
   "latest_section",
   "latest_approved_period_actual",
   "approved_cumulative_actual",
   "latest_cumulative_target",
   "achievement_percentage",
-  "column_break_rclw",
+  "ui_col_24",
   "approved_cumulative_numerator",
   "approved_cumulative_denominator",
   "last_reporting_period",
   "last_reporting_date",
-  "column_break_vcim",
+  "ui_col_25",
   "latest_data_quality_status",
   "latest_approved_progress_update",
   "indicator_performance_status",
@@ -160,6 +178,10 @@
    "report_hide": 0
   },
   {
+   "fieldname": "ui_col_1",
+   "fieldtype": "Column Break"
+  },
+  {
    "fieldname": "indicator_code",
    "fieldtype": "Data",
    "label": "Indicator Code",
@@ -178,29 +200,6 @@
    "allow_on_submit": 0,
    "bold": 1,
    "columns": 2,
-   "search_index": 0,
-   "allow_in_quick_entry": 0,
-   "print_hide": 0,
-   "report_hide": 0
-  },
-  {
-   "fieldname": "column_break_identity",
-   "fieldtype": "Column Break",
-   "reqd": 0,
-   "read_only": 0,
-   "hidden": 0,
-   "in_list_view": 0,
-   "in_standard_filter": 0,
-   "in_global_search": 0,
-   "in_preview": 0,
-   "unique": 0,
-   "no_copy": 0,
-   "set_only_once": 0,
-   "fetch_if_empty": 0,
-   "non_negative": 0,
-   "allow_on_submit": 0,
-   "bold": 0,
-   "columns": 0,
    "search_index": 0,
    "allow_in_quick_entry": 0,
    "print_hide": 0,
@@ -257,6 +256,10 @@
    "report_hide": 0
   },
   {
+   "fieldname": "ui_col_2",
+   "fieldtype": "Column Break"
+  },
+  {
    "fieldname": "indicator_source",
    "fieldtype": "Select",
    "label": "Indicator Source",
@@ -277,29 +280,6 @@
    "allow_on_submit": 0,
    "bold": 0,
    "columns": 2,
-   "search_index": 0,
-   "allow_in_quick_entry": 0,
-   "print_hide": 0,
-   "report_hide": 0
-  },
-  {
-   "fieldname": "column_break_dmjh",
-   "fieldtype": "Column Break",
-   "reqd": 0,
-   "read_only": 0,
-   "hidden": 0,
-   "in_list_view": 0,
-   "in_standard_filter": 0,
-   "in_global_search": 0,
-   "in_preview": 0,
-   "unique": 0,
-   "no_copy": 0,
-   "set_only_once": 0,
-   "fetch_if_empty": 0,
-   "non_negative": 0,
-   "allow_on_submit": 0,
-   "bold": 0,
-   "columns": 0,
    "search_index": 0,
    "allow_in_quick_entry": 0,
    "print_hide": 0,
@@ -382,6 +362,14 @@
    "report_hide": 0
   },
   {
+   "fieldname": "layout_full_3",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "ui_text_section_3",
+   "fieldtype": "Section Break"
+  },
+  {
    "fieldname": "indicator_name",
    "fieldtype": "Small Text",
    "label": "Indicator Name",
@@ -404,6 +392,10 @@
    "allow_in_quick_entry": 0,
    "print_hide": 0,
    "report_hide": 0
+  },
+  {
+   "fieldname": "ui_text_col_4",
+   "fieldtype": "Column Break"
   },
   {
    "fieldname": "precise_definition",
@@ -504,6 +496,10 @@
    "report_hide": 0
   },
   {
+   "fieldname": "ui_col_5",
+   "fieldtype": "Column Break"
+  },
+  {
    "fieldname": "improvement_direction",
    "fieldtype": "Select",
    "label": "Improvement Direction",
@@ -530,27 +526,12 @@
    "report_hide": 0
   },
   {
-   "fieldname": "column_break_measurement",
-   "fieldtype": "Column Break",
-   "reqd": 0,
-   "read_only": 0,
-   "hidden": 0,
-   "in_list_view": 0,
-   "in_standard_filter": 0,
-   "in_global_search": 0,
-   "in_preview": 0,
-   "unique": 0,
-   "no_copy": 0,
-   "set_only_once": 0,
-   "fetch_if_empty": 0,
-   "non_negative": 0,
-   "allow_on_submit": 0,
-   "bold": 0,
-   "columns": 0,
-   "search_index": 0,
-   "allow_in_quick_entry": 0,
-   "print_hide": 0,
-   "report_hide": 0
+   "fieldname": "layout_full_5",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "ui_text_section_6",
+   "fieldtype": "Section Break"
   },
   {
    "fieldname": "calculation_formula",
@@ -575,6 +556,10 @@
    "allow_in_quick_entry": 0,
    "print_hide": 0,
    "report_hide": 0
+  },
+  {
+   "fieldname": "ui_text_col_7",
+   "fieldtype": "Column Break"
   },
   {
    "fieldname": "numerator_definition",
@@ -603,27 +588,8 @@
    "report_hide": 0
   },
   {
-   "fieldname": "column_break_enbf",
-   "fieldtype": "Column Break",
-   "reqd": 0,
-   "read_only": 0,
-   "hidden": 0,
-   "in_list_view": 0,
-   "in_standard_filter": 0,
-   "in_global_search": 0,
-   "in_preview": 0,
-   "unique": 0,
-   "no_copy": 0,
-   "set_only_once": 0,
-   "fetch_if_empty": 0,
-   "non_negative": 0,
-   "allow_on_submit": 0,
-   "bold": 0,
-   "columns": 0,
-   "search_index": 0,
-   "allow_in_quick_entry": 0,
-   "print_hide": 0,
-   "report_hide": 0
+   "fieldname": "ui_text_section_8",
+   "fieldtype": "Section Break"
   },
   {
    "fieldname": "denominator_definition",
@@ -724,51 +690,8 @@
    "report_hide": 0
   },
   {
-   "fieldname": "baseline_source",
-   "fieldtype": "Small Text",
-   "label": "Baseline Source",
-   "reqd": 0,
-   "read_only": 0,
-   "hidden": 0,
-   "in_list_view": 0,
-   "in_standard_filter": 0,
-   "in_global_search": 0,
-   "in_preview": 0,
-   "unique": 0,
-   "no_copy": 0,
-   "set_only_once": 0,
-   "fetch_if_empty": 0,
-   "non_negative": 0,
-   "allow_on_submit": 0,
-   "bold": 0,
-   "columns": 3,
-   "search_index": 0,
-   "allow_in_quick_entry": 0,
-   "print_hide": 0,
-   "report_hide": 0
-  },
-  {
-   "fieldname": "column_break_target",
-   "fieldtype": "Column Break",
-   "reqd": 0,
-   "read_only": 0,
-   "hidden": 0,
-   "in_list_view": 0,
-   "in_standard_filter": 0,
-   "in_global_search": 0,
-   "in_preview": 0,
-   "unique": 0,
-   "no_copy": 0,
-   "set_only_once": 0,
-   "fetch_if_empty": 0,
-   "non_negative": 0,
-   "allow_on_submit": 0,
-   "bold": 0,
-   "columns": 0,
-   "search_index": 0,
-   "allow_in_quick_entry": 0,
-   "print_hide": 0,
-   "report_hide": 0
+   "fieldname": "ui_col_9",
+   "fieldtype": "Column Break"
   },
   {
    "fieldname": "life_of_project_target",
@@ -789,30 +712,6 @@
    "allow_on_submit": 0,
    "bold": 0,
    "columns": 2,
-   "search_index": 0,
-   "allow_in_quick_entry": 0,
-   "print_hide": 0,
-   "report_hide": 0
-  },
-  {
-   "fieldname": "target_rationale",
-   "fieldtype": "Small Text",
-   "label": "Target Rationale",
-   "reqd": 0,
-   "read_only": 0,
-   "hidden": 0,
-   "in_list_view": 0,
-   "in_standard_filter": 0,
-   "in_global_search": 0,
-   "in_preview": 0,
-   "unique": 0,
-   "no_copy": 0,
-   "set_only_once": 0,
-   "fetch_if_empty": 0,
-   "non_negative": 0,
-   "allow_on_submit": 0,
-   "bold": 0,
-   "columns": 4,
    "search_index": 0,
    "allow_in_quick_entry": 0,
    "print_hide": 0,
@@ -844,6 +743,66 @@
    "report_hide": 0
   },
   {
+   "fieldname": "layout_full_7",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "ui_text_section_10",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "baseline_source",
+   "fieldtype": "Small Text",
+   "label": "Baseline Source",
+   "reqd": 0,
+   "read_only": 0,
+   "hidden": 0,
+   "in_list_view": 0,
+   "in_standard_filter": 0,
+   "in_global_search": 0,
+   "in_preview": 0,
+   "unique": 0,
+   "no_copy": 0,
+   "set_only_once": 0,
+   "fetch_if_empty": 0,
+   "non_negative": 0,
+   "allow_on_submit": 0,
+   "bold": 0,
+   "columns": 3,
+   "search_index": 0,
+   "allow_in_quick_entry": 0,
+   "print_hide": 0,
+   "report_hide": 0
+  },
+  {
+   "fieldname": "ui_text_col_11",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "target_rationale",
+   "fieldtype": "Small Text",
+   "label": "Target Rationale",
+   "reqd": 0,
+   "read_only": 0,
+   "hidden": 0,
+   "in_list_view": 0,
+   "in_standard_filter": 0,
+   "in_global_search": 0,
+   "in_preview": 0,
+   "unique": 0,
+   "no_copy": 0,
+   "set_only_once": 0,
+   "fetch_if_empty": 0,
+   "non_negative": 0,
+   "allow_on_submit": 0,
+   "bold": 0,
+   "columns": 4,
+   "search_index": 0,
+   "allow_in_quick_entry": 0,
+   "print_hide": 0,
+   "report_hide": 0
+  },
+  {
    "fieldname": "data_section",
    "fieldtype": "Section Break",
    "label": "Data Collection and Verification",
@@ -866,6 +825,14 @@
    "allow_in_quick_entry": 0,
    "print_hide": 0,
    "report_hide": 0
+  },
+  {
+   "fieldname": "layout_full_8",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "ui_text_section_12",
+   "fieldtype": "Section Break"
   },
   {
    "fieldname": "data_source",
@@ -892,6 +859,10 @@
    "report_hide": 0
   },
   {
+   "fieldname": "ui_text_col_13",
+   "fieldtype": "Column Break"
+  },
+  {
    "fieldname": "storage_location",
    "fieldtype": "Small Text",
    "label": "Data Storage Location",
@@ -916,27 +887,8 @@
    "report_hide": 0
   },
   {
-   "fieldname": "column_break_rxec",
-   "fieldtype": "Column Break",
-   "reqd": 0,
-   "read_only": 0,
-   "hidden": 0,
-   "in_list_view": 0,
-   "in_standard_filter": 0,
-   "in_global_search": 0,
-   "in_preview": 0,
-   "unique": 0,
-   "no_copy": 0,
-   "set_only_once": 0,
-   "fetch_if_empty": 0,
-   "non_negative": 0,
-   "allow_on_submit": 0,
-   "bold": 0,
-   "columns": 0,
-   "search_index": 0,
-   "allow_in_quick_entry": 0,
-   "print_hide": 0,
-   "report_hide": 0
+   "fieldname": "ui_text_section_14",
+   "fieldtype": "Section Break"
   },
   {
    "fieldname": "data_collection_method",
@@ -963,6 +915,10 @@
    "report_hide": 0
   },
   {
+   "fieldname": "ui_text_col_15",
+   "fieldtype": "Column Break"
+  },
+  {
    "fieldname": "sampling_method",
    "fieldtype": "Small Text",
    "label": "Sampling Method",
@@ -987,27 +943,8 @@
    "report_hide": 0
   },
   {
-   "fieldname": "column_break_thzl",
-   "fieldtype": "Column Break",
-   "reqd": 0,
-   "read_only": 0,
-   "hidden": 0,
-   "in_list_view": 0,
-   "in_standard_filter": 0,
-   "in_global_search": 0,
-   "in_preview": 0,
-   "unique": 0,
-   "no_copy": 0,
-   "set_only_once": 0,
-   "fetch_if_empty": 0,
-   "non_negative": 0,
-   "allow_on_submit": 0,
-   "bold": 0,
-   "columns": 0,
-   "search_index": 0,
-   "allow_in_quick_entry": 0,
-   "print_hide": 0,
-   "report_hide": 0
+   "fieldname": "ui_text_section_16",
+   "fieldtype": "Section Break"
   },
   {
    "fieldname": "means_of_verification",
@@ -1032,6 +969,10 @@
    "allow_in_quick_entry": 0,
    "print_hide": 0,
    "report_hide": 0
+  },
+  {
+   "fieldname": "ui_text_col_17",
+   "fieldtype": "Column Break"
   },
   {
    "fieldname": "data_quality_limitations",
@@ -1132,27 +1073,8 @@
    "report_hide": 0
   },
   {
-   "fieldname": "column_break_responsibility",
-   "fieldtype": "Column Break",
-   "reqd": 0,
-   "read_only": 0,
-   "hidden": 0,
-   "in_list_view": 0,
-   "in_standard_filter": 0,
-   "in_global_search": 0,
-   "in_preview": 0,
-   "unique": 0,
-   "no_copy": 0,
-   "set_only_once": 0,
-   "fetch_if_empty": 0,
-   "non_negative": 0,
-   "allow_on_submit": 0,
-   "bold": 0,
-   "columns": 0,
-   "search_index": 0,
-   "allow_in_quick_entry": 0,
-   "print_hide": 0,
-   "report_hide": 0
+   "fieldname": "ui_col_18",
+   "fieldtype": "Column Break"
   },
   {
    "fieldname": "data_verification_responsible",
@@ -1304,6 +1226,10 @@
    "report_hide": 0
   },
   {
+   "fieldname": "ui_col_19",
+   "fieldtype": "Column Break"
+  },
+  {
    "fieldname": "disaggregate_by_location",
    "fieldtype": "Check",
    "label": "By Location",
@@ -1323,29 +1249,6 @@
    "allow_on_submit": 0,
    "bold": 0,
    "columns": 1,
-   "search_index": 0,
-   "allow_in_quick_entry": 0,
-   "print_hide": 0,
-   "report_hide": 0
-  },
-  {
-   "fieldname": "column_break_auii",
-   "fieldtype": "Column Break",
-   "reqd": 0,
-   "read_only": 0,
-   "hidden": 0,
-   "in_list_view": 0,
-   "in_standard_filter": 0,
-   "in_global_search": 0,
-   "in_preview": 0,
-   "unique": 0,
-   "no_copy": 0,
-   "set_only_once": 0,
-   "fetch_if_empty": 0,
-   "non_negative": 0,
-   "allow_on_submit": 0,
-   "bold": 0,
-   "columns": 0,
    "search_index": 0,
    "allow_in_quick_entry": 0,
    "print_hide": 0,
@@ -1402,6 +1305,10 @@
    "report_hide": 0
   },
   {
+   "fieldname": "ui_col_20",
+   "fieldtype": "Column Break"
+  },
+  {
    "fieldname": "disaggregate_by_sector",
    "fieldtype": "Check",
    "label": "By Sector",
@@ -1427,27 +1334,12 @@
    "report_hide": 0
   },
   {
-   "fieldname": "column_break_fsgn",
-   "fieldtype": "Column Break",
-   "reqd": 0,
-   "read_only": 0,
-   "hidden": 0,
-   "in_list_view": 0,
-   "in_standard_filter": 0,
-   "in_global_search": 0,
-   "in_preview": 0,
-   "unique": 0,
-   "no_copy": 0,
-   "set_only_once": 0,
-   "fetch_if_empty": 0,
-   "non_negative": 0,
-   "allow_on_submit": 0,
-   "bold": 0,
-   "columns": 0,
-   "search_index": 0,
-   "allow_in_quick_entry": 0,
-   "print_hide": 0,
-   "report_hide": 0
+   "fieldname": "layout_full_12",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "ui_text_section_21",
+   "fieldtype": "Section Break"
   },
   {
    "fieldname": "other_disaggregation",
@@ -1522,6 +1414,10 @@
    "report_hide": 0
   },
   {
+   "fieldname": "ui_col_22",
+   "fieldtype": "Column Break"
+  },
+  {
    "fieldname": "weight",
    "fieldtype": "Percent",
    "label": "Weight %",
@@ -1547,27 +1443,12 @@
    "report_hide": 0
   },
   {
-   "fieldname": "column_break_xvga",
-   "fieldtype": "Column Break",
-   "reqd": 0,
-   "read_only": 0,
-   "hidden": 0,
-   "in_list_view": 0,
-   "in_standard_filter": 0,
-   "in_global_search": 0,
-   "in_preview": 0,
-   "unique": 0,
-   "no_copy": 0,
-   "set_only_once": 0,
-   "fetch_if_empty": 0,
-   "non_negative": 0,
-   "allow_on_submit": 0,
-   "bold": 0,
-   "columns": 0,
-   "search_index": 0,
-   "allow_in_quick_entry": 0,
-   "print_hide": 0,
-   "report_hide": 0
+   "fieldname": "layout_full_13",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "ui_text_section_23",
+   "fieldtype": "Section Break"
   },
   {
    "fieldname": "remarks",
@@ -1714,27 +1595,8 @@
    "report_hide": 0
   },
   {
-   "fieldname": "column_break_rclw",
-   "fieldtype": "Column Break",
-   "reqd": 0,
-   "read_only": 0,
-   "hidden": 0,
-   "in_list_view": 0,
-   "in_standard_filter": 0,
-   "in_global_search": 0,
-   "in_preview": 0,
-   "unique": 0,
-   "no_copy": 0,
-   "set_only_once": 0,
-   "fetch_if_empty": 0,
-   "non_negative": 0,
-   "allow_on_submit": 0,
-   "bold": 0,
-   "columns": 0,
-   "search_index": 0,
-   "allow_in_quick_entry": 0,
-   "print_hide": 0,
-   "report_hide": 0
+   "fieldname": "ui_col_24",
+   "fieldtype": "Column Break"
   },
   {
    "fieldname": "approved_cumulative_numerator",
@@ -1835,27 +1697,8 @@
    "report_hide": 0
   },
   {
-   "fieldname": "column_break_vcim",
-   "fieldtype": "Column Break",
-   "reqd": 0,
-   "read_only": 0,
-   "hidden": 0,
-   "in_list_view": 0,
-   "in_standard_filter": 0,
-   "in_global_search": 0,
-   "in_preview": 0,
-   "unique": 0,
-   "no_copy": 0,
-   "set_only_once": 0,
-   "fetch_if_empty": 0,
-   "non_negative": 0,
-   "allow_on_submit": 0,
-   "bold": 0,
-   "columns": 0,
-   "search_index": 0,
-   "allow_in_quick_entry": 0,
-   "print_hide": 0,
-   "report_hide": 0
+   "fieldname": "ui_col_25",
+   "fieldtype": "Column Break"
   },
   {
    "fieldname": "latest_data_quality_status",

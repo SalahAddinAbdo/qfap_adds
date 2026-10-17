@@ -9,30 +9,35 @@
   "project",
   "project_name",
   "tracking_mode",
-  "project_col",
+  "ui_col_1",
   "organization",
   "status",
   "summary_section",
   "planned_individuals_total",
   "actual_individuals_total",
   "individual_achievement_total",
-  "summary_col",
+  "ui_col_2",
   "planned_households_total",
   "actual_households_total",
   "household_achievement_total",
+  "ui_col_3",
   "planned_pwd_total",
   "actual_pwd_total",
   "details_section",
+  "layout_full_4",
+  "ui_full_section_4",
   "beneficiary_breakdown",
   "control_section",
   "actual_update_frequency",
   "last_actual_update",
   "actuals_finalized",
-  "control_col",
+  "ui_col_5",
   "actuals_finalized_on",
   "actuals_finalized_by",
-  "remarks",
-  "amended_from"
+  "amended_from",
+  "layout_full_6",
+  "ui_text_section_6",
+  "remarks"
  ],
  "fields": [
   {
@@ -146,27 +151,8 @@
    "report_hide": 0
   },
   {
-   "fieldname": "project_col",
-   "fieldtype": "Column Break",
-   "reqd": 0,
-   "read_only": 0,
-   "hidden": 0,
-   "in_list_view": 0,
-   "in_standard_filter": 0,
-   "in_global_search": 0,
-   "in_preview": 0,
-   "unique": 0,
-   "no_copy": 0,
-   "set_only_once": 0,
-   "fetch_if_empty": 0,
-   "non_negative": 0,
-   "allow_on_submit": 0,
-   "bold": 0,
-   "columns": 0,
-   "search_index": 0,
-   "allow_in_quick_entry": 0,
-   "print_hide": 0,
-   "report_hide": 0
+   "fieldname": "ui_col_1",
+   "fieldtype": "Column Break"
   },
   {
    "fieldname": "organization",
@@ -316,27 +302,8 @@
    "report_hide": 0
   },
   {
-   "fieldname": "summary_col",
-   "fieldtype": "Column Break",
-   "reqd": 0,
-   "read_only": 0,
-   "hidden": 0,
-   "in_list_view": 0,
-   "in_standard_filter": 0,
-   "in_global_search": 0,
-   "in_preview": 0,
-   "unique": 0,
-   "no_copy": 0,
-   "set_only_once": 0,
-   "fetch_if_empty": 0,
-   "non_negative": 0,
-   "allow_on_submit": 0,
-   "bold": 0,
-   "columns": 0,
-   "search_index": 0,
-   "allow_in_quick_entry": 0,
-   "print_hide": 0,
-   "report_hide": 0
+   "fieldname": "ui_col_2",
+   "fieldtype": "Column Break"
   },
   {
    "fieldname": "planned_households_total",
@@ -411,6 +378,10 @@
    "report_hide": 0
   },
   {
+   "fieldname": "ui_col_3",
+   "fieldtype": "Column Break"
+  },
+  {
    "fieldname": "planned_pwd_total",
    "fieldtype": "Int",
    "label": "Planned PWD",
@@ -483,10 +454,18 @@
    "report_hide": 0
   },
   {
+   "fieldname": "layout_full_4",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "ui_full_section_4",
+   "fieldtype": "Section Break"
+  },
+  {
    "fieldname": "beneficiary_breakdown",
    "fieldtype": "Table",
    "label": "Breakdown",
-   "options": "Project Beneficiary Breakdown",
+   "options": "Beneficiary Breakdown",
    "reqd": 1,
    "read_only": 0,
    "hidden": 0,
@@ -607,27 +586,8 @@
    "report_hide": 0
   },
   {
-   "fieldname": "control_col",
-   "fieldtype": "Column Break",
-   "reqd": 0,
-   "read_only": 0,
-   "hidden": 0,
-   "in_list_view": 0,
-   "in_standard_filter": 0,
-   "in_global_search": 0,
-   "in_preview": 0,
-   "unique": 0,
-   "no_copy": 0,
-   "set_only_once": 0,
-   "fetch_if_empty": 0,
-   "non_negative": 0,
-   "allow_on_submit": 0,
-   "bold": 0,
-   "columns": 0,
-   "search_index": 0,
-   "allow_in_quick_entry": 0,
-   "print_hide": 0,
-   "report_hide": 0
+   "fieldname": "ui_col_5",
+   "fieldtype": "Column Break"
   },
   {
    "fieldname": "actuals_finalized_on",
@@ -679,30 +639,6 @@
    "report_hide": 0
   },
   {
-   "fieldname": "remarks",
-   "fieldtype": "Small Text",
-   "label": "General Remarks",
-   "reqd": 0,
-   "read_only": 0,
-   "hidden": 0,
-   "in_list_view": 0,
-   "in_standard_filter": 0,
-   "in_global_search": 0,
-   "in_preview": 0,
-   "unique": 0,
-   "no_copy": 0,
-   "set_only_once": 0,
-   "fetch_if_empty": 0,
-   "non_negative": 0,
-   "allow_on_submit": 1,
-   "bold": 0,
-   "columns": 0,
-   "search_index": 0,
-   "allow_in_quick_entry": 0,
-   "print_hide": 0,
-   "report_hide": 0
-  },
-  {
    "fieldname": "amended_from",
    "fieldtype": "Link",
    "label": "Amended From",
@@ -725,6 +661,38 @@
    "search_index": 1,
    "allow_in_quick_entry": 0,
    "print_hide": 1,
+   "report_hide": 0
+  },
+  {
+   "fieldname": "layout_full_6",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "ui_text_section_6",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "remarks",
+   "fieldtype": "Small Text",
+   "label": "General Remarks",
+   "reqd": 0,
+   "read_only": 0,
+   "hidden": 0,
+   "in_list_view": 0,
+   "in_standard_filter": 0,
+   "in_global_search": 0,
+   "in_preview": 0,
+   "unique": 0,
+   "no_copy": 0,
+   "set_only_once": 0,
+   "fetch_if_empty": 0,
+   "non_negative": 0,
+   "allow_on_submit": 1,
+   "bold": 0,
+   "columns": 0,
+   "search_index": 0,
+   "allow_in_quick_entry": 0,
+   "print_hide": 0,
    "report_hide": 0
   }
  ],
