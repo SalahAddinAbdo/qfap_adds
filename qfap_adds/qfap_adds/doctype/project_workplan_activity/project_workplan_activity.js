@@ -1,8 +1,21 @@
 frappe.ui.form.on("Project Workplan Activity", {
-    setup(frm) { set_activity_queries(frm); },
-    refresh(frm) { set_activity_queries(frm); toggle_activity_code(frm); add_task_button(frm); },
-    project(frm) {
+    setup(frm) {
+        frm.__project_team_employees = [];
+        set_activity_queries(frm);
+    },
+    async onload(frm) {
+        await load_project_team_employees(frm);
+        set_activity_queries(frm);
+    },
+    async refresh(frm) {
+        await load_project_team_employees(frm);
+        set_activity_queries(frm);
+        toggle_activity_code(frm);
+        add_task_button(frm);
+    },
+    async project(frm) {
         ["project_output","responsible_employee","responsible_department","implementation_partner","predecessor_activity","primary_budget_line"].forEach(field => frm.set_value(field, ""));
+        await load_project_team_employees(frm);
         set_activity_queries(frm);
     },
     async project_output(frm) {
@@ -47,6 +60,29 @@ async function fetch_activity_output_sector(frm) {
     await frm.set_value("sector", output.sector);
 }
 
+
+async function load_project_team_employees(frm) {
+    frm.__project_team_employees = [];
+    if (!frm.doc.project) return;
+
+    const response = await frappe.call({
+        method: "qfap_adds.qfap_adds.project_management.api.get_project_team_employees",
+        args: {project: frm.doc.project},
+        freeze: false
+    });
+    frm.__project_team_employees = response.message || [];
+}
+
+function project_team_employee_query(frm) {
+    const employees = frm.__project_team_employees || [];
+    return {
+        filters: [
+            ["Employee", "status", "=", "Active"],
+            ["Employee", "name", employees.length ? "in" : "=", employees.length ? employees : "__no_project_team_employee__"]
+        ]
+    };
+}
+
 function toggle_activity_code(frm) {
     frm.set_df_property("activity_code", "read_only", !cint(frm.doc.use_custom_code));
 }
@@ -59,7 +95,7 @@ function add_task_button(frm) {
 
 function set_activity_queries(frm) {
     frm.set_query("project_output", () => ({filters: {project: frm.doc.project || "", result_level: "Output", status: ["!=", "Inactive"]}}));
-    frm.set_query("responsible_employee", () => ({filters: {status: "Active"}}));
+    frm.set_query("responsible_employee", () => project_team_employee_query(frm));
     frm.set_query("predecessor_activity", () => ({filters: {project: frm.doc.project || "", name: ["!=", frm.doc.name || ""]}}));
     frm.set_query("primary_budget_line", () => ({filters: {project: frm.doc.project || "", status: ["!=", "Inactive"]}}));
     frm.set_query("district", () => ({filters: {governorate: frm.doc.governorate || ""}}));
