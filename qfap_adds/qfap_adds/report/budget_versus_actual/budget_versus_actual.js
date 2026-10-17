@@ -36,7 +36,7 @@ onload(report){bva_toggle_asset_filter(report);report.page.add_inner_button(__("
   if(data&&column&&column.fieldtype==="Link"&&column.fieldname){
    const title=data[column.fieldname+"__title"];
    if(title&&String(title)!==String(value||"")){
-    rendered+=`<span class="qfap-link-title">${frappe.utils.escape_html(String(title))}</span>`;
+    rendered+=`<span class="qfap-link-title"><span class="qfap-link-title-separator" aria-hidden="true">&nbsp;-&nbsp;</span>${frappe.utils.escape_html(String(title))}</span>`;
    }
   }
   return rendered;
@@ -46,5 +46,5 @@ onload(report){bva_toggle_asset_filter(report);report.page.add_inner_button(__("
 
 ;(function qfap_link_title_style(){
  const id="qfap-link-title-style-v284";if(document.getElementById(id))return;
- const s=document.createElement("style");s.id=id;s.textContent=`.query-report .qfap-link-title{display:block;margin-top:2px;color:var(--text-muted,#6b7280);font-size:11px;line-height:1.25;white-space:normal}`;document.head.appendChild(s);
+ const s=document.createElement("style");s.id=id;s.textContent=`.query-report .qfap-link-title{display:inline;color:var(--text-muted,#6b7280);font-size:11px;line-height:1.25;white-space:normal}.query-report .qfap-link-title-separator{color:var(--text-muted,#6b7280)}`;document.head.appendChild(s);
 })();
