@@ -5,79 +5,34 @@ import json
 import frappe
 
 WORKSPACE = "QFap Management Hub"
+SIDEBAR = "QFap Adds"
+DESKTOP_ICON = "QFap Adds"
 OLD_WORKSPACES = ("Project Cycle Management",)
+OLD_DESKTOP_ICONS = ("QFap Management Hub",)
 APP_MODULE = "QFap Adds"
 
-# Standard ERPNext/Frappe DocTypes enhanced or intentionally exposed by qfap_adds.
-STANDARD_FORMS = [
-    "Project",
-    "Task",
-    "Issue",
-    "Employee",
-]
-
-# Explicit functional entries. Existing records only are displayed.
 PROJECT_FORMS = [
-    "Project",
-    "Project Result",
-    "Project Output",
-    "Project Indicator",
-    "Indicator Target Plan",
-    "Project Workplan Activity",
-    "Project Progress Update",
-    "Project Risk",
-    "Issue",
-    "Project Change Request",
-    "Project Compliance Deliverable",
-    "Project Beneficiary Plan",
-    "Project Closure",
-    "Budget Line",
+    "Project", "Project Result", "Project Output", "Project Indicator",
+    "Indicator Target Plan", "Project Workplan Activity", "Project Progress Update",
+    "Project Risk", "Issue", "Project Change Request",
+    "Project Compliance Deliverable", "Project Beneficiary Plan",
+    "Project Closure", "Budget Line",
 ]
-
-TASK_FORMS = [
-    "Task",
-    "Task Assignment Request",
-]
-
+TASK_FORMS = ["Task", "Task Assignment Request"]
 SIGNATURE_AND_PRINTING = [
-    "Employee Signature",
-    "Employee Signature Configuration",
-    "QFAP Print Format Settings",
-    "Print Format",
-    "Letter Head",
+    "Employee Signature", "Employee Signature Configuration",
+    "QFAP Print Format Settings", "Print Format", "Letter Head",
 ]
-
-MASTERS = [
-    "Donor",
-    "Donor Type",
-    "Partner",
-    "Governorate",
-    "District",
-]
-
+MASTERS = ["Donor", "Donor Type", "Partner", "Governorate", "District"]
 SETTINGS = [
-    "Projects Settings",
-    "Task Management Settings",
-    "Notification",
-    "Workflow",
-    "Workflow State",
-    "Workflow Action Master",
-    "Email Template",
+    "Projects Settings", "Task Management Settings", "Notification", "Workflow",
+    "Workflow State", "Workflow Action Master", "Email Template",
 ]
-
 FEATURED_REPORTS = [
-    "Project Portfolio Overview",
-    "Project Progress",
-    "Project Budget",
-    "Indicator Performance",
-    "Project Risks and Issues",
-    "Beneficiary Reach",
-    "Compliance Assurance",
-    "Change Control",
-    "Closure Readiness",
-    "Project Data Quality",
-    "Budget Versus Actual",
-    "Employees Task Tracker",
+    "Project Portfolio Overview", "Project Progress", "Project Budget",
+    "Indicator Performance", "Project Risks and Issues", "Beneficiary Reach",
+    "Compliance Assurance", "Change Control", "Closure Readiness",
+    "Project Data Quality", "Budget Versus Actual", "Employees Task Tracker",
 ]
 
 
@@ -96,25 +51,22 @@ def _unique_existing(items, doctype="DocType"):
 
 
 def _app_doctypes():
-    """Return every non-child, non-virtual DocType owned by QFap Adds.
-
-    This discovery makes the hub automatically include future DocTypes added to
-    the app without maintaining another fragile hard-coded inventory.
-    """
-    filters = {"module": APP_MODULE, "istable": 0}
-    fields = ["name", "issingle", "is_virtual"]
-    rows = frappe.get_all("DocType", filters=filters, fields=fields, order_by="name asc")
+    rows = frappe.get_all(
+        "DocType",
+        filters={"module": APP_MODULE, "istable": 0},
+        fields=["name", "is_virtual"],
+        order_by="name asc",
+    )
     return [row.name for row in rows if not int(row.is_virtual or 0)]
 
 
 def _app_reports():
-    rows = frappe.get_all(
+    return frappe.get_all(
         "Report",
         filters={"module": APP_MODULE, "disabled": 0},
         pluck="name",
         order_by="name asc",
-    )
-    return rows or []
+    ) or []
 
 
 def _unassigned(all_items, groups):
@@ -154,57 +106,44 @@ def _report_card(label, items):
 
 
 def _content(shortcuts, cards):
-    blocks = [
-        {
-            "id": "qfap_hub_header",
-            "type": "header",
-            "data": {
-                "text": '<span class="h4">QFap Management Hub</span>',
-                "col": 12,
-            },
-        }
-    ]
+    blocks = [{
+        "id": "qfap_hub_header",
+        "type": "header",
+        "data": {"text": '<span class="h4">QFap Management Hub</span>', "col": 12},
+    }]
     for index, row in enumerate(shortcuts):
-        blocks.append(
-            {
-                "id": "qfap_shortcut_" + str(index),
-                "type": "shortcut",
-                "data": {"shortcut_name": row["label"], "col": 3},
-            }
-        )
+        blocks.append({
+            "id": "qfap_shortcut_" + str(index),
+            "type": "shortcut",
+            "data": {"shortcut_name": row["label"], "col": 3},
+        })
     blocks.append({"id": "qfap_cards_spacer", "type": "spacer", "data": {"col": 12}})
     for index, card in enumerate(cards):
-        blocks.append(
-            {
-                "id": "qfap_card_" + str(index),
-                "type": "card",
-                "data": {"card_name": card["label"], "col": 4},
-            }
-        )
+        blocks.append({
+            "id": "qfap_card_" + str(index),
+            "type": "card",
+            "data": {"card_name": card["label"], "col": 4},
+        })
     return json.dumps(blocks, separators=(",", ":"))
 
 
 def _workspace_links(cards):
     result = []
     for card in cards:
-        result.append(
-            {
-                "label": card["label"],
-                "type": "Card Break",
-                "link_count": len(card["links"]),
-                "hidden": 0,
-            }
-        )
+        result.append({
+            "label": card["label"],
+            "type": "Card Break",
+            "link_count": len(card["links"]),
+            "hidden": 0,
+        })
         result.extend(card["links"])
     return result
 
 
 def _remove_old_workspace():
     for old_name in OLD_WORKSPACES:
-        if old_name == WORKSPACE or not _exists("Workspace", old_name):
-            continue
-        # The old workspace was app-provisioned and is replaced by the general hub.
-        frappe.delete_doc("Workspace", old_name, ignore_permissions=True, force=True)
+        if old_name != WORKSPACE and _exists("Workspace", old_name):
+            frappe.delete_doc("Workspace", old_name, ignore_permissions=True, force=True)
 
 
 def _save_workspace(data):
@@ -220,8 +159,7 @@ def _save_workspace(data):
 
     meta = frappe.get_meta("Workspace")
     values = {
-        key: value
-        for key, value in data.items()
+        key: value for key, value in data.items()
         if key in ("doctype", "name") or meta.has_field(key)
     }
     if meta.has_field("type"):
@@ -229,80 +167,80 @@ def _save_workspace(data):
     frappe.get_doc(values).insert(ignore_permissions=True)
 
 
-
 def _save_desktop_icon():
-    """Create the Frappe 16 desktop tile using Workspace Sidebar link type."""
+    """Upsert the Frappe 16 application tile using the required Sidebar field."""
     if not _exists("DocType", "Desktop Icon"):
         return
-    sidebar_name = "QFap Adds"
+
+    for old_name in OLD_DESKTOP_ICONS:
+        if old_name != DESKTOP_ICON and _exists("Desktop Icon", old_name):
+            frappe.delete_doc("Desktop Icon", old_name, ignore_permissions=True, force=True)
+
     meta = frappe.get_meta("Desktop Icon")
     values = {
         "doctype": "Desktop Icon",
-        "name": WORKSPACE,
-        "label": WORKSPACE,
-        "icon_type": "Link",
-        "link_type": "Workspace Sidebar",
-        "link_to": sidebar_name,
-        "parent_icon": "",
-        "standard": 1,
+        "name": DESKTOP_ICON,
+        "label": DESKTOP_ICON,
+        "icon_type": "App",
+        "sidebar": SIDEBAR,
         "app": "qfap_adds",
         "icon": "project",
+        "logo_url": "/assets/qfap_adds/images/qfap_project_cycle.png",
         "hidden": 0,
+        "standard": 1,
         "restrict_removal": 1,
         "idx": 50,
+        "parent_icon": "",
     }
-    values = {key:value for key,value in values.items() if key in ("doctype","name") or meta.has_field(key)}
-    if _exists("Desktop Icon", WORKSPACE):
-        doc=frappe.get_doc("Desktop Icon",WORKSPACE)
-        for key,value in values.items():
-            if key not in ("doctype","name"):
-                doc.set(key,value)
+    values = {
+        key: value for key, value in values.items()
+        if key in ("doctype", "name") or meta.has_field(key)
+    }
+
+    if _exists("Desktop Icon", DESKTOP_ICON):
+        doc = frappe.get_doc("Desktop Icon", DESKTOP_ICON)
+        for key, value in values.items():
+            if key not in ("doctype", "name"):
+                doc.set(key, value)
+        if doc.meta.has_field("link_type"):
+            doc.link_type = ""
+        if doc.meta.has_field("link_to"):
+            doc.link_to = ""
         doc.save(ignore_permissions=True)
     else:
         frappe.get_doc(values).insert(ignore_permissions=True)
 
 
 def _refresh_desktop_layouts():
-    """Remove only cached layouts that predate the QFap app tile."""
     if not _exists("DocType", "Desktop Layout"):
         return
     for name in frappe.get_all("Desktop Layout", pluck="name", limit_page_length=0):
-        doc=frappe.get_doc("Desktop Layout",name)
-        serialized=str(doc.as_dict())
-        if WORKSPACE not in serialized:
-            frappe.delete_doc("Desktop Layout",name,ignore_permissions=True,force=True)
+        doc = frappe.get_doc("Desktop Layout", name)
+        if DESKTOP_ICON not in str(doc.as_dict()):
+            frappe.delete_doc("Desktop Layout", name, ignore_permissions=True, force=True)
+
 
 def provision_project_navigation():
     app_doctypes = _app_doctypes()
-
     project_forms = _unique_existing(PROJECT_FORMS)
     task_forms = _unique_existing(TASK_FORMS)
     signature_printing = _unique_existing(SIGNATURE_AND_PRINTING)
     masters = _unique_existing(MASTERS)
     settings = _unique_existing(SETTINGS)
-
     classified = [project_forms, task_forms, signature_printing, masters, settings]
     other_app_forms = _unassigned(app_doctypes, classified)
-
     featured_reports = _unique_existing(FEATURED_REPORTS, "Report")
     all_reports = _unique_existing(featured_reports + _app_reports(), "Report")
 
     shortcuts = []
     for item in (
-        "Project",
-        "Task",
-        "Project Progress Update",
-        "Project Risk",
-        "Project Change Request",
-        "Employee Signature",
-        "QFAP Print Format Settings",
+        "Project", "Task", "Project Progress Update", "Project Risk",
+        "Project Change Request", "Employee Signature", "QFAP Print Format Settings",
     ):
         if _exists("DocType", item):
             shortcuts.append(_shortcut(item, item))
     for item in (
-        "Project Portfolio Overview",
-        "Budget Versus Actual",
-        "Employees Task Tracker",
+        "Project Portfolio Overview", "Budget Versus Actual", "Employees Task Tracker",
     ):
         if _exists("Report", item):
             shortcuts.append(_shortcut(item, item, "Report", "Green"))
