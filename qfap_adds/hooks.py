@@ -78,14 +78,26 @@ fixtures = [
     ]]]},
 ]
 
+
+# Project cycle events are intentionally separate from Task events.
+doc_events.update({
+    "Project Workplan Activity": {
+        "validate": "qfap_adds.qfap_adds.project_management.events.validate_workplan_activity",
+        "on_update": "qfap_adds.qfap_adds.project_management.events.sync_workplan_activity",
+        "on_trash": "qfap_adds.qfap_adds.project_management.events.before_delete_workplan_activity",
+    }
+})
+
 after_install = [
     "qfap_adds.qfap_adds.install.after_install",
     "qfap_adds.qfap_adds.task_management.provisioning.provision_task_integration",
+    "qfap_adds.qfap_adds.project_management.provisioning.provision_project_management",
 ]
 after_migrate = [
     "qfap_adds.qfap_adds.install.after_migrate",
     "qfap_adds.printing.provisioning.provision_universal_print_formats",
     "qfap_adds.qfap_adds.task_management.provisioning.provision_task_integration",
+    "qfap_adds.qfap_adds.project_management.provisioning.provision_project_management",
 ]
 
 
