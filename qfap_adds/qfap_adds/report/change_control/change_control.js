@@ -15,38 +15,48 @@ function ctx(f,t){const q=(t||"").toLowerCase(),vals=[];(frappe.query_report.dat
 function desc(f,v){let c=0,ps=[];(frappe.query_report.data||[]).forEach(r=>{if(String(r[f]||"").split(",").map(i=>i.trim()).includes(v)){c++;if(r.project&&!ps.includes(r.project))ps.push(r.project);}});return `${c} record${c===1?"":"s"}${ps.length?" • "+ps.slice(0,3).join(" • "):""}${ps.length>3?" • +"+(ps.length-3)+" more":""}`;}
 
 
-
-// QFAP application report refinement layer
-(function(){
-    const report=frappe.query_report;
-    const add_css=()=>{
-        if(document.getElementById("qfap-project-report-style")) return;
-        const style=document.createElement("style"); style.id="qfap-project-report-style";
-        style.textContent=`
-          .page-form{border-radius:10px;background:#f8fafc;padding:12px!important;margin-bottom:12px}
-          .page-form .frappe-control{margin-bottom:6px}
-          .report-summary{gap:8px;flex-wrap:wrap}
-          .report-summary .summary-item{border-radius:10px;border:1px solid #e5e7eb;background:#fff;min-width:150px;padding:10px 14px}
-          .datatable{border-radius:10px;overflow:hidden;border:1px solid #e5e7eb}
-          .dt-header .dt-cell{background:#f1f5f9;font-weight:600}
-          .dt-row:hover .dt-cell{background:#f8fafc}
-          .qfap-critical{color:#b91c1c;font-weight:700}.qfap-warning{color:#b45309;font-weight:600}.qfap-good{color:#047857;font-weight:600}
-        `; document.head.appendChild(style);
-    };
-    const format_status=(value)=>{
-        const v=String(value||"");
-        if(/critical|overdue|rejected|high/i.test(v)) return `<span class="qfap-critical">${frappe.utils.escape_html(v)}</span>`;
-        if(/risk|due soon|pending|moderate|review/i.test(v)) return `<span class="qfap-warning">${frappe.utils.escape_html(v)}</span>`;
-        if(/approved|completed|on track|verified|closed/i.test(v)) return `<span class="qfap-good">${frappe.utils.escape_html(v)}</span>`;
-        return frappe.utils.escape_html(v);
-    };
-    add_css();
-    if(report && report.columns){
-        (report.columns||[]).forEach(col=>{
-            const key=String(col.fieldname||"");
-            if(/status|health|level|readiness|quality/.test(key) && !col.__qfap_formatter){
-                const original=col.formatter; col.formatter=(value,row,column,data,default_formatter)=>format_status(value); col.__qfap_formatter=1;
-            }
-        });
-    }
+// QFAP report usability layer: readable KPI cards and sticky first two data columns.
+(function qfap_report_usability(){
+ const STYLE_ID="qfap-report-usability-v28";
+ function ensure_style(){
+  if(document.getElementById(STYLE_ID))return;
+  const style=document.createElement("style");style.id=STYLE_ID;
+  style.textContent=`
+   .query-report .report-summary{display:flex!important;gap:10px!important;align-items:stretch!important;flex-wrap:wrap!important;overflow:visible!important;padding-block:6px 10px!important}
+   .query-report .report-summary .summary-item,.query-report [class*="kpi-card"],.query-report .qfap-kpi-card{height:auto!important;min-height:72px!important;overflow:visible!important;padding:11px 14px!important;display:flex!important;flex-direction:column!important;justify-content:center!important}
+   .query-report .report-summary .summary-item .summary-label,.query-report .report-summary .summary-item .text-muted,.query-report [class*="kpi-card"] .label{height:auto!important;max-height:none!important;overflow:visible!important;white-space:normal!important;line-height:1.35!important;padding-bottom:3px!important}
+   .query-report .report-summary .summary-item .summary-value,.query-report [class*="kpi-card"] .value{line-height:1.25!important;overflow:visible!important}
+   .query-report .datatable{isolation:isolate;border-radius:10px;overflow:auto}
+   .query-report .dt-cell.qfap-sticky-col{position:sticky!important;background:var(--card-bg,#fff)!important;box-shadow:1px 0 0 var(--border-color,#d1d8dd);}
+   .query-report .dt-header .dt-cell.qfap-sticky-col{z-index:8!important;background:var(--subtle-fg,#f5f7fa)!important}
+   .query-report .dt-row:not(.dt-row-filter) .dt-cell.qfap-sticky-col{z-index:5!important}
+   .query-report .dt-row-filter .dt-cell.qfap-sticky-col{z-index:7!important;background:var(--control-bg,#f4f5f6)!important}
+   .query-report .dt-cell__content{line-height:1.35!important}
+  `;document.head.appendChild(style);
+ }
+ function freeze_two(){
+  ensure_style();
+  const root=document.querySelector('.query-report .datatable');if(!root)return;
+  const header=[...root.querySelectorAll('.dt-header .dt-cell')].filter(x=>x.offsetWidth>0);
+  if(header.length<2)return;
+  // If a narrow serial/checkbox column exists, freeze it plus the next two business columns.
+  const start=header[0].offsetWidth<70?1:0;
+  const indices=[start,start+1];let left=0;
+  if(start===1){
+   const serial=header[0];serial.classList.add('qfap-sticky-col');serial.style.left='0px';left=serial.getBoundingClientRect().width;
+   root.querySelectorAll('.dt-cell--col-0').forEach(c=>{c.classList.add('qfap-sticky-col');c.style.left='0px';});
+  }
+  indices.forEach(idx=>{
+   const cell=header[idx];if(!cell)return;
+   const cls=[...cell.classList].find(c=>c.startsWith('dt-cell--col-'));
+   if(!cls)return;
+   root.querySelectorAll('.'+cls).forEach(c=>{c.classList.add('qfap-sticky-col');c.style.left=left+'px';});
+   left+=cell.getBoundingClientRect().width;
+  });
+ }
+ ensure_style();
+ let tries=0;const timer=setInterval(()=>{freeze_two();if(++tries>20)clearInterval(timer);},250);
+ const observer=new MutationObserver(()=>freeze_two());
+ const page=document.querySelector('.query-report');if(page)observer.observe(page,{childList:true,subtree:true});
+ window.addEventListener('resize',()=>setTimeout(freeze_two,100),{passive:true});
 })();
