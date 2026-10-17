@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import frappe
 from frappe.custom.doctype.custom_field.custom_field import create_custom_fields
+from frappe.custom.doctype.property_setter.property_setter import make_property_setter
 
 RULES = {
     "critical_risk": ("Critical Project Risk", "Project Risk", "On Save", 0, "A High or Critical project risk requires attention."),
@@ -19,12 +20,14 @@ CHILD_FIELDS = [
     {"fieldname":"reference_doctype","label":"Reference DocType","fieldtype":"Link","options":"DocType","read_only":1,"in_list_view":1,"insert_after":"description"},
     {"fieldname":"trigger_type","label":"Trigger Type","fieldtype":"Select","options":"On Save\nDaily","read_only":1,"in_list_view":1,"insert_after":"reference_doctype"},
     {"fieldname":"delivery_channel","label":"Delivery Channel","fieldtype":"Select","options":"System Notification\nEmail and System Notification","default":"System Notification","in_list_view":1,"insert_after":"trigger_type"},
-    {"fieldname":"fallback_to_project_manager","label":"Fallback to Project Manager","fieldtype":"Check","default":"1","insert_after":"recipient_employee"},
+    {"fieldname":"recipient_users","label":"Recipient Users","fieldtype":"Table","options":"Project Notification Recipient User","insert_after":"recipient_role","description":"Select one or more active system users."},
+    {"fieldname":"recipient_employees","label":"Recipient Employees","fieldtype":"Table","options":"Project Notification Recipient Employee","insert_after":"recipient_users","description":"Select one or more employees. Each employee must be linked to an active User through Employee.user_id."},
+    {"fieldname":"fallback_to_project_manager","label":"Fallback to Project Manager","fieldtype":"Check","default":"1","insert_after":"recipient_employees"},
     {"fieldname":"notification_record","label":"Notification Template","fieldtype":"Link","options":"Notification","read_only":1,"insert_after":"fallback_to_project_manager"},
 ]
 
 SETTINGS_HELP = [
-    {"fieldname":"custom_project_notification_help","label":"How Project Notifications Work","fieldtype":"HTML","options":"<div class='alert alert-info'><b>Project notifications are active policies.</b> Enable a rule, choose a Recipient Role or Recipient Employee, and set the delivery channel. Due Soon Days is used by scheduled rules. The linked Notification Template controls the editable subject and message. If no recipient is configured, the engine may fall back to the Project Manager when enabled.</div>","insert_after":"custom_project_notification_rules_section"},
+    {"fieldname":"custom_project_notification_help","label":"How Project Notifications Work","fieldtype":"HTML","options":"<div class='alert alert-info'><b>Project notifications are active policies.</b> Enable a rule, choose one or more Recipient Users, Recipient Employees, or a Recipient Role, then set the delivery channel. Due Soon Days is used by scheduled rules. The linked Notification Template controls the editable subject and message. If no recipient is configured, the engine may fall back to the Project Manager when enabled.</div>","insert_after":"custom_project_notification_rules_section"},
 ]
 
 
@@ -52,6 +55,8 @@ def provision_project_notifications():
     if not frappe.db.exists("DocType","Project Notification Rule"):
         return
     create_custom_fields({"Project Notification Rule":CHILD_FIELDS,"Projects Settings":SETTINGS_HELP},update=True)
+    if frappe.get_meta("Project Notification Rule").has_field("recipient_employee_field"):
+        make_property_setter("Project Notification Rule", "recipient_employee_field", "hidden", 1, "Check", validate_fields_for_doctype=False)
     settings=frappe.get_single("Projects Settings")
     existing={row.notification_key:row for row in settings.get("project_notification_rules") or []}
     for key, spec in RULES.items():

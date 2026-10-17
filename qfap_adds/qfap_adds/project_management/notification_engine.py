@@ -22,24 +22,51 @@ def _field(meta,candidates):
 
 def _recipients(rule,doc):
     users=set()
-    if rule.recipient_employee and frappe.db.exists("Employee",rule.recipient_employee):
-        user=frappe.db.get_value("Employee",rule.recipient_employee,"user_id")
-        if user: users.add(user)
+
+    # Explicit users have the highest priority and support multiple recipients.
+    for row in rule.get("recipient_users") or []:
+        if row.enabled and row.user:
+            users.add(row.user)
+
+    # Employees are resolved through Employee.user_id.
+    for row in rule.get("recipient_employees") or []:
+        if not row.enabled or not row.employee:
+            continue
+        user=frappe.db.get_value("Employee",row.employee,"user_id")
+        if user:
+            users.add(user)
+
+    # Backward compatibility with the earlier single Employee custom field.
+    legacy_employee=rule.get("recipient_employee")
+    if legacy_employee and frappe.db.exists("Employee",legacy_employee):
+        user=frappe.db.get_value("Employee",legacy_employee,"user_id")
+        if user:
+            users.add(user)
+
     if rule.recipient_role:
-        for row in frappe.get_all("Has Role",filters={"role":rule.recipient_role,"parenttype":"User"},pluck="parent"):
-            if row and row not in ("Guest",): users.add(row)
+        for user in frappe.get_all("Has Role",filters={"role":rule.recipient_role,"parenttype":"User"},pluck="parent"):
+            if user and user != "Guest":
+                users.add(user)
+
     if not users and rule.fallback_to_project_manager and doc.get("project"):
         meta=frappe.get_meta("Project")
         for candidate in ("project_manager","custom_project_manager","manager"):
-            if meta.has_field(candidate):
-                value=frappe.db.get_value("Project",doc.project,candidate)
-                if value:
-                    if frappe.db.exists("User",value): users.add(value)
-                    elif frappe.db.exists("Employee",value):
-                        user=frappe.db.get_value("Employee",value,"user_id")
-                        if user: users.add(user)
-                break
-    return [u for u in users if frappe.db.get_value("User",u,"enabled")]
+            if not meta.has_field(candidate):
+                continue
+            value=frappe.db.get_value("Project",doc.project,candidate)
+            if value:
+                if frappe.db.exists("User",value):
+                    users.add(value)
+                elif frappe.db.exists("Employee",value):
+                    user=frappe.db.get_value("Employee",value,"user_id")
+                    if user:
+                        users.add(user)
+            break
+
+    return [
+        user for user in users
+        if frappe.db.exists("User",user) and frappe.db.get_value("User",user,"enabled")
+    ]
 
 
 def _template(rule,doc):

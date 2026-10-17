@@ -229,6 +229,42 @@ def _save_workspace(data):
     frappe.get_doc(values).insert(ignore_permissions=True)
 
 
+
+def _save_desktop_icon():
+    """Create the Frappe 16 desktop tile using Workspace Sidebar link type."""
+    if not _exists("DocType", "Desktop Icon"):
+        return
+    sidebar_name = "QFap Adds"
+    if not _exists("Workspace Sidebar", sidebar_name):
+        # The sidebar is normally synchronized by Frappe from the public Workspace.
+        # Do not invent an invalid sidebar record; the apps-screen hook remains available.
+        return
+    meta = frappe.get_meta("Desktop Icon")
+    values = {
+        "doctype": "Desktop Icon",
+        "name": WORKSPACE,
+        "label": WORKSPACE,
+        "icon_type": "Link",
+        "link_type": "Workspace Sidebar",
+        "link_to": sidebar_name,
+        "parent_icon": "",
+        "standard": 1,
+        "app": "qfap_adds",
+        "icon": "project",
+        "hidden": 0,
+        "restrict_removal": 1,
+        "idx": 50,
+    }
+    values = {key:value for key,value in values.items() if key in ("doctype","name") or meta.has_field(key)}
+    if _exists("Desktop Icon", WORKSPACE):
+        doc=frappe.get_doc("Desktop Icon",WORKSPACE)
+        for key,value in values.items():
+            if key not in ("doctype","name"):
+                doc.set(key,value)
+        doc.save(ignore_permissions=True)
+    else:
+        frappe.get_doc(values).insert(ignore_permissions=True)
+
 def provision_project_navigation():
     app_doctypes = _app_doctypes()
 
@@ -295,4 +331,5 @@ def provision_project_navigation():
 
     _remove_old_workspace()
     _save_workspace(data)
+    _save_desktop_icon()
     frappe.clear_cache()
