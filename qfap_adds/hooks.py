@@ -6,12 +6,12 @@ app_email = ""
 app_license = "MIT"
 
 app_logo_url = "/assets/qfap_adds/images/qfap_project_cycle.png"
-app_home = "/desk/qfap-management-hub"
+app_home = "/desk/workspace-sidebar/QFap%20Adds"
 
 add_to_apps_screen = [{
     "name": app_name,
     "logo": app_logo_url,
-    "title": app_title,
+    "title": "QFap Adds",
     "route": app_home,
     "sequence_id": 5,
 }]
@@ -38,7 +38,12 @@ doctype_js = {
 }
 
 doc_events = {
-    "Project Risk": {"on_update": "qfap_adds.qfap_adds.project_management.notification_engine.process_project_notification_on_update"},
+    "Project Risk": {
+        "on_update": (
+            "qfap_adds.qfap_adds.project_management.notification_engine."
+            "process_project_notification_on_update"
+        )
+    },
     "Task": {
         "before_validate": "qfap_adds.qfap_adds.task_management.events.before_validate",
         "on_update": "qfap_adds.qfap_adds.task_management.events.on_update",
@@ -103,6 +108,7 @@ after_install = [
     "qfap_adds.qfap_adds.project_management.notification_provisioning.provision_project_notifications",
     "qfap_adds.qfap_adds.project_management.navigation_provisioning.provision_project_navigation",
 ]
+
 after_migrate = [
     "qfap_adds.qfap_adds.install.after_migrate",
     "qfap_adds.printing.provisioning.provision_universal_print_formats",
@@ -113,22 +119,27 @@ after_migrate = [
     "qfap_adds.qfap_adds.project_management.navigation_provisioning.provision_project_navigation",
 ]
 
-
 scheduler_events = {
-    "daily": ["qfap_adds.qfap_adds.project_management.notification_engine.run_daily_project_notifications"],
+    "daily": [
+        "qfap_adds.qfap_adds.project_management.notification_engine.run_daily_project_notifications"
+    ],
     "cron": {
         "*/15 * * * *": [
             "qfap_adds.qfap_adds.task_management.scheduler.run_scheduled_task_summary"
         ]
-    }
+    },
 }
 
 permission_query_conditions = {
     "Task": "qfap_adds.qfap_adds.task_management.permissions.task_query_condition",
-    "Task Assignment Request": "qfap_adds.qfap_adds.task_management.permissions.request_query_condition",
+    "Task Assignment Request": (
+        "qfap_adds.qfap_adds.task_management.permissions.request_query_condition"
+    ),
 }
 
 has_permission = {
     "Task": "qfap_adds.qfap_adds.task_management.permissions.has_task_permission",
-    "Task Assignment Request": "qfap_adds.qfap_adds.task_management.permissions.has_request_permission",
+    "Task Assignment Request": (
+        "qfap_adds.qfap_adds.task_management.permissions.has_request_permission"
+    ),
 }
