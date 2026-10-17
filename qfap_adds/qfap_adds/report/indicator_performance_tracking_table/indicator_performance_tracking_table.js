@@ -1,1 +1,0 @@
-frappe.query_reports["Indicator Performance Tracking Table"] = {filters: [{fieldname:"project",label:__("Project"),fieldtype:"Link",options:"Project"},{fieldname:"status",label:__("Status"),fieldtype:"Data"}]};
