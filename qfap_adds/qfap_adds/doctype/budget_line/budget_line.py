@@ -17,6 +17,7 @@ class BudgetLine(NestedSet):
         self._validate_project()
         self._validate_parent()
         self._validate_single_root()
+        self._normalize_and_validate_code()
         self._validate_status_and_amount()
         self._protect_locked_values()
         self._set_lock_state()
@@ -65,25 +66,77 @@ class BudgetLine(NestedSet):
     def _set_new_code_and_sequence(self):
         is_root = self.is_group and not self.parent_budget_line
         if is_root:
-            self.sequence = 0; self.use_custom_code = 0; self.budget_line = self.project
+            self.sequence = 0
+            self.use_custom_code = 0
+            self.budget_line = self.project
             return
+
         if not self.parent_budget_line:
             return
-        parent = frappe.db.get_value(self.doctype, self.parent_budget_line,
-            ["parent_budget_line", "budget_line", "currency"], as_dict=True)
-        siblings = frappe.get_all(self.doctype, filters={"project": self.project, "parent_budget_line": self.parent_budget_line},
-            pluck="sequence", order_by="sequence desc", limit=1)
+
+        parent = frappe.db.get_value(
+            self.doctype,
+            self.parent_budget_line,
+            ["parent_budget_line", "budget_line", "currency"],
+            as_dict=True,
+        )
+        if not parent:
+            frappe.throw(_("Parent Budget Line was not found."))
+
+        siblings = frappe.get_all(
+            self.doctype,
+            filters={
+                "project": self.project,
+                "parent_budget_line": self.parent_budget_line,
+            },
+            pluck="sequence",
+            order_by="sequence desc",
+            limit=1,
+        )
         self.sequence = int((siblings[0] if siblings else 0) or 0) + 1
-        if not self.currency and parent:
+
+        if not self.currency:
             self.currency = parent.currency
-        if not self.use_custom_code and parent:
-            if not parent.parent_budget_line:
-                letters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
-                if self.sequence > len(letters):
-                    frappe.throw(_("Automatic top-level coding supports up to 26 Budget Lines."))
-                self.budget_line = f"{parent.budget_line}-{letters[self.sequence - 1]}"
-            else:
-                self.budget_line = f"{parent.budget_line}.{self.sequence}"
+
+        if self.use_custom_code:
+            self.budget_line = str(self.budget_line or "").strip()
+            if not self.budget_line:
+                frappe.throw(_("Budget Line Code is required when Use Donor Code is enabled."))
+            return
+
+        if not parent.parent_budget_line:
+            self.budget_line = self._alphabetic_sequence(self.sequence)
+        else:
+            self.budget_line = f"{parent.budget_line}.{self.sequence}"
+
+    @staticmethod
+    def _alphabetic_sequence(number):
+        number = int(number or 0)
+        if number < 1:
+            return ""
+        letters = []
+        while number:
+            number, remainder = divmod(number - 1, 26)
+            letters.append(chr(65 + remainder))
+        return "".join(reversed(letters))
+
+    def _normalize_and_validate_code(self):
+        self.budget_line = str(self.budget_line or "").strip()
+        if not self.budget_line:
+            frappe.throw(_("Budget Line Code is required."))
+
+        filters = {
+            "project": self.project,
+            "budget_line": self.budget_line,
+        }
+        if self.name:
+            filters["name"] = ["!=", self.name]
+        if frappe.db.exists(self.doctype, filters):
+            frappe.throw(
+                _("Budget Line Code {0} already exists in Project {1}.").format(
+                    frappe.bold(self.budget_line), frappe.bold(self.project)
+                )
+            )
 
     def _validate_status_and_amount(self):
         if self.status == "Inactive" and self.is_group and frappe.db.exists(self.doctype,
