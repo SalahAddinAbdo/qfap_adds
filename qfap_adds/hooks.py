@@ -34,6 +34,7 @@ doctype_js = {
     "Employee": "public/js/employee_announcement.js",
     "Notification": "public/js/notification_configuration.js",
     "Workflow": "public/js/workflow_engine.js",
+    "Projects Settings": "public/js/projects_settings.js",
 }
 
 doc_events = {
