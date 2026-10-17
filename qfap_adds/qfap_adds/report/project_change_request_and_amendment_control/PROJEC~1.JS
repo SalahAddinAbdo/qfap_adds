@@ -1,0 +1,1 @@
+frappe.query_reports["Project Change Request and Amendment Control"] = {filters: [{fieldname:"project",label:__("Project"),fieldtype:"Link",options:"Project"},{fieldname:"status",label:__("Status"),fieldtype:"Data"}]};
