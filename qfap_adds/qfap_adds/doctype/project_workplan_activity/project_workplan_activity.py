@@ -69,8 +69,11 @@ class ProjectWorkplanActivity(Document):
         output=frappe.db.get_value("Project Result", self.project_output, ["project","result_level","sector","status"], as_dict=True)
         if not output or output.project != self.project or output.result_level != "Output":
             frappe.throw(_("Project Output must be an Output result from the selected Project."))
-        if output.status == "Inactive": frappe.throw(_("Inactive Project Outputs cannot be used."))
-        self.sector=output.sector
+        if output.status == "Inactive":
+            frappe.throw(_("Inactive Project Outputs cannot be used."))
+        if not output.sector:
+            frappe.throw(_("The selected Project Output does not have a Sector."))
+        self.sector = output.sector
         if self.predecessor_activity:
             predecessor=frappe.db.get_value(self.doctype,self.predecessor_activity,"project")
             if predecessor != self.project: frappe.throw(_("Predecessor Activity must belong to the same Project."))
