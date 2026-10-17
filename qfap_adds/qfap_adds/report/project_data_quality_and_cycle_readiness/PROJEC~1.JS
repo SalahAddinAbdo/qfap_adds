@@ -1,0 +1,1 @@
+frappe.query_reports["Project Data Quality and Cycle Readiness"] = {filters: [{fieldname:"project",label:__("Project"),fieldtype:"Link",options:"Project"},{fieldname:"status",label:__("Status"),fieldtype:"Data"}]};
