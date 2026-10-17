@@ -1,7 +1,6 @@
 {
  "actions": [],
  "allow_import": 0,
- "creation": "2026-10-17 00:00:00.000000",
  "doctype": "DocType",
  "engine": "InnoDB",
  "field_order": [
@@ -210,16 +209,12 @@
    "report_hide": 0
   }
  ],
- "grid_page_length": 50,
- "index_web_pages_for_search": 1,
+ "index_web_pages_for_search": 0,
  "is_submittable": 0,
  "istable": 1,
  "links": [],
- "modified": "2026-10-17 00:00:00.000000",
- "modified_by": "Administrator",
  "module": "QFap Adds",
  "name": "Project Report Schedules",
- "owner": "Administrator",
  "permissions": [],
  "quick_entry": 0,
  "row_format": "Dynamic",

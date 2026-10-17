@@ -1,8 +1,6 @@
 {
  "actions": [],
  "allow_import": 1,
- "autoname": "",
- "creation": "2026-10-17 00:00:00.000000",
  "doctype": "DocType",
  "engine": "InnoDB",
  "field_order": [
@@ -157,8 +155,7 @@
    "search_index": 0,
    "allow_in_quick_entry": 0,
    "print_hide": 0,
-   "report_hide": 0,
-   "description": "Generated automatically on first save unless Use Custom Code is enabled."
+   "report_hide": 0
   },
   {
    "fieldname": "parent_result",
@@ -720,16 +717,12 @@
    "report_hide": 0
   }
  ],
- "grid_page_length": 50,
- "index_web_pages_for_search": 1,
+ "index_web_pages_for_search": 0,
  "is_submittable": 0,
  "istable": 0,
  "links": [],
- "modified": "2026-10-17 00:00:00.000000",
- "modified_by": "Administrator",
  "module": "QFap Adds",
  "name": "Project Result",
- "owner": "Administrator",
  "permissions": [
   {
    "role": "System Manager",
@@ -752,5 +745,6 @@
  "track_changes": 1,
  "title_field": "result_statement",
  "search_fields": "result_code,result_statement,project,sector",
+ "autoname": "",
  "naming_rule": "By script"
 }

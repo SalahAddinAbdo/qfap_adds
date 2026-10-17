@@ -1,0 +1,1 @@
+frappe.ui.form.on("Indicator Target Plan",{setup(frm){set_target_queries(frm);},refresh(frm){set_target_queries(frm);},project(frm){frm.set_value("indicator","");set_target_queries(frm);}}); function set_target_queries(frm){frm.set_query("indicator",()=>({filters:{project:frm.doc.project||"",status:["!=","Inactive"]}}));}
