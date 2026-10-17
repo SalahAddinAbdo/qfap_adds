@@ -15,8 +15,6 @@
             "enabled",
             "due_soon_days",
             "recipient_role",
-            "recipient_users",
-            "recipient_employees",
             "fallback_to_project_manager",
         ].forEach((fieldname) => {
             grid.update_docfield_property(fieldname, "read_only", 0);
