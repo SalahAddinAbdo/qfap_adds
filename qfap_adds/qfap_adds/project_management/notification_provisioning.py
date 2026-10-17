@@ -20,8 +20,8 @@ CHILD_FIELDS = [
     {"fieldname":"reference_doctype","label":"Reference DocType","fieldtype":"Link","options":"DocType","read_only":1,"in_list_view":1,"insert_after":"description"},
     {"fieldname":"trigger_type","label":"Trigger Type","fieldtype":"Select","options":"On Save\nDaily","read_only":1,"in_list_view":1,"insert_after":"reference_doctype"},
     {"fieldname":"delivery_channel","label":"Delivery Channel","fieldtype":"Select","options":"System Notification\nEmail and System Notification","default":"System Notification","in_list_view":1,"insert_after":"trigger_type"},
-    {"fieldname":"recipient_users","label":"Recipient Users","fieldtype":"Table","options":"Project Notification Recipient User","insert_after":"recipient_role","description":"Select one or more active system users."},
-    {"fieldname":"recipient_employees","label":"Recipient Employees","fieldtype":"Table","options":"Project Notification Recipient Employee","insert_after":"recipient_users","description":"Select one or more employees. Each employee must be linked to an active User through Employee.user_id."},
+    {"fieldname":"recipient_users","label":"Recipient Users","fieldtype":"Table","options":"Notify User","insert_after":"recipient_role","description":"Select one or more active system users."},
+    {"fieldname":"recipient_employees","label":"Recipient Employees","fieldtype":"Table","options":"Notify Employee","insert_after":"recipient_users","description":"Select one or more employees. Each employee must be linked to an active User through Employee.user_id."},
     {"fieldname":"fallback_to_project_manager","label":"Fallback to Project Manager","fieldtype":"Check","default":"1","insert_after":"recipient_employees"},
     {"fieldname":"notification_record","label":"Notification Template","fieldtype":"Link","options":"Notification","read_only":1,"insert_after":"fallback_to_project_manager"},
 ]
@@ -51,7 +51,17 @@ def _ensure_template(key, label, doctype, description):
     return name
 
 
+
+def _remove_obsolete_long_recipient_doctypes():
+    for old_name in (
+        "Project Notification Recipient User",
+        "Project Notification Recipient Employee",
+    ):
+        if frappe.db.exists("DocType", old_name):
+            frappe.delete_doc("DocType", old_name, ignore_permissions=True, force=True)
+
 def provision_project_notifications():
+    _remove_obsolete_long_recipient_doctypes()
     if not frappe.db.exists("DocType","Project Notification Rule"):
         return
     create_custom_fields({"Project Notification Rule":CHILD_FIELDS,"Projects Settings":SETTINGS_HELP},update=True)
