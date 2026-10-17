@@ -5,6 +5,8 @@ from frappe import _
 from frappe.model.document import Document
 from frappe.utils import flt
 
+from qfap_adds.qfap_adds.project_management.api import validate_project_team_employee
+
 
 class ProjectResult(Document):
     def autoname(self):
@@ -62,13 +64,11 @@ class ProjectResult(Document):
         if parent.sector != self.sector: frappe.throw(_("Result Sector must match the Parent Result Sector."))
 
     def _validate_responsibility(self):
-        employee = frappe.db.get_value("Employee", self.responsible_employee, ["status","department"], as_dict=True)
-        if not employee or employee.status != "Active": frappe.throw(_("Responsible Employee must be active."))
-        manager = frappe.db.get_value("Project", self.project, "custom_project_manager") or ""
-        active_team = frappe.db.exists("Project Core Team Assignment", {"parent":self.project,"parenttype":"Project","employee":self.responsible_employee,"active":1})
-        if self.responsible_employee != manager and not active_team:
-            frappe.throw(_("Responsible Employee must be the Project Manager or an active Project Core Team member."))
-        self.responsible_department = employee.department or ""
+        self.responsible_department = validate_project_team_employee(
+            self.project,
+            self.responsible_employee,
+            "Responsible Employee",
+        )
 
     def _validate_unique_code(self):
         filters={"project":self.project,"result_code":self.result_code,"name":["!=",self.name or ""]}
