@@ -9,9 +9,24 @@ from frappe.utils.nestedset import NestedSet
 class BudgetLine(NestedSet):
     nsm_parent_field = "parent_budget_line"
 
-    def before_insert(self):
+    def autoname(self):
         self._validate_project()
         self._set_new_code_and_sequence()
+        self._normalize_and_validate_code()
+
+        if self.is_group and not self.parent_budget_line:
+            self.name = self.project
+        else:
+            self.name = f"{self.project}-{self.budget_line}"
+
+        if len(self.name) > 140:
+            frappe.throw(_("The generated Budget Line ID exceeds 140 characters."))
+
+        if frappe.db.exists(self.doctype, self.name):
+            frappe.throw(_("Budget Line ID {0} already exists.").format(frappe.bold(self.name)))
+
+    def before_insert(self):
+        self._validate_project()
 
     def validate(self):
         self._validate_project()
@@ -180,14 +195,62 @@ class BudgetLine(NestedSet):
             self.budget_line_locked = 0
 
     def _rollup_project_groups(self):
+        """Recalculate every group in the Project from the leaves up to the root."""
         if not self.project:
             return
-        groups = frappe.get_all(self.doctype, filters={"project": self.project, "is_group": 1},
-            fields=["name", "lft"], order_by="lft desc", limit_page_length=0)
-        for group in groups:
-            children = frappe.get_all(self.doctype,
-                filters={"parent_budget_line": group.name, "status": "Approved"}, pluck="line_cost", limit_page_length=0)
-            frappe.db.set_value(self.doctype, group.name, "line_cost", sum(flt(v) for v in children), update_modified=False)
+
+        rows = frappe.get_all(
+            self.doctype,
+            filters={"project": self.project},
+            fields=["name", "parent_budget_line", "is_group", "status", "line_cost"],
+            limit_page_length=0,
+        )
+        if not rows:
+            return
+
+        rows_by_name = {row.name: row for row in rows}
+        children_by_parent = {}
+        for row in rows:
+            parent = row.parent_budget_line or ""
+            children_by_parent.setdefault(parent, []).append(row)
+
+        totals = {}
+        visiting = set()
+
+        def calculate(node_name):
+            if node_name in totals:
+                return totals[node_name]
+            if node_name in visiting:
+                frappe.throw(_("A cycle was detected in the Budget Line hierarchy."))
+
+            visiting.add(node_name)
+            total = 0.0
+            for child in children_by_parent.get(node_name, []):
+                if child.status != "Approved":
+                    continue
+                if child.is_group:
+                    total += calculate(child.name)
+                else:
+                    total += flt(child.line_cost)
+            visiting.remove(node_name)
+            totals[node_name] = total
+            return total
+
+        for row in rows:
+            if row.is_group:
+                calculate(row.name)
+
+        for name, total in totals.items():
+            current = flt(rows_by_name[name].line_cost)
+            if current != flt(total):
+                frappe.db.set_value(
+                    self.doctype,
+                    name,
+                    "line_cost",
+                    total,
+                    update_modified=False,
+                )
+
 
 
 @frappe.whitelist()
