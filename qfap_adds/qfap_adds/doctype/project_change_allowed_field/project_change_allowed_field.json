@@ -1,0 +1,52 @@
+{
+ "actions": [],
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "target_doctype",
+  "field_name",
+  "enabled",
+  "requires_donor_approval"
+ ],
+ "fields": [
+  {
+   "fieldname": "target_doctype",
+   "fieldtype": "Link",
+   "label": "Target DocType",
+   "reqd": 1,
+   "in_list_view": 1,
+   "options": "DocType"
+  },
+  {
+   "fieldname": "field_name",
+   "fieldtype": "Data",
+   "label": "Field Name",
+   "reqd": 1,
+   "in_list_view": 1
+  },
+  {
+   "fieldname": "enabled",
+   "fieldtype": "Check",
+   "label": "Enabled",
+   "reqd": 0,
+   "in_list_view": 1,
+   "default": "1"
+  },
+  {
+   "fieldname": "requires_donor_approval",
+   "fieldtype": "Check",
+   "label": "Requires Donor Approval",
+   "reqd": 0,
+   "in_list_view": 1,
+   "default": "0"
+  }
+ ],
+ "istable": 1,
+ "links": [],
+ "module": "QFap Adds",
+ "name": "Project Change Allowed Field",
+ "permissions": [],
+ "sort_field": "idx",
+ "sort_order": "ASC",
+ "states": []
+}

@@ -1,0 +1,5 @@
+async function qfap_load_project_team(frm){frm.__project_team=[];if(!frm.doc.project)return;const r=await frappe.call({method:"qfap_adds.qfap_adds.project_management.api.get_project_team_employees",args:{project:frm.doc.project}});frm.__project_team=r.message||[];}
+function qfap_team_query(frm){const e=frm.__project_team||[];return{filters:[["Employee","status","=","Active"],["Employee","name",e.length?"in":"=",e.length?e:"__none__"]]};}
+
+frappe.ui.form.on("Project Compliance Deliverable",{setup(frm){frm.__project_team=[];qfap_set_queries(frm);},async onload(frm){await qfap_load_project_team(frm);qfap_set_queries(frm);},async refresh(frm){await qfap_load_project_team(frm);qfap_set_queries(frm);},async project(frm){await qfap_load_project_team(frm);qfap_set_queries(frm);}});
+function qfap_set_queries(frm){frm.set_query("responsible_employee",()=>qfap_team_query(frm));frm.set_query("review_responsible",()=>qfap_team_query(frm));}
