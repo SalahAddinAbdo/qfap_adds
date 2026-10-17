@@ -676,14 +676,15 @@ function task_add_supervisor_remark_button(frm) {
     });
 }
 
+function task_add_workplan_activity_button(frm) {
+    if (frm.doc.custom_project_workplan && frm.doc.custom_workplan_activity) {
+        frm.add_custom_button(__("Open Workplan Activity"), () => {
+            frappe.set_route("Form", "Project Workplan Activity", frm.doc.custom_workplan_activity);
+        }, __("Project"));
+    }
+}
+
 frappe.ui.form.on("Task", {
-    refresh(frm) {
-        if (frm.doc.custom_project_workplan && frm.doc.custom_workplan_activity) {
-            frm.add_custom_button(__("Open Workplan Activity"), () => {
-                frappe.set_route("Form", "Project Workplan Activity", frm.doc.custom_workplan_activity);
-            }, __("Project"));
-        }
-    },
     setup(frm) {
         frm.__task_scope = {
             current_employee: "",
@@ -714,6 +715,7 @@ frappe.ui.form.on("Task", {
         task_add_complete_parent_button(frm);
         task_add_parent_buttons(frm);
         task_add_supervisor_remark_button(frm);
+        task_add_workplan_activity_button(frm);
         frm.toggle_display("task_weight", false);
     },
 
