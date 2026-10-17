@@ -1035,5 +1035,16 @@
     "translatable": 0,
     "hide_border": 0,
     "show_dashboard": 0
+  },
+  {
+    "fieldname": "custom_workplan_activity",
+    "label": "Workplan Activity",
+    "fieldtype": "Link",
+    "options": "Project Workplan Activity",
+    "read_only": 1,
+    "no_copy": 1,
+    "unique": 1,
+    "insert_after": "custom_project_workplan",
+    "depends_on": "eval:doc.custom_project_workplan"
   }
 ]
