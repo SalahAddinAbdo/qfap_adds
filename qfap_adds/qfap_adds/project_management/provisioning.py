@@ -68,7 +68,7 @@ SETTINGS_FIELDS = [
     {"fieldname":"generate_default_closure_checklist","label":"Generate Default Closure Checklist","fieldtype":"Check","default":"1","insert_after":"require_beneficiary_finalization"},
     {"fieldname":"project_readiness_gates","label":"Project Readiness Gates","fieldtype":"Table","options":"Project Readiness Gate","insert_after":"generate_default_closure_checklist"},
     {"fieldname":"custom_project_cycle_workflow_section","label":"Workflow and Notification Policy","fieldtype":"Section Break","insert_after":"project_readiness_gates"},
-    {"fieldname":"project_workflow_role_mappings","label":"Workflow Role Mappings","fieldtype":"Table","options":"Project Workflow Role Mapping","insert_after":"custom_project_cycle_workflow_section"},
+    {"fieldname":"project_workflow_role_mappings","label":"Workflow Role Mappings","fieldtype":"Table","options":"Workflow Role Mapping","insert_after":"custom_project_cycle_workflow_section"},
     {"fieldname":"project_notification_rules","label":"Project Notification Rules","fieldtype":"Table","options":"Project Notification Rule","insert_after":"project_workflow_role_mappings"},
 
     {"fieldname":"custom_project_cycle_integration_section","label":"Project Cycle Integration","fieldtype":"Section Break","insert_after":"fetch_timesheet_in_sales_invoice"},
