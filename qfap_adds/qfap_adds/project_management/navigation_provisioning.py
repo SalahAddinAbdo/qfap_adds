@@ -168,21 +168,29 @@ def _save_workspace(data):
 
 
 def _save_desktop_icon():
-    """Upsert the Frappe 16 application tile using the required Sidebar field."""
+    """Upsert the Frappe 16 desktop tile using Workspace Sidebar link mode."""
     if not _exists("DocType", "Desktop Icon"):
         return
 
     for old_name in OLD_DESKTOP_ICONS:
         if old_name != DESKTOP_ICON and _exists("Desktop Icon", old_name):
-            frappe.delete_doc("Desktop Icon", old_name, ignore_permissions=True, force=True)
+            frappe.delete_doc(
+                "Desktop Icon",
+                old_name,
+                ignore_permissions=True,
+                force=True,
+            )
 
     meta = frappe.get_meta("Desktop Icon")
+
     values = {
         "doctype": "Desktop Icon",
         "name": DESKTOP_ICON,
         "label": DESKTOP_ICON,
-        "icon_type": "App",
-        "sidebar": SIDEBAR,
+        "icon_type": "Link",
+        "link_type": "Workspace Sidebar",
+        "link_to": SIDEBAR,
+        "sidebar": "",
         "app": "qfap_adds",
         "icon": "project",
         "logo_url": "/assets/qfap_adds/images/qfap_project_cycle.png",
@@ -192,20 +200,20 @@ def _save_desktop_icon():
         "idx": 50,
         "parent_icon": "",
     }
+
     values = {
-        key: value for key, value in values.items()
+        key: value
+        for key, value in values.items()
         if key in ("doctype", "name") or meta.has_field(key)
     }
 
     if _exists("Desktop Icon", DESKTOP_ICON):
         doc = frappe.get_doc("Desktop Icon", DESKTOP_ICON)
+
         for key, value in values.items():
             if key not in ("doctype", "name"):
                 doc.set(key, value)
-        if doc.meta.has_field("link_type"):
-            doc.link_type = ""
-        if doc.meta.has_field("link_to"):
-            doc.link_to = ""
+
         doc.save(ignore_permissions=True)
     else:
         frappe.get_doc(values).insert(ignore_permissions=True)
