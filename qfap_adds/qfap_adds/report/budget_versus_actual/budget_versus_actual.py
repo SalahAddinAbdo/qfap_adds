@@ -17,8 +17,8 @@ def execute(filters=None):
     if from_date>to_date:frappe.throw(_("From Date cannot be later than To Date."))
     currency=frappe.db.get_value("Company",company,"default_currency")
     columns=[
-      {"label":_("Budget Line"),"fieldname":"budget_line","fieldtype":"Link","options":"Budget Line","width":330},
-      {"label":_("Account"),"fieldname":"account","fieldtype":"Link","options":"Account","width":270},
+      {"label":_("Budget Line"),"fieldname":"budget_line","fieldtype":"Link","options":"Budget Line","width":330,"sticky":True},
+      {"label":_("Account"),"fieldname":"account","fieldtype":"Link","options":"Account","width":270,"sticky":True},
       {"label":_("Budget Amount"),"fieldname":"budget_amount","fieldtype":"Currency","options":"currency","width":135},
       {"label":_("Actual Expense"),"fieldname":"actual_amount","fieldtype":"Currency","options":"currency","width":135},
       {"label":_("Available Balance"),"fieldname":"variance","fieldtype":"Currency","options":"currency","width":140},
