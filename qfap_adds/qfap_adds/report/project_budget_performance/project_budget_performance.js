@@ -1,0 +1,1 @@
+frappe.query_reports["Project Budget Performance"] = {filters: [{fieldname:"project",label:__("Project"),fieldtype:"Link",options:"Project"},{fieldname:"status",label:__("Status"),fieldtype:"Data"}]};

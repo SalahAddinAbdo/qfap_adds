@@ -1,0 +1,1 @@
+frappe.query_reports["Project Risk and Issue Management"] = {filters: [{fieldname:"project",label:__("Project"),fieldtype:"Link",options:"Project"},{fieldname:"status",label:__("Status"),fieldtype:"Data"}]};
