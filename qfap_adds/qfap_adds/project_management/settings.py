@@ -9,6 +9,7 @@ DEFAULTS = {
     "show_task_execution_metrics_in_activities": 1,
     "warn_about_open_tasks_during_closure": 1,
     "block_closure_when_open_tasks_exist": 0,
+    "default_workplan_task_type": "Workplan",
 }
 
 
@@ -21,6 +22,16 @@ def get_project_cycle_settings():
     if not fields:
         return values
     stored = frappe.db.get_value("Projects Settings", "Projects Settings", fields, as_dict=True) or {}
+    check_fields = {
+        "create_workplan_tasks_automatically",
+        "update_linked_workplan_tasks",
+        "show_task_execution_metrics_in_activities",
+        "warn_about_open_tasks_during_closure",
+        "block_closure_when_open_tasks_exist",
+    }
     for name in fields:
-        values[name] = cint(stored.get(name))
+        if name in check_fields:
+            values[name] = cint(stored.get(name))
+        else:
+            values[name] = stored.get(name) or DEFAULTS.get(name)
     return values
