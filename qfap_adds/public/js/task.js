@@ -677,6 +677,13 @@ function task_add_supervisor_remark_button(frm) {
 }
 
 frappe.ui.form.on("Task", {
+    refresh(frm) {
+        if (frm.doc.custom_project_workplan && frm.doc.custom_workplan_activity) {
+            frm.add_custom_button(__("Open Workplan Activity"), () => {
+                frappe.set_route("Form", "Project Workplan Activity", frm.doc.custom_workplan_activity);
+            }, __("Project"));
+        }
+    },
     setup(frm) {
         frm.__task_scope = {
             current_employee: "",
