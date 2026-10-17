@@ -1,0 +1,22 @@
+{
+ "app": "qfap_adds",
+ "creation": "2026-10-17 21:00:00.000000",
+ "docstatus": 0,
+ "doctype": "Desktop Icon",
+ "hidden": 0,
+ "icon": "project",
+ "icon_type": "Link",
+ "idx": 0,
+ "label": "QFap Management Hub",
+ "link_to": "QFap Adds",
+ "link_type": "Workspace Sidebar",
+ "logo_url": "/assets/qfap_adds/images/qfap_project_cycle.png",
+ "modified": "2026-10-17 21:00:00.000000",
+ "modified_by": "Administrator",
+ "name": "QFap Management Hub",
+ "owner": "Administrator",
+ "parent_icon": "",
+ "restrict_removal": 1,
+ "roles": [],
+ "standard": 1
+}
