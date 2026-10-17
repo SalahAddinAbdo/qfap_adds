@@ -12,7 +12,7 @@
     "permlevel": "0",
     "columns": "0",
     "length": "0",
-    "is_system_generated": 0,
+    "is_system_generated": 1,
     "hide_seconds": 0,
     "hide_days": 0,
     "sort_options": 0,
@@ -42,7 +42,8 @@
     "ignore_xss_filter": 0,
     "translatable": 0,
     "hide_border": 0,
-    "show_dashboard": 0
+    "show_dashboard": 0,
+    "module": "Task Management"
   },
   {
     "doctype": "Custom Field",
@@ -56,7 +57,7 @@
     "permlevel": "0",
     "columns": "0",
     "length": "0",
-    "is_system_generated": 0,
+    "is_system_generated": 1,
     "hide_seconds": 0,
     "hide_days": 0,
     "sort_options": 0,
@@ -86,7 +87,8 @@
     "ignore_xss_filter": 0,
     "translatable": 0,
     "hide_border": 0,
-    "show_dashboard": 0
+    "show_dashboard": 0,
+    "module": "Task Management"
   },
   {
     "doctype": "Custom Field",
@@ -98,7 +100,7 @@
     "permlevel": "0",
     "columns": "0",
     "length": "0",
-    "is_system_generated": 0,
+    "is_system_generated": 1,
     "hide_seconds": 0,
     "hide_days": 0,
     "sort_options": 0,
@@ -128,7 +130,8 @@
     "ignore_xss_filter": 0,
     "translatable": 0,
     "hide_border": 0,
-    "show_dashboard": 0
+    "show_dashboard": 0,
+    "module": "Task Management"
   },
   {
     "doctype": "Custom Field",
@@ -141,7 +144,7 @@
     "permlevel": "0",
     "columns": "0",
     "length": "0",
-    "is_system_generated": 0,
+    "is_system_generated": 1,
     "hide_seconds": 0,
     "hide_days": 0,
     "sort_options": 0,
@@ -171,7 +174,8 @@
     "ignore_xss_filter": 0,
     "translatable": 0,
     "hide_border": 0,
-    "show_dashboard": 0
+    "show_dashboard": 0,
+    "module": "Task Management"
   },
   {
     "doctype": "Custom Field",
@@ -184,7 +188,7 @@
     "permlevel": "0",
     "columns": "0",
     "length": "0",
-    "is_system_generated": 0,
+    "is_system_generated": 1,
     "hide_seconds": 0,
     "hide_days": 0,
     "sort_options": 0,
@@ -214,7 +218,8 @@
     "ignore_xss_filter": 0,
     "translatable": 0,
     "hide_border": 0,
-    "show_dashboard": 0
+    "show_dashboard": 0,
+    "module": "Task Management"
   },
   {
     "doctype": "Custom Field",
@@ -226,7 +231,7 @@
     "permlevel": "0",
     "columns": "0",
     "length": "0",
-    "is_system_generated": 0,
+    "is_system_generated": 1,
     "hide_seconds": 0,
     "hide_days": 0,
     "sort_options": 0,
@@ -256,7 +261,8 @@
     "ignore_xss_filter": 0,
     "translatable": 0,
     "hide_border": 0,
-    "show_dashboard": 0
+    "show_dashboard": 0,
+    "module": "Task Management"
   },
   {
     "doctype": "Custom Field",
@@ -268,7 +274,7 @@
     "permlevel": "0",
     "columns": "0",
     "length": "0",
-    "is_system_generated": 0,
+    "is_system_generated": 1,
     "hide_seconds": 0,
     "hide_days": 0,
     "sort_options": 0,
@@ -298,7 +304,8 @@
     "ignore_xss_filter": 0,
     "translatable": 0,
     "hide_border": 0,
-    "show_dashboard": 0
+    "show_dashboard": 0,
+    "module": "Task Management"
   },
   {
     "doctype": "Custom Field",
@@ -312,7 +319,7 @@
     "permlevel": "0",
     "columns": "0",
     "length": "0",
-    "is_system_generated": 0,
+    "is_system_generated": 1,
     "hide_seconds": 0,
     "hide_days": 0,
     "sort_options": 0,
@@ -342,7 +349,8 @@
     "ignore_xss_filter": 0,
     "translatable": 0,
     "hide_border": 0,
-    "show_dashboard": 0
+    "show_dashboard": 0,
+    "module": "Task Management"
   },
   {
     "doctype": "Custom Field",
@@ -357,7 +365,7 @@
     "permlevel": "0",
     "columns": "0",
     "length": "0",
-    "is_system_generated": 0,
+    "is_system_generated": 1,
     "hide_seconds": 0,
     "hide_days": 0,
     "sort_options": 0,
@@ -387,7 +395,8 @@
     "ignore_xss_filter": 0,
     "translatable": 0,
     "hide_border": 0,
-    "show_dashboard": 0
+    "show_dashboard": 0,
+    "module": "Task Management"
   },
   {
     "doctype": "Custom Field",
@@ -400,7 +409,7 @@
     "permlevel": "1",
     "columns": "0",
     "length": "0",
-    "is_system_generated": 0,
+    "is_system_generated": 1,
     "hide_seconds": 0,
     "hide_days": 0,
     "sort_options": 0,
@@ -430,7 +439,8 @@
     "ignore_xss_filter": 0,
     "translatable": 0,
     "hide_border": 0,
-    "show_dashboard": 0
+    "show_dashboard": 0,
+    "module": "Task Management"
   },
   {
     "doctype": "Custom Field",
@@ -442,7 +452,7 @@
     "permlevel": "0",
     "columns": "0",
     "length": "0",
-    "is_system_generated": 0,
+    "is_system_generated": 1,
     "hide_seconds": 0,
     "hide_days": 0,
     "sort_options": 0,
@@ -472,7 +482,8 @@
     "ignore_xss_filter": 0,
     "translatable": 0,
     "hide_border": 0,
-    "show_dashboard": 0
+    "show_dashboard": 0,
+    "module": "Task Management"
   },
   {
     "doctype": "Custom Field",
@@ -486,7 +497,7 @@
     "permlevel": "0",
     "columns": "0",
     "length": "0",
-    "is_system_generated": 0,
+    "is_system_generated": 1,
     "hide_seconds": 0,
     "hide_days": 0,
     "sort_options": 0,
@@ -516,7 +527,8 @@
     "ignore_xss_filter": 0,
     "translatable": 0,
     "hide_border": 0,
-    "show_dashboard": 0
+    "show_dashboard": 0,
+    "module": "Task Management"
   },
   {
     "doctype": "Custom Field",
@@ -532,7 +544,7 @@
     "permlevel": "0",
     "columns": "0",
     "length": "0",
-    "is_system_generated": 0,
+    "is_system_generated": 1,
     "hide_seconds": 0,
     "hide_days": 0,
     "sort_options": 0,
@@ -562,7 +574,8 @@
     "ignore_xss_filter": 0,
     "translatable": 0,
     "hide_border": 0,
-    "show_dashboard": 0
+    "show_dashboard": 0,
+    "module": "Task Management"
   },
   {
     "doctype": "Custom Field",
@@ -576,7 +589,7 @@
     "permlevel": "0",
     "columns": "0",
     "length": "0",
-    "is_system_generated": 0,
+    "is_system_generated": 1,
     "hide_seconds": 0,
     "hide_days": 0,
     "sort_options": 0,
@@ -606,7 +619,8 @@
     "ignore_xss_filter": 0,
     "translatable": 0,
     "hide_border": 0,
-    "show_dashboard": 0
+    "show_dashboard": 0,
+    "module": "Task Management"
   },
   {
     "doctype": "Custom Field",
@@ -618,7 +632,7 @@
     "permlevel": "0",
     "columns": "0",
     "length": "0",
-    "is_system_generated": 0,
+    "is_system_generated": 1,
     "hide_seconds": 0,
     "hide_days": 0,
     "sort_options": 0,
@@ -648,7 +662,8 @@
     "ignore_xss_filter": 0,
     "translatable": 0,
     "hide_border": 0,
-    "show_dashboard": 0
+    "show_dashboard": 0,
+    "module": "Task Management"
   },
   {
     "doctype": "Custom Field",
@@ -660,7 +675,7 @@
     "permlevel": "0",
     "columns": "0",
     "length": "0",
-    "is_system_generated": 0,
+    "is_system_generated": 1,
     "hide_seconds": 0,
     "hide_days": 0,
     "sort_options": 0,
@@ -690,7 +705,8 @@
     "ignore_xss_filter": 0,
     "translatable": 0,
     "hide_border": 0,
-    "show_dashboard": 0
+    "show_dashboard": 0,
+    "module": "Task Management"
   },
   {
     "doctype": "Custom Field",
@@ -704,7 +720,7 @@
     "permlevel": "0",
     "columns": "0",
     "length": "0",
-    "is_system_generated": 0,
+    "is_system_generated": 1,
     "hide_seconds": 0,
     "hide_days": 0,
     "sort_options": 0,
@@ -734,7 +750,8 @@
     "ignore_xss_filter": 0,
     "translatable": 0,
     "hide_border": 0,
-    "show_dashboard": 0
+    "show_dashboard": 0,
+    "module": "Task Management"
   },
   {
     "doctype": "Custom Field",
@@ -746,7 +763,7 @@
     "permlevel": "0",
     "columns": "0",
     "length": "0",
-    "is_system_generated": 0,
+    "is_system_generated": 1,
     "hide_seconds": 0,
     "hide_days": 0,
     "sort_options": 0,
@@ -776,7 +793,8 @@
     "ignore_xss_filter": 0,
     "translatable": 0,
     "hide_border": 0,
-    "show_dashboard": 0
+    "show_dashboard": 0,
+    "module": "Task Management"
   },
   {
     "doctype": "Custom Field",
@@ -790,7 +808,7 @@
     "permlevel": "0",
     "columns": "0",
     "length": "0",
-    "is_system_generated": 0,
+    "is_system_generated": 1,
     "hide_seconds": 0,
     "hide_days": 0,
     "sort_options": 0,
@@ -820,7 +838,8 @@
     "ignore_xss_filter": 0,
     "translatable": 0,
     "hide_border": 0,
-    "show_dashboard": 0
+    "show_dashboard": 0,
+    "module": "Task Management"
   },
   {
     "doctype": "Custom Field",
@@ -836,7 +855,7 @@
     "permlevel": "0",
     "columns": "0",
     "length": "0",
-    "is_system_generated": 0,
+    "is_system_generated": 1,
     "hide_seconds": 0,
     "hide_days": 0,
     "sort_options": 0,
@@ -866,7 +885,8 @@
     "ignore_xss_filter": 0,
     "translatable": 0,
     "hide_border": 0,
-    "show_dashboard": 0
+    "show_dashboard": 0,
+    "module": "Task Management"
   },
   {
     "doctype": "Custom Field",
@@ -878,7 +898,7 @@
     "permlevel": "0",
     "columns": "0",
     "length": "0",
-    "is_system_generated": 0,
+    "is_system_generated": 1,
     "hide_seconds": 0,
     "hide_days": 0,
     "sort_options": 0,
@@ -908,7 +928,8 @@
     "ignore_xss_filter": 0,
     "translatable": 0,
     "hide_border": 0,
-    "show_dashboard": 0
+    "show_dashboard": 0,
+    "module": "Task Management"
   },
   {
     "doctype": "Custom Field",
@@ -920,7 +941,7 @@
     "permlevel": "0",
     "columns": "0",
     "length": "0",
-    "is_system_generated": 0,
+    "is_system_generated": 1,
     "hide_seconds": 0,
     "hide_days": 0,
     "sort_options": 0,
@@ -950,7 +971,8 @@
     "ignore_xss_filter": 0,
     "translatable": 0,
     "hide_border": 0,
-    "show_dashboard": 0
+    "show_dashboard": 0,
+    "module": "Task Management"
   },
   {
     "doctype": "Custom Field",
@@ -962,7 +984,7 @@
     "permlevel": "0",
     "columns": "0",
     "length": "0",
-    "is_system_generated": 0,
+    "is_system_generated": 1,
     "hide_seconds": 0,
     "hide_days": 0,
     "sort_options": 0,
@@ -992,7 +1014,8 @@
     "ignore_xss_filter": 0,
     "translatable": 0,
     "hide_border": 0,
-    "show_dashboard": 0
+    "show_dashboard": 0,
+    "module": "Task Management"
   },
   {
     "doctype": "Custom Field",
@@ -1004,7 +1027,7 @@
     "permlevel": "0",
     "columns": "0",
     "length": "0",
-    "is_system_generated": 0,
+    "is_system_generated": 1,
     "hide_seconds": 0,
     "hide_days": 0,
     "sort_options": 0,
@@ -1034,7 +1057,8 @@
     "ignore_xss_filter": 0,
     "translatable": 0,
     "hide_border": 0,
-    "show_dashboard": 0
+    "show_dashboard": 0,
+    "module": "Task Management"
   },
   {
     "doctype": "Custom Field",
@@ -1049,7 +1073,7 @@
     "permlevel": "0",
     "columns": "0",
     "length": "0",
-    "is_system_generated": 0,
+    "is_system_generated": 1,
     "hide_seconds": 0,
     "hide_days": 0,
     "sort_options": 0,
@@ -1079,6 +1103,7 @@
     "ignore_xss_filter": 0,
     "translatable": 0,
     "hide_border": 0,
-    "show_dashboard": 0
+    "show_dashboard": 0,
+    "module": "Project Management"
   }
 ]
