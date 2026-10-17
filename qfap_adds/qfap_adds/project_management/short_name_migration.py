@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import frappe
+from frappe import _
 
 
 RENAMES = {
@@ -15,13 +16,13 @@ RENAMES = {
 
 
 def prepare_short_project_doctype_names():
-    """Rename legacy project-cycle DocTypes before schema synchronization.
+    """Rename app-owned DocTypes safely before schema synchronization.
 
-    This function is idempotent:
-    - It renames only when the old DocType exists and the new one does not.
-    - It skips completed renames on later migrate runs.
-    - It stops with a clear error if both names exist, so data is never merged
-      or discarded automatically.
+    Production sites normally run with developer mode disabled. Frappe blocks
+    renaming standard DocTypes in that mode. These DocTypes originated as UI
+    custom DocTypes and are being adopted by the app, so each existing legacy
+    DocType is temporarily marked custom only for the rename operation, then
+    restored immediately as a standard DocType owned by QFap Adds.
     """
     for old_name, new_name in RENAMES.items():
         old_exists = bool(frappe.db.exists("DocType", old_name))
@@ -32,14 +33,45 @@ def prepare_short_project_doctype_names():
 
         if new_exists:
             frappe.throw(
-                "Cannot rename DocType {0} to {1} because both DocTypes exist. "
-                "Resolve the duplicate definitions before running migrate again.".format(
-                    frappe.bold(old_name), frappe.bold(new_name)
-                )
+                _(
+                    "Cannot rename DocType {0} to {1} because both DocTypes "
+                    "already exist. No automatic merge was attempted."
+                ).format(frappe.bold(old_name), frappe.bold(new_name))
             )
 
-        # Frappe 16's frappe.rename_doc wrapper does not accept
-        # ignore_permissions. Migration runs with administrator privileges.
-        frappe.rename_doc("DocType", old_name, new_name, force=True)
+        original = frappe.db.get_value(
+            "DocType", old_name, ["custom", "module"], as_dict=True
+        ) or frappe._dict()
+
+        # Bypass the developer-mode guard only for this controlled rename.
+        frappe.db.set_value(
+            "DocType", old_name, "custom", 1, update_modified=False
+        )
+        frappe.clear_cache(doctype=old_name)
+
+        try:
+            frappe.rename_doc("DocType", old_name, new_name, force=True)
+        except Exception:
+            # Keep metadata consistent if Frappe catches the exception without
+            # rolling back immediately. The migrate transaction will still fail.
+            if frappe.db.exists("DocType", old_name):
+                frappe.db.set_value(
+                    "DocType",
+                    old_name,
+                    {
+                        "custom": int(original.custom or 0),
+                        "module": original.module or "QFap Adds",
+                    },
+                    update_modified=False,
+                )
+            raise
+
+        frappe.db.set_value(
+            "DocType",
+            new_name,
+            {"custom": 0, "module": "QFap Adds"},
+            update_modified=False,
+        )
+        frappe.clear_cache(doctype=new_name)
 
     frappe.clear_cache()
