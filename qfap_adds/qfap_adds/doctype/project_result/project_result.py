@@ -9,9 +9,17 @@ from frappe.utils import flt
 class ProjectResult(Document):
     def autoname(self):
         self._set_sequence_and_code()
+        self.result_code = str(self.result_code or "").strip()
+        if not self.result_code:
+            frappe.throw(_("Result Code could not be generated."))
         self.name = f"{self.project}-{self.result_code}"
+        if frappe.db.exists(self.doctype, self.name):
+            frappe.throw(_("Result ID {0} already exists.").format(frappe.bold(self.name)))
 
     def validate(self):
+        self.result_code = str(self.result_code or "").strip()
+        if not self.result_code:
+            frappe.throw(_("Result Code is required."))
         self._validate_structure()
         self._validate_responsibility()
         self._validate_unique_code()
