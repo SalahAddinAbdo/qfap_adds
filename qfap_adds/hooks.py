@@ -79,6 +79,7 @@ fixtures = [
 ]
 
 before_migrate = [
+    "qfap_adds.qfap_adds.project_management.short_name_migration.prepare_short_project_doctype_names",
     "qfap_adds.qfap_adds.project_management.migration.prepare_standard_project_doctypes",
 ]
 
@@ -95,6 +96,7 @@ after_install = [
     "qfap_adds.qfap_adds.project_management.provisioning.provision_project_management",
     "qfap_adds.qfap_adds.project_management.workflow_provisioning.provision_project_workflows",
     "qfap_adds.qfap_adds.project_management.notifications.provision_project_notifications",
+    "qfap_adds.qfap_adds.project_management.report_migration.cleanup_replaced_project_reports",
 ]
 after_migrate = [
     "qfap_adds.qfap_adds.install.after_migrate",
