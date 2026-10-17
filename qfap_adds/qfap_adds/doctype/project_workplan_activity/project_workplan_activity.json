@@ -1,7 +1,7 @@
 {
  "actions": [],
  "allow_import": 1,
- "autoname": "prompt",
+ "autoname": "",
  "creation": "2026-10-17 00:00:00.000000",
  "doctype": "DocType",
  "engine": "InnoDB",
@@ -146,15 +146,15 @@
    "fieldname": "activity_code",
    "fieldtype": "Data",
    "label": "Activity Code",
-   "reqd": 1,
-   "read_only": 0,
+   "reqd": 0,
+   "read_only": 1,
    "hidden": 0,
    "in_list_view": 1,
    "in_standard_filter": 1,
    "in_global_search": 1,
    "in_preview": 0,
    "unique": 0,
-   "no_copy": 0,
+   "no_copy": 1,
    "set_only_once": 1,
    "fetch_if_empty": 0,
    "non_negative": 0,
@@ -164,7 +164,8 @@
    "search_index": 0,
    "allow_in_quick_entry": 0,
    "print_hide": 0,
-   "report_hide": 0
+   "report_hide": 0,
+   "description": "Generated automatically on first save unless Use Custom Code is enabled."
   },
   {
    "fieldname": "column_break_identity",
@@ -1525,5 +1526,6 @@
  "states": [],
  "track_changes": 1,
  "title_field": "activity_name",
- "search_fields": "activity_code,activity_name,project,project_output,sector"
+ "search_fields": "activity_code,activity_name,project,project_output,sector",
+ "naming_rule": "By script"
 }

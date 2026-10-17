@@ -11,13 +11,22 @@ from qfap_adds.qfap_adds.project_management.services.workplan_sync import sync_a
 class ProjectWorkplanActivity(Document):
     def autoname(self):
         self._set_sequence_and_code()
+        self.activity_code = str(self.activity_code or "").strip()
+        if not self.activity_code:
+            frappe.throw(_("Activity Code could not be generated."))
         self.name = f"{self.project}-{self.activity_code}"
+        if frappe.db.exists(self.doctype, self.name):
+            frappe.throw(_("Activity ID {0} already exists.").format(frappe.bold(self.name)))
 
     def validate(self):
+        self.activity_code = str(self.activity_code or "").strip()
+        if not self.activity_code:
+            frappe.throw(_("Activity Code is required."))
         self._validate_dates()
         self._validate_links()
         self._validate_measurement()
         self._set_responsibility()
+        self._validate_unique_code()
         self._set_lock_and_health()
 
     def on_update(self):
@@ -39,6 +48,15 @@ class ProjectWorkplanActivity(Document):
         else:
             output_code=frappe.db.get_value("Project Result", self.project_output, "result_code") or ""
             self.activity_code=f"{output_code}.{sequence}"
+
+    def _validate_unique_code(self):
+        filters = {
+            "project": self.project,
+            "activity_code": self.activity_code,
+            "name": ["!=", self.name or ""],
+        }
+        if frappe.db.exists(self.doctype, filters):
+            frappe.throw(_("Activity Code already exists in this Project."))
 
     def _validate_dates(self):
         if self.planned_start_date and self.planned_end_date:
