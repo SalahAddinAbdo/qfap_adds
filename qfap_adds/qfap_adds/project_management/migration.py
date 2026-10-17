@@ -24,7 +24,7 @@ def prepare_standard_project_doctypes():
         if frappe.db.exists("DocType", doctype):
             frappe.db.set_value(
                 "DocType", doctype,
-                {"custom": 0, "module": "Project Management"},
+                {"custom": 0, "module": "QFap Adds"},
                 update_modified=False,
             )
 

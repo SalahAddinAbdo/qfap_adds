@@ -8,7 +8,7 @@ from qfap_adds.qfap_adds.project_management.custom_fields import (
     PROJECT_MANAGEMENT_DEFAULTS,
 )
 
-OWNER_MODULE = "Project Management"
+OWNER_MODULE = "QFap Adds"
 MANAGED_PROPERTIES = (
     "label", "fieldtype", "options", "insert_after", "reqd", "read_only",
     "hidden", "depends_on", "mandatory_depends_on", "read_only_depends_on",
