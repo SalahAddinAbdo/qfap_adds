@@ -1,7 +1,6 @@
 // Budget Line - Unified Client Script v2.0
 // Frappe / ERPNext 16
 
-const BUDGET_TOP_LEVEL_CODES = "ABCDEFGHIJKLMNOPQRSTUVWXYZ".split("");
 
 frappe.ui.form.on("Budget Line", {
     setup(frm) {
@@ -124,6 +123,18 @@ function apply_budget_line_controls(frm) {
     }
 }
 
+
+function alphabetic_sequence(number) {
+    let value = cint(number);
+    let code = "";
+    while (value > 0) {
+        value -= 1;
+        code = String.fromCharCode(65 + (value % 26)) + code;
+        value = Math.floor(value / 26);
+    }
+    return code;
+}
+
 function preview_budget_line_code(frm) {
     if (!frm.is_new() || !frm.doc.project || cint(frm.doc.use_custom_code)) return;
 
@@ -142,11 +153,7 @@ function preview_budget_line_code(frm) {
             const parentIsRoot = !parent.parent_budget_line;
             let code = "";
             if (parentIsRoot) {
-                if (nextSequence > BUDGET_TOP_LEVEL_CODES.length) {
-                    frappe.msgprint(__("Automatic top-level coding supports A to Z. Use Donor Code for additional groups."));
-                    return;
-                }
-                code = BUDGET_TOP_LEVEL_CODES[nextSequence - 1];
+                code = alphabetic_sequence(nextSequence);
             } else {
                 code = `${parent.budget_line}.${nextSequence}`;
             }
