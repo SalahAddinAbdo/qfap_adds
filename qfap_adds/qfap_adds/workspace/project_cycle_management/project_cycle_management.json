@@ -79,7 +79,7 @@
    "color": "Blue"
   },
   {
-   "label": "Portfolio Overview",
+   "label": "Project Portfolio Overview",
    "type": "Report",
    "link_to": "Project Portfolio Overview",
    "doc_view": "",
@@ -88,28 +88,28 @@
   {
    "label": "Progress Performance",
    "type": "Report",
-   "link_to": "Project Progress and Performance",
+   "link_to": "Project Progress",
    "doc_view": "",
    "color": "Green"
   },
   {
    "label": "Risk and Issues",
    "type": "Report",
-   "link_to": "Project Risk and Issue Management",
+   "link_to": "Project Risks and Issues",
    "doc_view": "",
    "color": "Green"
   },
   {
    "label": "Closure Readiness",
    "type": "Report",
-   "link_to": "Project Closure Readiness and Assurance",
+   "link_to": "Closure Readiness",
    "doc_view": "",
    "color": "Green"
   },
   {
    "label": "Data Quality",
    "type": "Report",
-   "link_to": "Project Data Quality and Cycle Readiness",
+   "link_to": "Project Data Quality",
    "doc_view": "",
    "color": "Green"
   },
