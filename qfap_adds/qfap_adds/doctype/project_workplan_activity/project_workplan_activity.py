@@ -5,6 +5,7 @@ from frappe import _
 from frappe.model.document import Document
 from frappe.utils import date_diff, flt
 
+from qfap_adds.qfap_adds.project_management.api import validate_project_team_employee
 from qfap_adds.qfap_adds.project_management.services.workplan_sync import sync_activity_task, validate_activity_deletion
 
 
@@ -92,13 +93,11 @@ class ProjectWorkplanActivity(Document):
             frappe.throw(_("Approved Progress must be between 0 and 100."))
 
     def _set_responsibility(self):
-        employee=frappe.db.get_value("Employee",self.responsible_employee,["status","department"],as_dict=True)
-        if not employee or employee.status != "Active": frappe.throw(_("Responsible Employee must be active."))
-        manager=frappe.db.get_value("Project",self.project,"custom_project_manager") or ""
-        active_team=frappe.db.exists("Project Core Team Assignment", {"parent":self.project,"parenttype":"Project","employee":self.responsible_employee,"active":1})
-        if self.responsible_employee != manager and not active_team:
-            frappe.throw(_("Responsible Employee must be the Project Manager or an active Project Core Team member."))
-        self.responsible_department=employee.department or ""
+        self.responsible_department = validate_project_team_employee(
+            self.project,
+            self.responsible_employee,
+            "Responsible Employee",
+        )
 
     def _set_lock_and_health(self):
         self.activity_locked=1 if self.status in ("Approved","Completed","Inactive","Cancelled") else 0
