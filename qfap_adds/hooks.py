@@ -5,6 +5,17 @@ app_description = "Audit-focused extensions for ERPNext"
 app_email = ""
 app_license = "MIT"
 
+app_logo_url = "/assets/qfap_adds/images/qfap_project_cycle.png"
+app_home = "/desk/project-cycle-management"
+
+add_to_apps_screen = [{
+    "name": app_name,
+    "logo": app_logo_url,
+    "title": app_title,
+    "route": app_home,
+    "sequence_id": 5,
+}]
+
 required_apps = ["erpnext"]
 
 app_include_js = [
@@ -26,6 +37,7 @@ doctype_js = {
 }
 
 doc_events = {
+    "Project Risk": {"on_update": "qfap_adds.qfap_adds.project_management.notification_engine.process_project_notification_on_update"},
     "Task": {
         "before_validate": "qfap_adds.qfap_adds.task_management.events.before_validate",
         "on_update": "qfap_adds.qfap_adds.task_management.events.on_update",
@@ -78,38 +90,27 @@ fixtures = [
     ]]]},
 ]
 
-before_migrate = [
-    "qfap_adds.qfap_adds.project_management.short_name_migration.prepare_short_project_doctype_names",
-    "qfap_adds.qfap_adds.project_management.migration.prepare_standard_project_doctypes",
-]
-
-
-# Project-cycle integration with the standard Issue DocType.
-doc_events["Issue"] = {
-    "validate": "qfap_adds.qfap_adds.project_management.issue_integration.validate_issue",
-    "on_update": "qfap_adds.qfap_adds.project_management.issue_integration.update_linked_risk",
-}
-
 after_install = [
     "qfap_adds.qfap_adds.install.after_install",
     "qfap_adds.qfap_adds.task_management.provisioning.provision_task_integration",
     "qfap_adds.qfap_adds.project_management.provisioning.provision_project_management",
     "qfap_adds.qfap_adds.project_management.workflow_provisioning.provision_project_workflows",
-    "qfap_adds.qfap_adds.project_management.notifications.provision_project_notifications",
-    "qfap_adds.qfap_adds.project_management.report_migration.cleanup_replaced_project_reports",
+    "qfap_adds.qfap_adds.project_management.notification_provisioning.provision_project_notifications",
+    "qfap_adds.qfap_adds.project_management.navigation_provisioning.provision_project_navigation",
 ]
 after_migrate = [
     "qfap_adds.qfap_adds.install.after_migrate",
     "qfap_adds.printing.provisioning.provision_universal_print_formats",
     "qfap_adds.qfap_adds.task_management.provisioning.provision_task_integration",
     "qfap_adds.qfap_adds.project_management.provisioning.provision_project_management",
+    "qfap_adds.qfap_adds.project_management.workflow_provisioning.provision_project_workflows",
+    "qfap_adds.qfap_adds.project_management.notification_provisioning.provision_project_notifications",
+    "qfap_adds.qfap_adds.project_management.navigation_provisioning.provision_project_navigation",
 ]
 
 
 scheduler_events = {
-    "daily": [
-        "qfap_adds.qfap_adds.project_management.monitoring.run_daily_project_monitoring"
-    ],
+    "daily": ["qfap_adds.qfap_adds.project_management.notification_engine.run_daily_project_notifications"],
     "cron": {
         "*/15 * * * *": [
             "qfap_adds.qfap_adds.task_management.scheduler.run_scheduled_task_summary"
@@ -120,29 +121,9 @@ scheduler_events = {
 permission_query_conditions = {
     "Task": "qfap_adds.qfap_adds.task_management.permissions.task_query_condition",
     "Task Assignment Request": "qfap_adds.qfap_adds.task_management.permissions.request_query_condition",
-    'Project Result': "qfap_adds.qfap_adds.project_management.permissions.project_result_query",
-    'Project Indicator': "qfap_adds.qfap_adds.project_management.permissions.project_indicator_query",
-    'Indicator Target Plan': "qfap_adds.qfap_adds.project_management.permissions.indicator_target_plan_query",
-    'Project Workplan Activity': "qfap_adds.qfap_adds.project_management.permissions.project_workplan_activity_query",
-    'Project Progress Update': "qfap_adds.qfap_adds.project_management.permissions.project_progress_update_query",
-    'Project Risk': "qfap_adds.qfap_adds.project_management.permissions.project_risk_query",
-    'Project Change Request': "qfap_adds.qfap_adds.project_management.permissions.project_change_request_query",
-    'Project Compliance Deliverable': "qfap_adds.qfap_adds.project_management.permissions.project_compliance_deliverable_query",
-    'Project Beneficiary Plan': "qfap_adds.qfap_adds.project_management.permissions.project_beneficiary_plan_query",
-    'Project Closure': "qfap_adds.qfap_adds.project_management.permissions.project_closure_query",
 }
 
 has_permission = {
     "Task": "qfap_adds.qfap_adds.task_management.permissions.has_task_permission",
     "Task Assignment Request": "qfap_adds.qfap_adds.task_management.permissions.has_request_permission",
-    'Project Result': "qfap_adds.qfap_adds.project_management.permissions.project_result_has",
-    'Project Indicator': "qfap_adds.qfap_adds.project_management.permissions.project_indicator_has",
-    'Indicator Target Plan': "qfap_adds.qfap_adds.project_management.permissions.indicator_target_plan_has",
-    'Project Workplan Activity': "qfap_adds.qfap_adds.project_management.permissions.project_workplan_activity_has",
-    'Project Progress Update': "qfap_adds.qfap_adds.project_management.permissions.project_progress_update_has",
-    'Project Risk': "qfap_adds.qfap_adds.project_management.permissions.project_risk_has",
-    'Project Change Request': "qfap_adds.qfap_adds.project_management.permissions.project_change_request_has",
-    'Project Compliance Deliverable': "qfap_adds.qfap_adds.project_management.permissions.project_compliance_deliverable_has",
-    'Project Beneficiary Plan': "qfap_adds.qfap_adds.project_management.permissions.project_beneficiary_plan_has",
-    'Project Closure': "qfap_adds.qfap_adds.project_management.permissions.project_closure_has",
 }
