@@ -1,0 +1,129 @@
+{
+ "doctype": "Workspace",
+ "name": "Project Cycle Management",
+ "label": "Project Cycle Management",
+ "title": "Project Cycle Management",
+ "module": "QFap Adds",
+ "public": 1,
+ "is_hidden": 0,
+ "content": "[{\"id\": \"header\", \"type\": \"header\", \"data\": {\"text\": \"Project Cycle Management\", \"col\": 12}}, {\"id\": \"shortcuts\", \"type\": \"shortcut\", \"data\": {\"shortcut_name\": \"Projects\", \"col\": 3}}]",
+ "shortcuts": [
+  {
+   "label": "Projects",
+   "type": "DocType",
+   "link_to": "Project",
+   "doc_view": "List",
+   "color": "Blue"
+  },
+  {
+   "label": "Results",
+   "type": "DocType",
+   "link_to": "Project Result",
+   "doc_view": "List",
+   "color": "Blue"
+  },
+  {
+   "label": "Indicators",
+   "type": "DocType",
+   "link_to": "Project Indicator",
+   "doc_view": "List",
+   "color": "Blue"
+  },
+  {
+   "label": "Activities",
+   "type": "DocType",
+   "link_to": "Project Workplan Activity",
+   "doc_view": "List",
+   "color": "Blue"
+  },
+  {
+   "label": "Progress Updates",
+   "type": "DocType",
+   "link_to": "Project Progress Update",
+   "doc_view": "List",
+   "color": "Blue"
+  },
+  {
+   "label": "Risks",
+   "type": "DocType",
+   "link_to": "Project Risk",
+   "doc_view": "List",
+   "color": "Blue"
+  },
+  {
+   "label": "Changes",
+   "type": "DocType",
+   "link_to": "Project Change Request",
+   "doc_view": "List",
+   "color": "Blue"
+  },
+  {
+   "label": "Deliverables",
+   "type": "DocType",
+   "link_to": "Project Compliance Deliverable",
+   "doc_view": "List",
+   "color": "Blue"
+  },
+  {
+   "label": "Beneficiaries",
+   "type": "DocType",
+   "link_to": "Project Beneficiary Plan",
+   "doc_view": "List",
+   "color": "Blue"
+  },
+  {
+   "label": "Closures",
+   "type": "DocType",
+   "link_to": "Project Closure",
+   "doc_view": "List",
+   "color": "Blue"
+  },
+  {
+   "label": "Portfolio Overview",
+   "type": "Report",
+   "link_to": "Project Portfolio Overview",
+   "doc_view": "",
+   "color": "Green"
+  },
+  {
+   "label": "Progress Performance",
+   "type": "Report",
+   "link_to": "Project Progress and Performance",
+   "doc_view": "",
+   "color": "Green"
+  },
+  {
+   "label": "Risk and Issues",
+   "type": "Report",
+   "link_to": "Project Risk and Issue Management",
+   "doc_view": "",
+   "color": "Green"
+  },
+  {
+   "label": "Closure Readiness",
+   "type": "Report",
+   "link_to": "Project Closure Readiness and Assurance",
+   "doc_view": "",
+   "color": "Green"
+  },
+  {
+   "label": "Data Quality",
+   "type": "Report",
+   "link_to": "Project Data Quality and Cycle Readiness",
+   "doc_view": "",
+   "color": "Green"
+  },
+  {
+   "label": "Projects Settings",
+   "type": "DocType",
+   "link_to": "Projects Settings",
+   "doc_view": "Form",
+   "color": "Grey"
+  }
+ ],
+ "links": [],
+ "charts": [],
+ "quick_lists": [],
+ "number_cards": [],
+ "roles": []
+}
