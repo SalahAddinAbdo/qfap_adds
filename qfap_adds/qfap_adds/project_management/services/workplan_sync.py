@@ -52,10 +52,69 @@ def sync_activity_task(activity):
 
 
 def validate_activity_deletion(activity):
-    task_name = activity.get("linked_workplan_task") or frappe.db.get_value(TASK_DOCTYPE, {"custom_workplan_activity": activity.name}, "name")
-    if not task_name: return
+    """Delete an unused linked Workplan Task with its Activity.
+
+    Direct deletion of a linked Task remains blocked by Frappe. Deleting the
+    owning Activity is the controlled path: execution data is checked first,
+    both links are cleared inside the same database transaction, and then the
+    empty Task is deleted. Any failure rolls the transaction back.
+    """
+    task_name = activity.get("linked_workplan_task") or frappe.db.get_value(
+        TASK_DOCTYPE,
+        {"custom_workplan_activity": activity.name},
+        "name",
+    )
+    if not task_name or not frappe.db.exists(TASK_DOCTYPE, task_name):
+        return
+
     child_count = frappe.db.count(TASK_DOCTYPE, {"parent_task": task_name})
-    actual_time = frappe.db.get_value(TASK_DOCTYPE, task_name, "actual_time") or 0
-    if child_count or actual_time:
-        frappe.throw(_("Linked Workplan Task {0} contains execution data. Cancel or archive the activity instead of deleting it.").format(frappe.bold(task_name)))
+    task_values = frappe.db.get_value(
+        TASK_DOCTYPE,
+        task_name,
+        ["actual_time", "total_expense_claim"],
+        as_dict=True,
+    ) or {}
+
+    if child_count:
+        frappe.throw(
+            _("Linked Workplan Task {0} has child Tasks. Remove or reassign them before deleting the Activity.").format(
+                frappe.bold(task_name)
+            )
+        )
+    if float(task_values.get("actual_time") or 0) > 0:
+        frappe.throw(
+            _("Linked Workplan Task {0} has actual working hours and cannot be deleted with the Activity.").format(
+                frappe.bold(task_name)
+            )
+        )
+    if float(task_values.get("total_expense_claim") or 0) > 0:
+        frappe.throw(
+            _("Linked Workplan Task {0} has Expense Claim activity and cannot be deleted with the Activity.").format(
+                frappe.bold(task_name)
+            )
+        )
+
+    # Break the two-way relationship before deleting the Task. This avoids the
+    # LinkExistsError while keeping direct Task deletion protected.
+    if activity.meta.has_field("linked_workplan_task"):
+        activity.linked_workplan_task = None
+        frappe.db.set_value(
+            ACTIVITY_DOCTYPE,
+            activity.name,
+            "linked_workplan_task",
+            None,
+            update_modified=False,
+        )
+
+    task_meta = frappe.get_meta(TASK_DOCTYPE)
+    if task_meta.has_field("custom_workplan_activity"):
+        frappe.db.set_value(
+            TASK_DOCTYPE,
+            task_name,
+            "custom_workplan_activity",
+            None,
+            update_modified=False,
+        )
+
     frappe.delete_doc(TASK_DOCTYPE, task_name, ignore_permissions=True)
+
