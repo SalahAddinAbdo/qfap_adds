@@ -1,0 +1,17 @@
+{
+ "doctype": "Report",
+ "name": "Beneficiary Reach",
+ "report_name": "Beneficiary Reach",
+ "ref_doctype": "Project Beneficiary Plan",
+ "report_type": "Script Report",
+ "is_standard": "Yes",
+ "module": "QFap Adds",
+ "disabled": 0,
+ "prepared_report": 0,
+ "add_total_row": 0,
+ "roles": [
+  {
+   "role": "System Manager"
+  }
+ ]
+}

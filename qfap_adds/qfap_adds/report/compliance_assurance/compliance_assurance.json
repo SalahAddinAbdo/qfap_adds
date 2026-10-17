@@ -1,0 +1,17 @@
+{
+ "doctype": "Report",
+ "name": "Compliance Assurance",
+ "report_name": "Compliance Assurance",
+ "ref_doctype": "Project Compliance Deliverable",
+ "report_type": "Script Report",
+ "is_standard": "Yes",
+ "module": "QFap Adds",
+ "disabled": 0,
+ "prepared_report": 0,
+ "add_total_row": 0,
+ "roles": [
+  {
+   "role": "System Manager"
+  }
+ ]
+}
