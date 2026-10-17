@@ -5,7 +5,10 @@ frappe.ui.form.on("Project Workplan Activity", {
         ["project_output","responsible_employee","responsible_department","implementation_partner","predecessor_activity","primary_budget_line"].forEach(field => frm.set_value(field, ""));
         set_activity_queries(frm);
     },
-    project_output(frm) { set_activity_queries(frm); },
+    async project_output(frm) {
+        await fetch_activity_output_sector(frm);
+        set_activity_queries(frm);
+    },
     use_custom_code(frm) { toggle_activity_code(frm); },
     implementation_mode(frm) { if (frm.doc.implementation_mode === "Direct Implementation") frm.set_value("implementation_partner", ""); },
     progress_measurement_method(frm) {
@@ -13,6 +16,36 @@ frappe.ui.form.on("Project Workplan Activity", {
         if (frm.doc.progress_measurement_method === "Milestone") { frm.set_value("unit_of_measure", "Milestone"); frm.set_value("planned_quantity", 1); }
     }
 });
+
+
+async function fetch_activity_output_sector(frm) {
+    if (!frm.doc.project_output) {
+        await frm.set_value("sector", "");
+        return;
+    }
+
+    const response = await frappe.db.get_value(
+        "Project Result",
+        frm.doc.project_output,
+        ["project", "result_level", "sector", "status"]
+    );
+    const output = response.message || {};
+
+    if (output.project && frm.doc.project && output.project !== frm.doc.project) {
+        await frm.set_value("project_output", "");
+        frappe.throw(__("Project Output must belong to the selected Project."));
+    }
+    if (output.result_level && output.result_level !== "Output") {
+        await frm.set_value("project_output", "");
+        frappe.throw(__("The selected Project Result must be an Output."));
+    }
+    if (!output.sector) {
+        await frm.set_value("sector", "");
+        frappe.throw(__("The selected Project Output does not have a Sector."));
+    }
+
+    await frm.set_value("sector", output.sector);
+}
 
 function toggle_activity_code(frm) {
     frm.set_df_property("activity_code", "read_only", !cint(frm.doc.use_custom_code));
