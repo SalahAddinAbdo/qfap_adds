@@ -2,8 +2,8 @@
 // Loaded by qfap_form_bootstrap.js only for forms that contain relevant fields.
 window.qfap_initialize_transaction_controller = async function (frm) {
     frm = frm || window.cur_frm;
-    if (!frm || frm.__qfap_dimensions_v118_loaded) return;
-    frm.__qfap_dimensions_v118_loaded = true;
+    if (!frm || frm.doctype === "Budget Line" || frm.__qfap_dimensions_v119_loaded) return;
+    frm.__qfap_dimensions_v119_loaded = true;
 
     const PROJECT_FIELDS = ["project", "custom_project"];
     const BUDGET_FIELDS = ["budget_line", "custom_budget_line"];
@@ -14,12 +14,17 @@ window.qfap_initialize_transaction_controller = async function (frm) {
         (meta?.fields || []).find((field) => field.fieldname === fieldname);
     const first_field = (meta, candidates) =>
         candidates.find((fieldname) => Boolean(docfield(meta, fieldname))) || "";
+    const first_budget_field = (meta) =>
+        BUDGET_FIELDS.find((fieldname) => {
+            const field = docfield(meta, fieldname);
+            return field?.fieldtype === "Link" && field.options === "Budget Line";
+        }) || "";
     const table_fields = () =>
         (frm.meta?.fields || []).filter(
             (field) => field.fieldtype === "Table" && field.options
         );
     const parent_project_field = () => first_field(frm.meta, PROJECT_FIELDS);
-    const parent_budget_field = () => first_field(frm.meta, BUDGET_FIELDS);
+    const parent_budget_field = () => first_budget_field(frm.meta);
     const parent_project = () => {
         const fieldname = parent_project_field();
         return fieldname ? frm.doc[fieldname] || "" : "";
@@ -44,7 +49,7 @@ window.qfap_initialize_transaction_controller = async function (frm) {
     });
 
     BUDGET_FIELDS.forEach((fieldname) => {
-        if (!docfield(frm.meta, fieldname)) return;
+        if (first_budget_field(frm.meta) !== fieldname) return;
         handlers[fieldname] = async () => {
             await on_parent_budget_change();
             configure_budget_queries();
@@ -69,7 +74,7 @@ window.qfap_initialize_transaction_controller = async function (frm) {
 
         const linked_doctypes = new Set();
         const collect_budget_doctype = (meta) => {
-            const fieldname = first_field(meta, BUDGET_FIELDS);
+            const fieldname = first_budget_field(meta);
             const doctype = fieldname ? docfield(meta, fieldname)?.options : "";
             if (doctype) linked_doctypes.add(doctype);
         };
@@ -149,7 +154,7 @@ window.qfap_initialize_transaction_controller = async function (frm) {
                     if (!row || row.__qfap_project_event_running) return;
                     row.__qfap_project_event_running = true;
                     try {
-                        const budget_field = first_field(child_meta, BUDGET_FIELDS);
+                        const budget_field = first_budget_field(child_meta);
                         // A changed or removed project invalidates the previous budget choice.
                         if (budget_field && row[budget_field]) {
                             await frappe.model.set_value(cdt, cdn, budget_field, "");
@@ -177,7 +182,7 @@ window.qfap_initialize_transaction_controller = async function (frm) {
         for (const table of table_fields()) {
             const child_meta = frappe.get_meta(table.options);
             const child_project = first_field(child_meta, PROJECT_FIELDS);
-            const child_budget = first_field(child_meta, BUDGET_FIELDS);
+            const child_budget = first_budget_field(child_meta);
 
             for (const row of frm.doc[table.fieldname] || []) {
                 // Header changes deliberately overwrite user row overrides. Users may
@@ -221,7 +226,7 @@ window.qfap_initialize_transaction_controller = async function (frm) {
         for (const table of table_fields()) {
             const child_meta = frappe.get_meta(table.options);
             const child_project = first_field(child_meta, PROJECT_FIELDS);
-            const child_budget = first_field(child_meta, BUDGET_FIELDS);
+            const child_budget = first_budget_field(child_meta);
             if (!child_budget) continue;
 
             for (const row of frm.doc[table.fieldname] || []) {
@@ -266,7 +271,7 @@ window.qfap_initialize_transaction_controller = async function (frm) {
         if (!row) return;
         const child_meta = frappe.get_meta(row.doctype);
         const child_project = first_field(child_meta, PROJECT_FIELDS);
-        const child_budget = first_field(child_meta, BUDGET_FIELDS);
+        const child_budget = first_budget_field(child_meta);
         const project = parent_project();
         const budget = parent_budget();
 
@@ -295,7 +300,7 @@ window.qfap_initialize_transaction_controller = async function (frm) {
         for (const table of table_fields()) {
             const child_meta = frappe.get_meta(table.options);
             const child_project = first_field(child_meta, PROJECT_FIELDS);
-            const child_budget = first_field(child_meta, BUDGET_FIELDS);
+            const child_budget = first_budget_field(child_meta);
             const project = parent_project();
             const budget = parent_budget();
 
@@ -353,7 +358,7 @@ window.qfap_initialize_transaction_controller = async function (frm) {
         table_fields().forEach((table) => {
             const child_meta = frappe.get_meta(table.options);
             const child_project = first_field(child_meta, PROJECT_FIELDS);
-            const child_budget = first_field(child_meta, BUDGET_FIELDS);
+            const child_budget = first_budget_field(child_meta);
             const grid_field = child_budget
                 ? frm.fields_dict[table.fieldname]?.grid?.get_field(child_budget)
                 : null;
@@ -392,7 +397,7 @@ window.qfap_initialize_transaction_controller = async function (frm) {
         for (const table of table_fields()) {
             const child_meta = frappe.get_meta(table.options);
             const child_project = first_field(child_meta, PROJECT_FIELDS);
-            const child_budget = first_field(child_meta, BUDGET_FIELDS);
+            const child_budget = first_budget_field(child_meta);
             if (!child_budget) continue;
 
             for (const row of frm.doc[table.fieldname] || []) {
