@@ -20,7 +20,7 @@
     {
       "child": 0,
       "collapsible": 1,
-      "icon": "project",
+      "icon": "folder-normal",
       "indent": 0,
       "keep_closed": 0,
       "show_arrow": 0,
@@ -44,7 +44,7 @@
     {
       "child": 0,
       "collapsible": 1,
-      "icon": "data",
+      "icon": "folder-normal",
       "indent": 0,
       "keep_closed": 0,
       "show_arrow": 0,
@@ -68,7 +68,7 @@
     {
       "child": 0,
       "collapsible": 1,
-      "icon": "project",
+      "icon": "folder-normal",
       "indent": 0,
       "keep_closed": 0,
       "show_arrow": 0,
@@ -80,7 +80,7 @@
     {
       "child": 0,
       "collapsible": 1,
-      "icon": "task",
+      "icon": "folder-normal",
       "indent": 0,
       "keep_closed": 0,
       "show_arrow": 0,
@@ -104,7 +104,7 @@
     {
       "child": 0,
       "collapsible": 1,
-      "icon": "warning",
+      "icon": "folder-normal",
       "indent": 0,
       "keep_closed": 0,
       "show_arrow": 0,
@@ -128,7 +128,7 @@
     {
       "child": 0,
       "collapsible": 1,
-      "icon": "milestone",
+      "icon": "folder-normal",
       "indent": 0,
       "keep_closed": 0,
       "show_arrow": 0,
@@ -166,7 +166,7 @@
     {
       "child": 0,
       "collapsible": 1,
-      "icon": "warning",
+      "icon": "chart",
       "indent": 0,
       "keep_closed": 0,
       "show_arrow": 0,
