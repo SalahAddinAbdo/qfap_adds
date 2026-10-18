@@ -41,7 +41,7 @@ doctype_js = {
 doc_events = {
     "Print Settings": {
         "validate": "qfap_adds.qfap_adds.project_management.print_settings_integration.validate_print_settings",
-        "on_update": "qfap_adds.qfap_adds.project_management.print_settings_integration.sync_print_settings",
+        
     },
     "Project Risk": {
         "on_update": (
@@ -120,6 +120,7 @@ after_migrate = [
     "qfap_adds.qfap_adds.project_management.print_settings_integration.provision_print_settings",
     "qfap_adds.qfap_adds.install.after_migrate",
     "qfap_adds.printing.provisioning.provision_universal_print_formats",
+    "qfap_adds.qfap_adds.project_management.print_settings_cleanup.remove_legacy_print_settings",
     "qfap_adds.qfap_adds.task_management.provisioning.provision_task_integration",
     "qfap_adds.qfap_adds.project_management.provisioning.provision_project_management",
     "qfap_adds.qfap_adds.project_management.workflow_provisioning.provision_project_workflows",
