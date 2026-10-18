@@ -1,17 +1,17 @@
 app_name = "qfap_adds"
-app_title = "QFap Adds"
-app_publisher = "QFap"
+app_title = "Q Org"
+app_publisher = "Q Org"
 app_description = "Audit-focused extensions for ERPNext"
 app_email = ""
 app_license = "MIT"
 
 app_logo_url = "/assets/qfap_adds/images/qfap_project_cycle.png"
-app_home = "/desk/qfap-management-hub"
+app_home = "/desk/q-management-hub"
 
 add_to_apps_screen = [{
     "name": app_name,
     "logo": app_logo_url,
-    "title": "QFap Adds",
+    "title": "Q Org",
     "route": app_home,
     "sequence_id": 5,
 }]
@@ -35,9 +35,14 @@ doctype_js = {
     "Notification": "public/js/notification_configuration.js",
     "Workflow": "public/js/workflow_engine.js",
     "Projects Settings": "public/js/projects_settings.js",
+    "Print Settings": "public/js/print_settings.js",
 }
 
 doc_events = {
+    "Print Settings": {
+        "validate": "qfap_adds.qfap_adds.project_management.print_settings_integration.validate_print_settings",
+        "on_update": "qfap_adds.qfap_adds.project_management.print_settings_integration.sync_print_settings",
+    },
     "Project Risk": {
         "on_update": (
             "qfap_adds.qfap_adds.project_management.notification_engine."
@@ -97,26 +102,29 @@ fixtures = [
 ]
 
 before_migrate = [
-    "qfap_adds.qfap_adds.project_management.workspace_migration.prepare_qfap_management_hub",
+    "qfap_adds.qfap_adds.project_management.identity_migration.prepare_q_org_identity",
+    "qfap_adds.qfap_adds.project_management.workspace_migration.prepare_q_management_hub",
 ]
 
 after_install = [
+    "qfap_adds.qfap_adds.project_management.print_settings_integration.provision_print_settings",
     "qfap_adds.qfap_adds.install.after_install",
     "qfap_adds.qfap_adds.task_management.provisioning.provision_task_integration",
     "qfap_adds.qfap_adds.project_management.provisioning.provision_project_management",
     "qfap_adds.qfap_adds.project_management.workflow_provisioning.provision_project_workflows",
     "qfap_adds.qfap_adds.project_management.notification_provisioning.provision_project_notifications",
-    "qfap_adds.qfap_adds.project_management.navigation_provisioning.provision_project_navigation",
+    "qfap_adds.qfap_adds.project_management.navigation_provisioning.provision_q_org_navigation",
 ]
 
 after_migrate = [
+    "qfap_adds.qfap_adds.project_management.print_settings_integration.provision_print_settings",
     "qfap_adds.qfap_adds.install.after_migrate",
     "qfap_adds.printing.provisioning.provision_universal_print_formats",
     "qfap_adds.qfap_adds.task_management.provisioning.provision_task_integration",
     "qfap_adds.qfap_adds.project_management.provisioning.provision_project_management",
     "qfap_adds.qfap_adds.project_management.workflow_provisioning.provision_project_workflows",
     "qfap_adds.qfap_adds.project_management.notification_provisioning.provision_project_notifications",
-    "qfap_adds.qfap_adds.project_management.navigation_provisioning.provision_project_navigation",
+    "qfap_adds.qfap_adds.project_management.navigation_provisioning.provision_q_org_navigation",
 ]
 
 scheduler_events = {
