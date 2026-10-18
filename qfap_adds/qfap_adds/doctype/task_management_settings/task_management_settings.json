@@ -11,6 +11,10 @@
     "global_reopen_roles",
     "layout_v331_section_break_1",
     "global_reopen_role_rows",
+    "reopen_policy_section",
+    "allow_assigned_user_reopen_own_tasks",
+    "reopen_policy_column",
+    "allow_supervisor_reopen_supervised_tasks",
     "scope_section",
     "scope_mode",
     "hierarchy_max_depth",
@@ -969,6 +973,28 @@
       "fieldname": "layout_v331_section_break_32",
       "fieldtype": "Section Break",
       "label": ""
+    },
+    {
+      "fieldname": "reopen_policy_section",
+      "fieldtype": "Section Break",
+      "label": "Task Reopen Policy",
+      "description": "Controls who can reopen a completed task. Access is always checked against the specific task."
+    },
+    {
+      "default": "1",
+      "fieldname": "allow_assigned_user_reopen_own_tasks",
+      "fieldtype": "Check",
+      "label": "Allow Assigned User to Reopen Own Tasks"
+    },
+    {
+      "fieldname": "reopen_policy_column",
+      "fieldtype": "Column Break"
+    },
+    {
+      "default": "1",
+      "fieldname": "allow_supervisor_reopen_supervised_tasks",
+      "fieldtype": "Check",
+      "label": "Allow Supervisor to Reopen Supervised Tasks"
     }
   ],
   "permissions": [
