@@ -244,10 +244,27 @@ def _save_icon():
         }).insert(ignore_permissions=True)
 
 
-def _resolve_workspace(candidates):
+def _resolve_workspace(candidates, keywords=()):
     for candidate in candidates:
         if _exists("Workspace", candidate):
             return candidate
+
+    # Fallback for installations where the standard workspace has a different
+    # technical name but a recognizable title/label.
+    rows = frappe.get_all(
+        "Workspace",
+        fields=["name", "title", "label"],
+        limit_page_length=0,
+    )
+    lowered_keywords = [str(value).lower() for value in keywords if value]
+    for row in rows:
+        haystack = " ".join([
+            str(row.get("name") or ""),
+            str(row.get("title") or ""),
+            str(row.get("label") or ""),
+        ]).lower()
+        if any(keyword in haystack for keyword in lowered_keywords):
+            return row.name
     return ""
 
 
@@ -306,10 +323,11 @@ def _integrate_standard_workspace(workspace_name, cards):
                 row["is_query_report"] = _report_is_query(target)
             links.append(row)
 
-        content.append({
-            "id": f"qorg_standard_spacer_{card_index}",
-            "type": "spacer", "data": {"col": 12},
-        })
+        if card_index == 0:
+            content.append({
+                "id": "qorg_standard_cards_spacer",
+                "type": "spacer", "data": {"col": 12},
+            })
         content.append({
             "id": f"qorg_standard_card_{card_index}",
             "type": "card", "data": {"card_name": card_label, "col": 4},
@@ -322,7 +340,10 @@ def _integrate_standard_workspace(workspace_name, cards):
 
 def _integrate_standard_workspaces():
     for definition in STANDARD_WORKSPACE_INTEGRATIONS:
-        workspace_name = _resolve_workspace(definition["workspace_candidates"])
+        workspace_name = _resolve_workspace(
+            definition["workspace_candidates"],
+            definition.get("workspace_keywords") or (),
+        )
         if workspace_name:
             _integrate_standard_workspace(workspace_name, definition["cards"])
 
