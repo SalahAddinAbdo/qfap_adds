@@ -1,9 +1,9 @@
 from __future__ import annotations
 
-"""Explicit Q Org classification for standard ERPNext workspaces.
+"""Controlled Q Org classification for standard ERPNext workspaces.
 
-No item is classified by guessing from its name. Each target workspace, card,
-and link is declared here. Missing workspaces, DocTypes, or Reports are skipped.
+Only explicitly listed, app-owned DocTypes and Reports are integrated. No custom
+reports created from the UI are inferred or included automatically.
 """
 
 STANDARD_WORKSPACE_INTEGRATIONS = (
@@ -12,27 +12,22 @@ STANDARD_WORKSPACE_INTEGRATIONS = (
         "workspace_keywords": ("project",),
         "cards": (
             {
-                "label": "Q Org - Planning & Results",
+                "label": "Q Org - Planning Forms",
                 "items": (
                     ("DocType", "Project Result", "Project Results"),
                     ("DocType", "Project Indicator", "Project Indicators"),
                     ("DocType", "Indicator Target Plan", "Indicator Target Plans"),
                     ("DocType", "Project Workplan Activity", "Workplan Activities"),
+                    ("DocType", "Project Beneficiary Plan", "Beneficiary Plans"),
                 ),
             },
             {
-                "label": "Q Org - Monitoring & Control",
+                "label": "Q Org - Control Forms",
                 "items": (
                     ("DocType", "Project Progress Update", "Progress Updates"),
                     ("DocType", "Project Risk", "Project Risks"),
                     ("DocType", "Project Change Request", "Change Requests"),
                     ("DocType", "Project Compliance Deliverable", "Compliance Deliverables"),
-                ),
-            },
-            {
-                "label": "Q Org - Delivery & Closure",
-                "items": (
-                    ("DocType", "Project Beneficiary Plan", "Beneficiary Plans"),
                     ("DocType", "Project Closure", "Project Closures"),
                     ("DocType", "Task Assignment Request", "Task Assignment Requests"),
                 ),
@@ -44,6 +39,8 @@ STANDARD_WORKSPACE_INTEGRATIONS = (
                     ("Report", "Project Progress", "Project Progress"),
                     ("Report", "Indicator Performance", "Indicator Performance"),
                     ("Report", "Beneficiary Reach", "Beneficiary Reach"),
+                    ("Report", "Project Data Quality", "Project Data Quality"),
+                    ("Report", "Employees Task Tracker", "Employee Task Tracker"),
                 ),
             },
             {
@@ -53,50 +50,37 @@ STANDARD_WORKSPACE_INTEGRATIONS = (
                     ("Report", "Compliance Assurance", "Compliance Assurance"),
                     ("Report", "Change Control", "Change Control"),
                     ("Report", "Closure Readiness", "Closure Readiness"),
-                    ("Report", "Project Data Quality", "Project Data Quality"),
-                ),
-            },
-            {
-                "label": "Q Org - Finance & Tasks",
-                "items": (
                     ("Report", "Project Budget", "Project Budget"),
                     ("Report", "Budget Versus Actual", "Budget Versus Actual"),
-                    ("Report", "Employees Task Tracker", "Employee Task Tracker"),
                 ),
             },
         ),
     },
     {
-        "workspace_candidates": ("Accounts", "Accounting", "Financial Accounting"),
-        "workspace_keywords": ("account", "financial"),
+        "workspace_candidates": (
+            "Financial Reports", "Accounts", "Accounting", "Financial Accounting",
+        ),
+        "workspace_keywords": ("financial report", "accounting", "accounts"),
         "cards": (
             {
-                "label": "Q Org - Project Finance",
+                "label": "Q Org - Finance Forms",
                 "items": (
                     ("DocType", "Budget Line", "Budget Lines"),
                 ),
             },
             {
-                "label": "Q Org - Financial Reports",
+                "label": "Q Org - Finance Reports",
                 "items": (
+                    ("Report", "Enhanced General Ledger", "Enhanced General Ledger"),
                     ("Report", "Project Budget", "Project Budget"),
                     ("Report", "Budget Versus Actual", "Budget Versus Actual"),
-                ),
-            },
-            {
-                "label": "Q Org - Enhanced Ledger Reports",
-                "items": (
-                    ("Report", "Projects Ledger Summary", "Projects Ledger Summary"),
-                    ("Report", "Projects Ledger Summary by Governorate", "Ledger by Governorate"),
-                    ("Report", "Projects Ledger Summary by Partner", "Ledger by Partner"),
-                    ("Report", "Projects Ledger Summary by Sector", "Ledger by Sector"),
                 ),
             },
         ),
     },
     {
         "workspace_candidates": ("Human Resources", "HR", "HRMS"),
-        "workspace_keywords": ("human resource", "hr"),
+        "workspace_keywords": ("human resource", "hrms"),
         "cards": (
             {
                 "label": "Q Org - Task Forms",
@@ -114,7 +98,7 @@ STANDARD_WORKSPACE_INTEGRATIONS = (
     },
     {
         "workspace_candidates": ("Build", "Settings"),
-        "workspace_keywords": ("build", "setting"),
+        "workspace_keywords": ("build", "settings"),
         "cards": (
             {
                 "label": "Q Org - Workflow",
