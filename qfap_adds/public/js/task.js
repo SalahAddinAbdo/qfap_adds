@@ -495,22 +495,26 @@ function task_set_completion_values(frm) {
 
 function task_add_reopen_button(frm) {
     if (frm.is_new() || cint(frm.doc.custom_task_locked || 0) !== 1) return;
-    frm.add_custom_button(
-        __("Reopen Task"),
-        () => {
-            frappe.confirm(__("Reopen this completed task?"), () => {
-                frappe.call({
-                    method: "qfap_adds.qfap_adds.task_management.api.reopen_task",
-                    args: {task: frm.doc.name},
-                    freeze: true,
-                    callback: (response) => {
-                        if (!response.exc) frm.reload_doc();
-                    }
-                });
-            });
-        },
-        __("Actions")
-    );
+    frappe.call({
+        method: "qfap_adds.qfap_adds.task_management.api.get_reopen_access",
+        args: {task: frm.doc.name},
+        callback: (response) => {
+            const access = (response && response.message) || {};
+            if (!cint(access.can_reopen || 0)) return;
+            frm.add_custom_button(
+                __("Reopen Task"),
+                () => frappe.confirm(__("Reopen this completed task?"), () => {
+                    frappe.call({
+                        method: "qfap_adds.qfap_adds.task_management.api.reopen_task",
+                        args: {task: frm.doc.name},
+                        freeze: true,
+                        callback: (r) => { if (!r.exc) frm.reload_doc(); }
+                    });
+                }),
+                __("Actions")
+            );
+        }
+    });
 }
 
 function task_add_parent_unlock_button(frm) {
