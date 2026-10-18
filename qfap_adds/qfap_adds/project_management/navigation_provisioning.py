@@ -103,16 +103,72 @@ def _save_icon():
         doc.save(ignore_permissions=True)
     else: frappe.get_doc({"doctype":"Desktop Icon","name":DESKTOP_ICON,**{k:v for k,v in values.items() if frappe.get_meta("Desktop Icon").has_field(k)}}).insert(ignore_permissions=True)
 def _integrate_standard_workspace(name, links):
-    if not _exists("Workspace",name): return
-    doc=frappe.get_doc("Workspace",name)
-    current=[r for r in (doc.links or []) if not (r.type=="Card Break" and r.label=="Q Org") and not getattr(r,"qorg_owned",0)]
-    current.append({"label":"Q Org","type":"Card Break","link_count":len(links)})
-    for label,typ,to in links:
-        if _exists(typ,to): current.append({"label":label,"type":"Link","link_type":typ,"link_to":to,"onboard":0,"is_query_report":_report_is_query(to) if typ=="Report" else 0})
-    doc.set("links",current); doc.flags.ignore_validate=True; doc.save(ignore_permissions=True)
+    """Add a Q Org card to a standard Workspace using supported link types only.
+
+    Workspace Link rows in Frappe 16 accept DocType, Page, or Report. Direct
+    Workspace-to-Workspace links belong in Workspace Sidebar, not Workspace Link.
+    """
+    if not _exists("Workspace", name):
+        return
+
+    supported_types = {"DocType", "Page", "Report"}
+    valid_links = []
+    for label, link_type, link_to in links:
+        if link_type not in supported_types or not _exists(link_type, link_to):
+            continue
+        valid_links.append((label, link_type, link_to))
+
+    doc = frappe.get_doc("Workspace", name)
+    managed_labels = {label for label, _, _ in valid_links}
+    current = []
+    skip_qorg_block = False
+
+    for row in doc.links or []:
+        if row.type == "Card Break":
+            skip_qorg_block = row.label == "Q Org"
+            if skip_qorg_block:
+                continue
+        elif skip_qorg_block and row.type == "Link":
+            continue
+        else:
+            skip_qorg_block = False
+
+        if row.type == "Link" and row.label in managed_labels:
+            continue
+        current.append(row.as_dict())
+
+    if valid_links:
+        current.append({
+            "label": "Q Org",
+            "type": "Card Break",
+            "link_count": len(valid_links),
+        })
+        for label, link_type, link_to in valid_links:
+            row = {
+                "label": label,
+                "type": "Link",
+                "link_type": link_type,
+                "link_to": link_to,
+                "onboard": 0,
+            }
+            if link_type == "Report":
+                row["is_query_report"] = _report_is_query(link_to)
+            current.append(row)
+
+    doc.set("links", current)
+    doc.save(ignore_permissions=True)
+
+
 def provision_q_org_navigation():
     for n,c in WORKSPACES.items(): _save_workspace(n,c["forms"],c["reports"])
     _save_sidebar(); _save_icon()
-    _integrate_standard_workspace("Projects",[("Q Management Hub","Workspace","Q Management Hub"),("Project Results","DocType","Project Result"),("Project Progress","Report","Project Progress"),("Budget Versus Actual","Report","Budget Versus Actual")])
-    _integrate_standard_workspace("Accounts",[("Q Management Hub","Workspace","Q Management Hub"),("Budget Lines","DocType","Budget Line"),("Budget Versus Actual","Report","Budget Versus Actual")])
+    _integrate_standard_workspace("Projects", [
+        ("Project Results", "DocType", "Project Result"),
+        ("Project Progress", "Report", "Project Progress"),
+        ("Budget Versus Actual", "Report", "Budget Versus Actual"),
+    ])
+    _integrate_standard_workspace("Accounts", [
+        ("Budget Lines", "DocType", "Budget Line"),
+        ("Budget Versus Actual", "Report", "Budget Versus Actual"),
+    ])
     frappe.clear_cache()
