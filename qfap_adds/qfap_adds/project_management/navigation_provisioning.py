@@ -181,8 +181,14 @@ def _content(title, shortcuts, card_labels):
 
 
 def _save_workspace(name, groups):
+    # Frappe 16 Workspace Shortcut.type and Workspace Link.link_type do not
+    # accept "Workspace". Other application workspaces are exposed through
+    # the Q Org Workspace Sidebar instead of being embedded as cards/shortcuts.
+    supported_link_types = {"DocType", "Report", "Page", "Dashboard", "URL"}
     normalized = []
     for label, link_type, items in groups:
+        if link_type not in supported_link_types:
+            continue
         valid = _valid_items(link_type, items)
         if valid:
             normalized.append((label, link_type, valid))
