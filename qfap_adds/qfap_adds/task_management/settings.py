@@ -6,6 +6,8 @@ DEFAULTS = {
     "enabled": 1,
     "administrative_role": "Task Management Administrator",
     "global_reopen_roles": "System Manager\nTask Management Administrator",
+    "allow_assigned_user_reopen_own_tasks": 1,
+    "allow_supervisor_reopen_supervised_tasks": 1,
     "scope_mode": "Full Reporting Tree",
     "hierarchy_max_depth": 100,
     "same_company_only": 1,

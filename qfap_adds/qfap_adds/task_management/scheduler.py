@@ -186,13 +186,17 @@ def send_employee_task_summary(force=False, reference_date=None, only_employee=N
     additional=[] if test_recipient else get_additional_recipient_emails(settings); sent=0; skipped=0
     rows=_employee_rows()
     if only_employee: rows=[r for r in rows if r.employee==only_employee]
+    skipped_no_tasks=0
     for row in rows:
         rendered=render_employee_summary(row.employee,reference_date,settings)
+        if int(rendered.get("context", {}).get("total_tasks") or 0) < 1:
+            skipped_no_tasks += 1
+            continue
         recipients=[test_recipient] if test_recipient else list(dict.fromkeys(([row.email] if int(settings.summary_send_to_employees or 0) else [])+additional))
         if not recipients: skipped+=1; continue
         frappe.sendmail(recipients=recipients,subject=rendered['subject'],message=rendered['message'],reference_doctype='Employee',reference_name=row.employee,delayed=True)
         sent+=1
-    return {"sent":sent,"skipped":skipped,"additional_recipients":len(additional)}
+    return {"sent":sent,"skipped":skipped,"skipped_no_tasks":skipped_no_tasks,"additional_recipients":len(additional)}
 
 
 @frappe.whitelist()

@@ -6,7 +6,7 @@ import re
 import frappe
 from frappe import _
 
-from qfap_adds.qfap_adds.task_management.scope import can_manage_employee, employee_for_user
+from qfap_adds.qfap_adds.task_management.scope import can_manage_employee, employee_for_user, supervisors
 
 from qfap_adds.qfap_adds.task_management.settings import (
     get_global_reopen_roles,
@@ -343,202 +343,67 @@ def task_project_workplan_parent_options(project=None, current_task=None):
     return {"project": project, "options": options}
 
 
+
+@frappe.whitelist()
+def get_reopen_access(task=None):
+    task_name = task or ""
+    if not task_name or not frappe.db.exists("Task", task_name):
+        return {"can_reopen": 0, "reason": "Task not found."}
+
+    user = frappe.session.user
+    if not frappe.has_permission("Task", "read", task_name, user=user):
+        return {"can_reopen": 0, "reason": "You do not have read access to this task."}
+
+    values = frappe.db.get_value(
+        "Task", task_name,
+        ["status", "custom_task_locked", "custom_assign_to"],
+        as_dict=True,
+    ) or {}
+    if values.get("status") != "Completed" and not int(values.get("custom_task_locked") or 0):
+        return {"can_reopen": 0, "reason": "Only completed tasks can be reopened."}
+
+    settings = get_settings()
+    roles = set(frappe.get_roles(user) or [])
+    if user == "Administrator" or roles.intersection(set(get_global_reopen_roles(settings))):
+        return {"can_reopen": 1, "scope": "global"}
+
+    current_employee = employee_for_user(user)
+    assigned_employee = values.get("custom_assign_to") or ""
+    assigned_by_todo = bool(frappe.db.exists("ToDo", {
+        "reference_type": "Task", "reference_name": task_name,
+        "allocated_to": user, "status": ("!=", "Cancelled"),
+    }))
+
+    if int(settings.get("allow_assigned_user_reopen_own_tasks") or 0):
+        if (current_employee and assigned_employee == current_employee) or assigned_by_todo:
+            return {"can_reopen": 1, "scope": "assigned"}
+
+    if int(settings.get("allow_supervisor_reopen_supervised_tasks") or 0):
+        if current_employee and assigned_employee and current_employee in supervisors(assigned_employee):
+            return {"can_reopen": 1, "scope": "supervisor"}
+
+    return {"can_reopen": 0, "reason": "The reopen policy does not allow this action for the current user."}
+
+
 @frappe.whitelist()
 def reopen_task(task=None):
-    # =========================================================
-    # API Server Script: reopen_task
-    # Frappe / ERPNext 16 Safe Execution
-    #
-    # Permission model:
-    # 1. Administrator, System Manager, and HR Manager:
-    #    may reopen any eligible task.
-    # 2. Manager role:
-    #    may reopen only a task assigned to the manager's own
-    #    Employee record or to an employee below that manager.
-    # 3. All other users:
-    #    are not allowed by this API.
-    # =========================================================
+    access = get_reopen_access(task)
+    if not int(access.get("can_reopen") or 0):
+        frappe.throw(access.get("reason") or "You are not allowed to reopen this task.")
 
-    current_user = frappe.session.user
-    settings = get_settings()
-    manager_role = settings.administrative_role or "Task Management Administrator"
+    doc = frappe.get_doc("Task", task)
+    doc.flags.qfap_reopen = True
+    doc.status = "Open"
+    if float(doc.progress or 0) >= 100:
+        doc.progress = 0
+    doc.custom_task_locked = 0
+    doc.completed_on = None
+    doc.completed_by = None
+    doc.closing_date = None
+    doc.save(ignore_permissions=True)
+    frappe.db.commit()
+    return {"task": doc.name, "status": doc.status, "scope": access.get("scope")}
 
-    task_name = task or ""
-    if not task_name:
-        frappe.throw("Task is required.")
-
-    # ---------------------------------------------------------
-    # Load current user's roles
-    # ---------------------------------------------------------
-    roles = []
-
-    if current_user == "Administrator":
-        roles = ["Administrator", "System Manager"]
-    else:
-        role_rows = frappe.db.get_all(
-            "Has Role",
-            filters={
-                "parent": current_user,
-                "parenttype": "User"
-            },
-            fields=["role"]
-        )
-
-        for role_row in role_rows:
-            role_name = role_row.get("role") or ""
-            if role_name and role_name not in roles:
-                roles.append(role_name)
-
-    # ---------------------------------------------------------
-    # Global roles may reopen any eligible task
-    # ---------------------------------------------------------
-    privileged = current_user == "Administrator"
-
-    for global_role in [x.strip() for x in str(settings.global_reopen_roles or "").splitlines() if x.strip()]:
-        if global_role in roles:
-            privileged = True
-
-    # The Manager role is deliberately scoped, not global.
-    scoped_manager = manager_role in roles
-
-    # ---------------------------------------------------------
-    # Load current Employee record
-    # ---------------------------------------------------------
-    current_employee = ""
-    current_lft = 0
-    current_rgt = 0
-
-    current_rows = frappe.db.get_all(
-        "Employee",
-        filters={
-            "user_id": current_user,
-            "status": "Active"
-        },
-        fields=["name", "lft", "rgt"],
-        limit_page_length=1
-    )
-
-    if current_rows:
-        current_employee = current_rows[0].get("name") or ""
-        current_lft = int(current_rows[0].get("lft") or 0)
-        current_rgt = int(current_rows[0].get("rgt") or 0)
-
-    # A scoped Manager must have an active Employee linked to the user.
-    if not privileged and scoped_manager and not current_employee:
-        frappe.throw("No active Employee record is linked to your user account.")
-
-    # ---------------------------------------------------------
-    # Load task
-    # custom_assign_to is expected to contain an Employee name.
-    # ---------------------------------------------------------
-    task_values = frappe.db.get_value(
-        "Task",
-        task_name,
-        ["status", "custom_task_locked", "custom_assign_to", "parent_task"],
-        as_dict=True
-    )
-
-    if not task_values:
-        frappe.throw("Task not found.")
-
-    # ---------------------------------------------------------
-    # Authorization
-    # ---------------------------------------------------------
-    allowed = privileged
-    assigned_employee = task_values.get("custom_assign_to") or ""
-
-    if not allowed and scoped_manager and current_employee and assigned_employee:
-        # A manager may reopen their own assigned task.
-        if assigned_employee == current_employee:
-            allowed = True
-
-        # Otherwise, allow only employees below the manager.
-        if not allowed:
-            target = frappe.db.get_value(
-                "Employee",
-                assigned_employee,
-                ["lft", "rgt", "reports_to"],
-                as_dict=True
-            )
-
-            if target:
-                target_lft = int(target.get("lft") or 0)
-                target_rgt = int(target.get("rgt") or 0)
-
-                # Fast hierarchy check when Nested Set values are available.
-                if (
-                    current_lft > 0
-                    and current_rgt > current_lft
-                    and target_lft > current_lft
-                    and target_rgt < current_rgt
-                ):
-                    allowed = True
-
-                # Fallback and consistency check through reports_to chain.
-                if not allowed:
-                    next_supervisor = target.get("reports_to") or ""
-                    supervisor_guard = 0
-
-                    while next_supervisor and supervisor_guard < 100:
-                        supervisor_guard = supervisor_guard + 1
-
-                        if next_supervisor == current_employee:
-                            allowed = True
-                            break
-
-                        next_supervisor = frappe.db.get_value(
-                            "Employee",
-                            next_supervisor,
-                            "reports_to"
-                        ) or ""
-
-    if not allowed:
-        frappe.throw("You are not authorized to reopen this task.")
-
-    # ---------------------------------------------------------
-    # Reopening conditions
-    # ---------------------------------------------------------
-    if (
-        task_values.get("status") != "Completed"
-        or int(task_values.get("custom_task_locked") or 0) != 1
-    ):
-        frappe.throw("Only completed and locked tasks can be reopened.")
-
-    # ---------------------------------------------------------
-    # Reopen task
-    # ---------------------------------------------------------
-    frappe.db.set_value(
-        "Task",
-        task_name,
-        {
-            "status": "Working",
-            "custom_task_locked": 0,
-            "completed_on": None,
-            "completed_by": None,
-            "closing_date": None
-        },
-        update_modified=True
-    )
-
-    parent_task = task_values.get("parent_task") or ""
-    if parent_task:
-        rebuild_chain(parent_task)
-
-    comment_doc = frappe.get_doc({
-        "doctype": "Comment",
-        "comment_type": "Info",
-        "reference_doctype": "Task",
-        "reference_name": task_name,
-        "content": "Task reopened by " + current_user
-    })
-    comment_doc.insert(ignore_permissions=True)
-
-    result = {
-        "task": task_name,
-        "status": "Working"
-    }
-
-    return result
 
 @frappe.whitelist()
 def task_unlock_parent_summary(task=None):
