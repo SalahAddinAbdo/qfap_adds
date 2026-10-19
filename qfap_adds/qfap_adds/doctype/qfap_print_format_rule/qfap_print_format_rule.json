@@ -33,52 +33,61 @@
       "columns": 1
     },
     {
-      "default": "QFAP Universal",
+      "default": "Q Universal",
       "fieldname": "print_profile",
       "fieldtype": "Select",
       "in_list_view": 1,
       "label": "Print Profile",
-      "options": "QFAP Universal",
+      "options": "Q Universal",
       "reqd": 1,
-      "columns": 2
+      "columns": 2,
+      "read_only": 1
     },
     {
       "default": "1",
       "fieldname": "set_as_default",
       "fieldtype": "Check",
       "in_list_view": 1,
-      "label": "Set as Default",
+      "label": "Default",
       "columns": 1
     },
     {
       "default": "1",
       "fieldname": "include_letter_head",
       "fieldtype": "Check",
-      "label": "Include Letter Head"
+      "label": "Letter Head",
+      "in_list_view": 1,
+      "columns": 1
     },
     {
       "default": "1",
       "fieldname": "include_workflow_status",
       "fieldtype": "Check",
-      "label": "Include Workflow Status"
+      "label": "Workflow",
+      "in_list_view": 1,
+      "columns": 1
     },
     {
       "default": "1",
       "fieldname": "include_signatures",
       "fieldtype": "Check",
-      "label": "Include Signatures"
+      "label": "Signatures",
+      "in_list_view": 1,
+      "columns": 1
     },
     {
       "default": "0",
       "fieldname": "include_audit_information",
       "fieldtype": "Check",
-      "label": "Include Audit Information"
+      "label": "Audit Information",
+      "in_list_view": 0
     },
     {
       "default": "1",
       "fieldname": "include_attachments",
       "fieldtype": "Check",
-      "label": "Include Attachments"
+      "label": "Attachments",
+      "in_list_view": 0
     }
   ],
   "index_web_pages_for_search": 0,
