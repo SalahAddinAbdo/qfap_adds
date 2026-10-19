@@ -4,57 +4,60 @@ import frappe
 from frappe import _
 from frappe.custom.doctype.custom_field.custom_field import create_custom_fields
 
+# Print Settings is a standard Frappe Single DocType. Q Org owns only the
+# custom fields below; no standard field or standard section is modified.
 FIELDS = {"Print Settings": [
     {
-        "fieldname": "qorg_print_section",
+        "fieldname": "qorg_managed_formats_section",
         "label": "Q Org Print Configuration",
         "fieldtype": "Section Break",
         "insert_after": "print_style",
+        "is_system_generated": 1,
     },
     {
         "fieldname": "qorg_rules",
         "label": "Managed Print Format Rules",
         "fieldtype": "Table",
         "options": "QFAP Print Format Rule",
-        "insert_after": "qorg_print_section",
+        "insert_after": "qorg_managed_formats_section",
         "description": "Create and manage Q Universal formats. Open a row to configure Audit Information and Attachments.",
+        "is_system_generated": 1,
     },
     {
-        "fieldname": "qorg_actions_section",
-        "label": "Apply Managed Formats",
+        "fieldname": "qorg_management_section",
+        "label": "Managed Format Actions and Status",
         "fieldtype": "Section Break",
         "insert_after": "qorg_rules",
+        "is_system_generated": 1,
     },
     {
         "fieldname": "qorg_apply_formats",
         "label": "Apply Managed Print Formats",
         "fieldtype": "Button",
-        "insert_after": "qorg_actions_section",
+        "insert_after": "qorg_management_section",
+        "is_system_generated": 1,
     },
     {
-        "fieldname": "qorg_sync_section",
-        "label": "Synchronization Status",
-        "fieldtype": "Section Break",
+        "fieldname": "qorg_status_column",
+        "fieldtype": "Column Break",
         "insert_after": "qorg_apply_formats",
+        "is_system_generated": 1,
     },
     {
         "fieldname": "qorg_last_sync_on",
         "label": "Last Sync On",
         "fieldtype": "Datetime",
         "read_only": 1,
-        "insert_after": "qorg_sync_section",
-    },
-    {
-        "fieldname": "qorg_sync_column",
-        "fieldtype": "Column Break",
-        "insert_after": "qorg_last_sync_on",
+        "insert_after": "qorg_status_column",
+        "is_system_generated": 1,
     },
     {
         "fieldname": "qorg_last_sync_summary",
         "label": "Last Sync Summary",
         "fieldtype": "Small Text",
         "read_only": 1,
-        "insert_after": "qorg_sync_column",
+        "insert_after": "qorg_last_sync_on",
+        "is_system_generated": 1,
     },
     {
         "fieldname": "qorg_managed_once",
@@ -64,18 +67,66 @@ FIELDS = {"Print Settings": [
         "read_only": 1,
         "default": "0",
         "insert_after": "qorg_last_sync_summary",
+        "is_system_generated": 1,
     },
 ]}
 
-OBSOLETE_FIELDS = (
+# These are layout-only fields from the previous attempt. Deleting them does
+# not remove rules or synchronization values.
+OBSOLETE_LAYOUT_FIELDS = (
+    "qorg_print_section",
+    "qorg_actions_section",
+    "qorg_sync_section",
     "qorg_sync_column",
 )
 
 
 def provision_print_settings():
+    _remove_obsolete_layout_fields()
     create_custom_fields(FIELDS, update=True)
+    _enforce_custom_field_order()
     _migrate_legacy_values()
     _configure_rule_fields()
+    frappe.clear_cache(doctype="Print Settings")
+
+
+def _remove_obsolete_layout_fields():
+    for fieldname in OBSOLETE_LAYOUT_FIELDS:
+        name = "Print Settings-" + fieldname
+        if frappe.db.exists("Custom Field", name):
+            frappe.delete_doc("Custom Field", name, ignore_permissions=True, force=True)
+
+
+def _enforce_custom_field_order():
+    """Persist the insert-after chain for existing Custom Fields.
+
+    create_custom_fields(update=True) updates definitions, while this explicit
+    pass prevents an older layout order from remaining cached in an existing
+    site after upgrades.
+    """
+    chain = (
+        ("qorg_managed_formats_section", "print_style"),
+        ("qorg_rules", "qorg_managed_formats_section"),
+        ("qorg_management_section", "qorg_rules"),
+        ("qorg_apply_formats", "qorg_management_section"),
+        ("qorg_status_column", "qorg_apply_formats"),
+        ("qorg_last_sync_on", "qorg_status_column"),
+        ("qorg_last_sync_summary", "qorg_last_sync_on"),
+        ("qorg_managed_once", "qorg_last_sync_summary"),
+    )
+    for fieldname, insert_after in chain:
+        name = "Print Settings-" + fieldname
+        if frappe.db.exists("Custom Field", name):
+            frappe.db.set_value(
+                "Custom Field",
+                name,
+                {
+                    "insert_after": insert_after,
+                    "is_system_generated": 1,
+                    "module": "QFap Adds",
+                },
+                update_modified=False,
+            )
 
 
 def _migrate_legacy_values():
@@ -127,7 +178,6 @@ def _configure_rule_fields():
         for property_name, value in field_properties.items():
             _set_property("QFAP Print Format Rule", fieldname, property_name, value)
     frappe.clear_cache(doctype="QFAP Print Format Rule")
-    frappe.clear_cache(doctype="Print Settings")
 
 
 def _set_property(doctype, fieldname, property_name, value):
