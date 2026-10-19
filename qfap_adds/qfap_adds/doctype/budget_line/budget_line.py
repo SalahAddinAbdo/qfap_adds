@@ -6,6 +6,7 @@ from frappe.utils import flt
 from frappe.utils.nestedset import NestedSet
 
 
+from qfap_adds.qfap_adds.project_management.services.project_reconciliation import reconcile_document_projects, reconcile_deleted_document, reconcile_project
 class BudgetLine(NestedSet):
     nsm_parent_field = "parent_budget_line"
 
@@ -350,3 +351,44 @@ def get_tree_nodes(doctype=None, parent=None, filters=None, project=None, is_roo
             }
         )
     return nodes
+
+
+def _qorg_reconcile_on_update(self):
+    reconcile_document_projects(self)
+
+def _qorg_reconcile_after_delete(self):
+    reconcile_deleted_document(self)
+
+def _qorg_reconcile_on_cancel(self):
+    reconcile_document_projects(self)
+
+def _qorg_reconcile_on_update_after_submit(self):
+    reconcile_document_projects(self)
+
+_qorg_original_on_update = getattr(BudgetLine, "on_update", None)
+def _qorg_wrapped_on_update(self):
+    if _qorg_original_on_update:
+        _qorg_original_on_update(self)
+    reconcile_document_projects(self)
+BudgetLine.on_update = _qorg_wrapped_on_update
+
+_qorg_original_after_delete = getattr(BudgetLine, "after_delete", None)
+def _qorg_wrapped_after_delete(self):
+    if _qorg_original_after_delete:
+        _qorg_original_after_delete(self)
+    reconcile_deleted_document(self)
+BudgetLine.after_delete = _qorg_wrapped_after_delete
+
+_qorg_original_on_cancel = getattr(BudgetLine, "on_cancel", None)
+def _qorg_wrapped_on_cancel(self):
+    if _qorg_original_on_cancel:
+        _qorg_original_on_cancel(self)
+    reconcile_document_projects(self)
+BudgetLine.on_cancel = _qorg_wrapped_on_cancel
+
+_qorg_original_on_update_after_submit = getattr(BudgetLine, "on_update_after_submit", None)
+def _qorg_wrapped_on_update_after_submit(self):
+    if _qorg_original_on_update_after_submit:
+        _qorg_original_on_update_after_submit(self)
+    reconcile_document_projects(self)
+BudgetLine.on_update_after_submit = _qorg_wrapped_on_update_after_submit

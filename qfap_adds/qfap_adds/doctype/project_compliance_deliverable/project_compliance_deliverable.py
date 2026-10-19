@@ -5,6 +5,7 @@ from frappe.model.document import Document
 from frappe.utils import date_diff, getdate, nowdate
 from qfap_adds.qfap_adds.project_management.settings import get_project_cycle_settings
 from qfap_adds.qfap_adds.project_management.services.common import validate_dates, validate_team_employee, unique_child_rows
+from qfap_adds.qfap_adds.project_management.services.project_reconciliation import reconcile_document_projects, reconcile_deleted_document, reconcile_project
 class ProjectComplianceDeliverable(Document):
     def validate(self):
         validate_dates(self.period_start_date,self.period_end_date,"Period Start Date","Period End Date")
@@ -25,3 +26,44 @@ class ProjectComplianceDeliverable(Document):
         settings=get_project_cycle_settings()
         self.monitoring_status="Overdue" if days<0 else ("Due Soon" if days<=int(settings.deliverable_due_soon_days or 7) else "Not Due")
         self.monitoring_message=f"Due in {days} day(s)" if days>=0 else f"Overdue by {abs(days)} day(s)"
+
+
+def _qorg_reconcile_on_update(self):
+    reconcile_document_projects(self)
+
+def _qorg_reconcile_after_delete(self):
+    reconcile_deleted_document(self)
+
+def _qorg_reconcile_on_cancel(self):
+    reconcile_document_projects(self)
+
+def _qorg_reconcile_on_update_after_submit(self):
+    reconcile_document_projects(self)
+
+_qorg_original_on_update = getattr(ProjectComplianceDeliverable, "on_update", None)
+def _qorg_wrapped_on_update(self):
+    if _qorg_original_on_update:
+        _qorg_original_on_update(self)
+    reconcile_document_projects(self)
+ProjectComplianceDeliverable.on_update = _qorg_wrapped_on_update
+
+_qorg_original_after_delete = getattr(ProjectComplianceDeliverable, "after_delete", None)
+def _qorg_wrapped_after_delete(self):
+    if _qorg_original_after_delete:
+        _qorg_original_after_delete(self)
+    reconcile_deleted_document(self)
+ProjectComplianceDeliverable.after_delete = _qorg_wrapped_after_delete
+
+_qorg_original_on_cancel = getattr(ProjectComplianceDeliverable, "on_cancel", None)
+def _qorg_wrapped_on_cancel(self):
+    if _qorg_original_on_cancel:
+        _qorg_original_on_cancel(self)
+    reconcile_document_projects(self)
+ProjectComplianceDeliverable.on_cancel = _qorg_wrapped_on_cancel
+
+_qorg_original_on_update_after_submit = getattr(ProjectComplianceDeliverable, "on_update_after_submit", None)
+def _qorg_wrapped_on_update_after_submit(self):
+    if _qorg_original_on_update_after_submit:
+        _qorg_original_on_update_after_submit(self)
+    reconcile_document_projects(self)
+ProjectComplianceDeliverable.on_update_after_submit = _qorg_wrapped_on_update_after_submit

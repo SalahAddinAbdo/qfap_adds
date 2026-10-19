@@ -5,6 +5,7 @@ from frappe.model.document import Document
 from frappe.utils import date_diff, flt, nowdate
 from qfap_adds.qfap_adds.project_management.services.change_control import apply_change_request
 from qfap_adds.qfap_adds.project_management.services.common import validate_dates, validate_team_employee, unique_child_rows
+from qfap_adds.qfap_adds.project_management.services.project_reconciliation import reconcile_document_projects, reconcile_deleted_document, reconcile_project
 class ProjectChangeRequest(Document):
     def before_insert(self):
         self.request_date=self.request_date or nowdate()
@@ -22,3 +23,52 @@ class ProjectChangeRequest(Document):
         if self.status == "Approved" and self.change_applied:
             apply_change_request(self)
         if self.change_applied and not self.actual_implementation_date: frappe.db.set_value(self.doctype,self.name,"actual_implementation_date",nowdate(),update_modified=False)
+
+
+def _qorg_reconcile_on_update(self):
+    reconcile_document_projects(self)
+
+def _qorg_reconcile_after_delete(self):
+    reconcile_deleted_document(self)
+
+def _qorg_reconcile_on_cancel(self):
+    reconcile_document_projects(self)
+
+def _qorg_reconcile_on_update_after_submit(self):
+    reconcile_document_projects(self)
+
+_qorg_original_on_update = getattr(ProjectChangeRequest, "on_update", None)
+def _qorg_wrapped_on_update(self):
+    if _qorg_original_on_update:
+        _qorg_original_on_update(self)
+    reconcile_document_projects(self)
+ProjectChangeRequest.on_update = _qorg_wrapped_on_update
+
+_qorg_original_after_delete = getattr(ProjectChangeRequest, "after_delete", None)
+def _qorg_wrapped_after_delete(self):
+    if _qorg_original_after_delete:
+        _qorg_original_after_delete(self)
+    reconcile_deleted_document(self)
+ProjectChangeRequest.after_delete = _qorg_wrapped_after_delete
+
+_qorg_original_on_cancel = getattr(ProjectChangeRequest, "on_cancel", None)
+def _qorg_wrapped_on_cancel(self):
+    if _qorg_original_on_cancel:
+        _qorg_original_on_cancel(self)
+    reconcile_document_projects(self)
+ProjectChangeRequest.on_cancel = _qorg_wrapped_on_cancel
+
+_qorg_original_on_update_after_submit = getattr(ProjectChangeRequest, "on_update_after_submit", None)
+def _qorg_wrapped_on_update_after_submit(self):
+    if _qorg_original_on_update_after_submit:
+        _qorg_original_on_update_after_submit(self)
+    reconcile_document_projects(self)
+ProjectChangeRequest.on_update_after_submit = _qorg_wrapped_on_update_after_submit
+
+_qorg_original_before_cancel = getattr(ProjectChangeRequest, "before_cancel", None)
+def _qorg_before_cancel(self):
+    if int(self.get("change_applied") or 0):
+        frappe.throw(_("An applied Change Request cannot be cancelled. Create a compensating Change Request instead."))
+    if _qorg_original_before_cancel:
+        _qorg_original_before_cancel(self)
+ProjectChangeRequest.before_cancel = _qorg_before_cancel

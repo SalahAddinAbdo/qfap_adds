@@ -6,6 +6,7 @@ from frappe.utils import add_months, add_days, flt, nowdate
 from qfap_adds.qfap_adds.project_management.settings import get_project_cycle_settings
 from qfap_adds.qfap_adds.project_management.services.common import numeric_rating, validate_project_link, validate_team_employee
 from qfap_adds.qfap_adds.project_management.services.project_summary import rebuild_project_summary
+from qfap_adds.qfap_adds.project_management.services.project_reconciliation import reconcile_document_projects, reconcile_deleted_document, reconcile_project
 class ProjectRisk(Document):
     def before_insert(self):
         self.assessment_date=self.assessment_date or nowdate()
@@ -40,3 +41,44 @@ class ProjectRisk(Document):
         if score<=settings.moderate_risk_maximum_score:return "Moderate"
         if score<=settings.high_risk_maximum_score:return "High"
         return "Critical"
+
+
+def _qorg_reconcile_on_update(self):
+    reconcile_document_projects(self)
+
+def _qorg_reconcile_after_delete(self):
+    reconcile_deleted_document(self)
+
+def _qorg_reconcile_on_cancel(self):
+    reconcile_document_projects(self)
+
+def _qorg_reconcile_on_update_after_submit(self):
+    reconcile_document_projects(self)
+
+_qorg_original_on_update = getattr(ProjectRisk, "on_update", None)
+def _qorg_wrapped_on_update(self):
+    if _qorg_original_on_update:
+        _qorg_original_on_update(self)
+    reconcile_document_projects(self)
+ProjectRisk.on_update = _qorg_wrapped_on_update
+
+_qorg_original_after_delete = getattr(ProjectRisk, "after_delete", None)
+def _qorg_wrapped_after_delete(self):
+    if _qorg_original_after_delete:
+        _qorg_original_after_delete(self)
+    reconcile_deleted_document(self)
+ProjectRisk.after_delete = _qorg_wrapped_after_delete
+
+_qorg_original_on_cancel = getattr(ProjectRisk, "on_cancel", None)
+def _qorg_wrapped_on_cancel(self):
+    if _qorg_original_on_cancel:
+        _qorg_original_on_cancel(self)
+    reconcile_document_projects(self)
+ProjectRisk.on_cancel = _qorg_wrapped_on_cancel
+
+_qorg_original_on_update_after_submit = getattr(ProjectRisk, "on_update_after_submit", None)
+def _qorg_wrapped_on_update_after_submit(self):
+    if _qorg_original_on_update_after_submit:
+        _qorg_original_on_update_after_submit(self)
+    reconcile_document_projects(self)
+ProjectRisk.on_update_after_submit = _qorg_wrapped_on_update_after_submit

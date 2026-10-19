@@ -6,6 +6,7 @@ from frappe.utils import flt, nowdate
 from qfap_adds.qfap_adds.project_management.settings import get_project_cycle_settings
 from qfap_adds.qfap_adds.project_management.services.readiness import assess as assess_closure
 from qfap_adds.qfap_adds.project_management.services.common import average_ratings, validate_dates, validate_team_employee, unique_child_rows
+from qfap_adds.qfap_adds.project_management.services.project_reconciliation import reconcile_document_projects, reconcile_deleted_document, reconcile_project
 class ProjectClosure(Document):
     def validate(self):
         validate_dates(self.planned_closure_date,self.actual_closure_date,"Planned Closure Date","Actual Closure Date")
@@ -30,3 +31,44 @@ class ProjectClosure(Document):
         settings=get_project_cycle_settings()
         required_docs=(not settings.require_final_technical_report or bool(self.final_technical_report)) and (not settings.require_final_financial_report or bool(self.final_financial_report)) and (not settings.require_archive_reference or bool(self.archive_reference))
         self.overall_closure_status="Ready for Closure" if assessment["ready"] and not incomplete and not open_actions and required_docs else "Not Ready"
+
+
+def _qorg_reconcile_on_update(self):
+    reconcile_document_projects(self)
+
+def _qorg_reconcile_after_delete(self):
+    reconcile_deleted_document(self)
+
+def _qorg_reconcile_on_cancel(self):
+    reconcile_document_projects(self)
+
+def _qorg_reconcile_on_update_after_submit(self):
+    reconcile_document_projects(self)
+
+_qorg_original_on_update = getattr(ProjectClosure, "on_update", None)
+def _qorg_wrapped_on_update(self):
+    if _qorg_original_on_update:
+        _qorg_original_on_update(self)
+    reconcile_document_projects(self)
+ProjectClosure.on_update = _qorg_wrapped_on_update
+
+_qorg_original_after_delete = getattr(ProjectClosure, "after_delete", None)
+def _qorg_wrapped_after_delete(self):
+    if _qorg_original_after_delete:
+        _qorg_original_after_delete(self)
+    reconcile_deleted_document(self)
+ProjectClosure.after_delete = _qorg_wrapped_after_delete
+
+_qorg_original_on_cancel = getattr(ProjectClosure, "on_cancel", None)
+def _qorg_wrapped_on_cancel(self):
+    if _qorg_original_on_cancel:
+        _qorg_original_on_cancel(self)
+    reconcile_document_projects(self)
+ProjectClosure.on_cancel = _qorg_wrapped_on_cancel
+
+_qorg_original_on_update_after_submit = getattr(ProjectClosure, "on_update_after_submit", None)
+def _qorg_wrapped_on_update_after_submit(self):
+    if _qorg_original_on_update_after_submit:
+        _qorg_original_on_update_after_submit(self)
+    reconcile_document_projects(self)
+ProjectClosure.on_update_after_submit = _qorg_wrapped_on_update_after_submit

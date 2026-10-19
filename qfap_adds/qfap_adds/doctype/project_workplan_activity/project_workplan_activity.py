@@ -9,6 +9,7 @@ from qfap_adds.qfap_adds.project_management.api import validate_project_team_emp
 from qfap_adds.qfap_adds.project_management.services.workplan_sync import sync_activity_task, validate_activity_deletion
 
 
+from qfap_adds.qfap_adds.project_management.services.project_reconciliation import reconcile_document_projects, reconcile_deleted_document, reconcile_project
 class ProjectWorkplanActivity(Document):
     def autoname(self):
         self._set_sequence_and_code()
@@ -103,3 +104,44 @@ class ProjectWorkplanActivity(Document):
         self.activity_locked=1 if self.status in ("Approved","Completed","Inactive","Cancelled") else 0
         if self.status == "Completed": self.activity_health="Completed"
         elif self.status == "On Hold": self.activity_health="On Hold"
+
+
+def _qorg_reconcile_on_update(self):
+    reconcile_document_projects(self)
+
+def _qorg_reconcile_after_delete(self):
+    reconcile_deleted_document(self)
+
+def _qorg_reconcile_on_cancel(self):
+    reconcile_document_projects(self)
+
+def _qorg_reconcile_on_update_after_submit(self):
+    reconcile_document_projects(self)
+
+_qorg_original_on_update = getattr(ProjectWorkplanActivity, "on_update", None)
+def _qorg_wrapped_on_update(self):
+    if _qorg_original_on_update:
+        _qorg_original_on_update(self)
+    reconcile_document_projects(self)
+ProjectWorkplanActivity.on_update = _qorg_wrapped_on_update
+
+_qorg_original_after_delete = getattr(ProjectWorkplanActivity, "after_delete", None)
+def _qorg_wrapped_after_delete(self):
+    if _qorg_original_after_delete:
+        _qorg_original_after_delete(self)
+    reconcile_deleted_document(self)
+ProjectWorkplanActivity.after_delete = _qorg_wrapped_after_delete
+
+_qorg_original_on_cancel = getattr(ProjectWorkplanActivity, "on_cancel", None)
+def _qorg_wrapped_on_cancel(self):
+    if _qorg_original_on_cancel:
+        _qorg_original_on_cancel(self)
+    reconcile_document_projects(self)
+ProjectWorkplanActivity.on_cancel = _qorg_wrapped_on_cancel
+
+_qorg_original_on_update_after_submit = getattr(ProjectWorkplanActivity, "on_update_after_submit", None)
+def _qorg_wrapped_on_update_after_submit(self):
+    if _qorg_original_on_update_after_submit:
+        _qorg_original_on_update_after_submit(self)
+    reconcile_document_projects(self)
+ProjectWorkplanActivity.on_update_after_submit = _qorg_wrapped_on_update_after_submit

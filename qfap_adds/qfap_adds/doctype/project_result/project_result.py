@@ -8,6 +8,7 @@ from frappe.utils import flt
 from qfap_adds.qfap_adds.project_management.api import validate_project_team_employee
 
 
+from qfap_adds.qfap_adds.project_management.services.project_reconciliation import reconcile_document_projects, reconcile_deleted_document, reconcile_project
 class ProjectResult(Document):
     def autoname(self):
         self._set_sequence_and_code()
@@ -73,3 +74,44 @@ class ProjectResult(Document):
     def _validate_unique_code(self):
         filters={"project":self.project,"result_code":self.result_code,"name":["!=",self.name or ""]}
         if frappe.db.exists(self.doctype, filters): frappe.throw(_("Result Code already exists in this Project."))
+
+
+def _qorg_reconcile_on_update(self):
+    reconcile_document_projects(self)
+
+def _qorg_reconcile_after_delete(self):
+    reconcile_deleted_document(self)
+
+def _qorg_reconcile_on_cancel(self):
+    reconcile_document_projects(self)
+
+def _qorg_reconcile_on_update_after_submit(self):
+    reconcile_document_projects(self)
+
+_qorg_original_on_update = getattr(ProjectResult, "on_update", None)
+def _qorg_wrapped_on_update(self):
+    if _qorg_original_on_update:
+        _qorg_original_on_update(self)
+    reconcile_document_projects(self)
+ProjectResult.on_update = _qorg_wrapped_on_update
+
+_qorg_original_after_delete = getattr(ProjectResult, "after_delete", None)
+def _qorg_wrapped_after_delete(self):
+    if _qorg_original_after_delete:
+        _qorg_original_after_delete(self)
+    reconcile_deleted_document(self)
+ProjectResult.after_delete = _qorg_wrapped_after_delete
+
+_qorg_original_on_cancel = getattr(ProjectResult, "on_cancel", None)
+def _qorg_wrapped_on_cancel(self):
+    if _qorg_original_on_cancel:
+        _qorg_original_on_cancel(self)
+    reconcile_document_projects(self)
+ProjectResult.on_cancel = _qorg_wrapped_on_cancel
+
+_qorg_original_on_update_after_submit = getattr(ProjectResult, "on_update_after_submit", None)
+def _qorg_wrapped_on_update_after_submit(self):
+    if _qorg_original_on_update_after_submit:
+        _qorg_original_on_update_after_submit(self)
+    reconcile_document_projects(self)
+ProjectResult.on_update_after_submit = _qorg_wrapped_on_update_after_submit
