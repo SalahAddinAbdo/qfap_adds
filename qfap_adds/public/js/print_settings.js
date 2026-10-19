@@ -21,16 +21,13 @@ frappe.ui.form.on("Print Settings", {
 
 function qorg_configure_rules_grid(frm) {
     const grid = frm.fields_dict.qorg_rules?.grid;
-    if (!grid) return;
+    if (!grid || grid.__qorg_configured) return;
+    grid.__qorg_configured = true;
 
     const documentType = grid.get_field("document_type");
     if (documentType) {
         documentType.get_query = () => ({
-            filters: {
-                istable: 0,
-                issingle: 0,
-                is_virtual: 0,
-            },
+            filters: { istable: 0, issingle: 0, is_virtual: 0 },
         });
     }
 
@@ -40,28 +37,4 @@ function qorg_configure_rules_grid(frm) {
         profile.df.default = "Q Universal";
         profile.df.read_only = 1;
     }
-
-    const widths = {
-        document_type: 3,
-        enabled: 1,
-        print_profile: 2,
-        set_as_default: 1,
-        include_letter_head: 1,
-        include_workflow_status: 1,
-        include_signatures: 1,
-    };
-    Object.entries(widths).forEach(([fieldname, columns]) => {
-        const field = grid.get_field(fieldname);
-        if (field) {
-            field.df.in_list_view = 1;
-            field.df.columns = columns;
-        }
-    });
-
-    ["include_audit_information", "include_attachments"].forEach((fieldname) => {
-        const field = grid.get_field(fieldname);
-        if (field) field.df.in_list_view = 0;
-    });
-
-    grid.refresh();
 }
