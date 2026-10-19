@@ -1,5 +1,6 @@
 from __future__ import annotations
 import frappe
+from qfap_adds.qfap_adds.project_management.services.project_reconciliation import reconcile_project
 from frappe import _
 from frappe.utils import date_diff, nowdate
 from qfap_adds.qfap_adds.project_management.api import validate_project_team_employee
@@ -26,3 +27,6 @@ def update_linked_risk(doc, method=None):
         return
     if doc.status in ("Resolved", "Closed"):
         frappe.db.set_value("Project Risk", risk, {"status": "Closed", "closure_date": nowdate()}, update_modified=False)
+        project = frappe.db.get_value("Project Risk", risk, "project")
+        if project:
+            reconcile_project(project)
