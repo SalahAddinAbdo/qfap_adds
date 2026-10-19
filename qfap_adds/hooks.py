@@ -130,7 +130,8 @@ after_migrate = [
 
 scheduler_events = {
     "daily": [
-        "qfap_adds.qfap_adds.project_management.notification_engine.run_daily_project_notifications"
+        "qfap_adds.qfap_adds.project_management.notification_engine.run_daily_project_notifications",
+        "qfap_adds.qfap_adds.project_management.integrity_jobs.run_daily_project_reconciliation",
     ],
     "cron": {
         "*/15 * * * *": [
