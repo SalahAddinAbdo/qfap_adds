@@ -1,10 +1,14 @@
 frappe.ui.form.on("Print Settings", {
     setup(frm) {
-        qorg_configure_rules_grid(frm);
-    },
-
-    refresh(frm) {
-        qorg_configure_rules_grid(frm);
+        // qorg_rules is a Table field on the standard Print Settings Single.
+        // Configure its child Link query through the supported child-table API.
+        frm.set_query("document_type", "qorg_rules", () => ({
+            filters: {
+                istable: 0,
+                issingle: 0,
+                is_virtual: 0,
+            },
+        }));
     },
 
     qorg_apply_formats(frm) {
@@ -18,23 +22,3 @@ frappe.ui.form.on("Print Settings", {
         });
     },
 });
-
-function qorg_configure_rules_grid(frm) {
-    const grid = frm.fields_dict.qorg_rules?.grid;
-    if (!grid || grid.__qorg_configured) return;
-    grid.__qorg_configured = true;
-
-    const documentType = grid.get_field("document_type");
-    if (documentType) {
-        documentType.get_query = () => ({
-            filters: { istable: 0, issingle: 0, is_virtual: 0 },
-        });
-    }
-
-    const profile = grid.get_field("print_profile");
-    if (profile) {
-        profile.df.options = "Q Universal";
-        profile.df.default = "Q Universal";
-        profile.df.read_only = 1;
-    }
-}
