@@ -35,6 +35,14 @@ def validate_responsible_user(doc, method=None):
         return
     if stored_responsible == current_user:
         return
+
+    # The atomic workflow service sets this server-only flag only after it has
+    # validated the document, transition, current owner, next user, and role.
+    # It covers the first assignment and the same-save handoff without opening a
+    # general bypass for browser saves, imports, or direct field manipulation.
+    if getattr(doc.flags, "qfap_atomic_workflow_handoff", False):
+        return
+
     if not stored_responsible and incoming_responsible == current_user:
         return
 
