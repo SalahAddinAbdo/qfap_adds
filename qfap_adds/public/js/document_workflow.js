@@ -215,8 +215,18 @@ async function wf_open_action_dialog(frm, transition) {
                 signature_notes,
                 comment
             );
-            if (completed) dialog.hide();
-            else dialog.enable_primary_action();
+            dialog.hide();
+
+            if (!completed) {
+                try {
+                    await frm.reload_doc();
+                } catch (reload_error) {
+                    console.error(
+                        "Unable to reload document after workflow failure",
+                        reload_error
+                    );
+                }
+            }
         }
     });
 
