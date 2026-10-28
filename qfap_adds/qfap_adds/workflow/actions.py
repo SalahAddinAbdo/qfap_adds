@@ -65,6 +65,12 @@ def apply_assigned_workflow_action(
     _validate_current_responsible_user(doc)
 
     transition = _get_allowed_transition(doc, action)
+
+    # Server-only trust marker. It permits the validated atomic workflow service
+    # to perform the first assignment or a handoff in the same save. This flag is
+    # not a document field and cannot be supplied by the browser as document data.
+    doc.flags.qfap_atomic_workflow_handoff = True
+
     assignment = _prepare_assignment(doc, transition, next_user)
     signature_result = _prepare_signature(
         doc,
