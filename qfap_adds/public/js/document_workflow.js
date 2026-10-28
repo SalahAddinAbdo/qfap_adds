@@ -262,163 +262,52 @@ async function wf_get_signature_dialog_context(frm, transition) {
 async function wf_run_transition(frm, transition, selected_user = "", signature_notes = "", comment = "") {
     if (frm.__wf_processing) return false;
 
+    if (frm.is_dirty()) {
+        wf_message(
+            __("Unsaved Changes"),
+            __("The document contains unsaved changes. Please save it before continuing.")
+        );
+        return false;
+    }
+
     frm.__wf_processing = true;
     frappe.dom.freeze(__("Processing workflow action..."));
 
-    const target_field = String(transition.custom_target_user_field || "").trim();
-    const previous_target = target_field ? frm.doc[target_field] || "" : "";
-    const previous_responsible = frm.doc.custom_current_responsible_user || "";
-    let workflow_completed = false;
-
     try {
-        if (frm.is_dirty()) {
-            frappe.throw(__("The document contains unsaved changes. Please save it before continuing."));
+        const result = await frappe.xcall(
+            "qfap_adds.qfap_adds.workflow.actions.apply_assigned_workflow_action",
+            {
+                doctype: frm.doc.doctype,
+                document_name: frm.doc.name,
+                action: String(transition.action || "").trim(),
+                next_user: String(selected_user || "").trim(),
+                signature_notes: String(signature_notes || "").trim(),
+                internal_comment: String(comment || "").trim(),
+                expected_modified: frm.doc.modified || ""
+            }
+        );
+
+        if (!result?.doc) {
+            frappe.throw(__("The workflow service returned no updated document."));
         }
 
-        await wf_apply_signature(frm, transition, signature_notes);
-        if (selected_user) await wf_set_responsible(frm, transition, selected_user);
-        await wf_apply_action(frm, transition.action);
-        workflow_completed = true;
+        frappe.model.sync(result.doc);
+        await frm.reload_doc();
 
-        const comment_saved = await wf_add_comment(frm, comment);
         frappe.show_alert({
-            message: comment && !comment_saved
-                ? __("The workflow action succeeded, but the comment could not be recorded.")
-                : comment
-                    ? __("Workflow action {0} completed and the comment was recorded.", [transition.action || ""])
-                    : __("Workflow action {0} completed successfully.", [transition.action || ""]),
-            indicator: comment && !comment_saved ? "orange" : "green"
+            message: result.comment_recorded
+                ? __("Workflow action {0} completed and the comment was recorded.", [transition.action || ""])
+                : __("Workflow action {0} completed successfully.", [transition.action || ""]),
+            indicator: "green"
         });
         return true;
     } catch (error) {
         console.error("Workflow action failed", error);
-        if (selected_user && !workflow_completed) {
-            await wf_restore_responsibility(
-                frm,
-                target_field,
-                previous_target,
-                previous_responsible
-            );
-        }
         wf_show_error(error);
         return false;
     } finally {
         frappe.dom.unfreeze();
         frm.__wf_processing = false;
-    }
-}
-
-async function wf_apply_signature(frm, transition, signature_notes = "") {
-    if (!wf_checked(transition.custom_apply_employee_signature)) return;
-
-    const mapping_key = String(
-        transition.custom_employee_signature_mapping_key || ""
-    ).trim();
-    if (!mapping_key) {
-        frappe.throw(__("Employee Signature Mapping is missing for action {0}.", [transition.action || ""]));
-    }
-
-    const result = await frappe.xcall("qfap_adds.qfap_adds.api.signatures.apply_current_employee_signature", {
-        doctype: frm.doc.doctype,
-        document_name: frm.doc.name,
-        mapping_key,
-        signature_notes
-    });
-    if (!result) frappe.throw(__("The employee signature service returned no response."));
-
-    if (wf_checked(result.signed)) {
-        await frm.reload_doc();
-        frappe.show_alert({
-            message: wf_checked(result.already_signed)
-                ? __("Your signature was already recorded for this stage.")
-                : __("Your employee signature was applied successfully."),
-            indicator: wf_checked(result.already_signed) ? "blue" : "green"
-        });
-        return;
-    }
-
-    frappe.show_alert({
-        message: __("No signature was applied because no active signature exists and the configured signature is optional."),
-        indicator: "orange"
-    });
-}
-
-async function wf_set_responsible(frm, transition, user) {
-    const target_field = String(transition.custom_target_user_field || "").trim();
-    if (!user) frappe.throw(__("The next responsible user is required."));
-    if (!target_field) {
-        frappe.throw(__("Target User Field is not configured for action {0}.", [transition.action || ""]));
-    }
-    if (!frm.fields_dict?.[target_field]) {
-        frappe.throw(__("Target User Field {0} does not exist in {1}.", [target_field, frm.doctype]));
-    }
-
-    if (frm.doc[target_field] !== user) await frm.set_value(target_field, user);
-    if (
-        frm.fields_dict?.custom_current_responsible_user &&
-        frm.doc.custom_current_responsible_user !== user
-    ) {
-        await frm.set_value("custom_current_responsible_user", user);
-    }
-    if (frm.is_dirty()) await frm.save();
-}
-
-async function wf_restore_responsibility(frm, target_field, previous_target, previous_responsible) {
-    try {
-        if (target_field && frm.fields_dict?.[target_field]) {
-            await frm.set_value(target_field, previous_target);
-        }
-        if (frm.fields_dict?.custom_current_responsible_user) {
-            await frm.set_value("custom_current_responsible_user", previous_responsible);
-        }
-        if (frm.is_dirty()) await frm.save();
-    } catch (error) {
-        console.error("Unable to restore previous responsible user", error);
-        frappe.show_alert({
-            message: __("The workflow failed, and the previous responsible user could not be restored automatically."),
-            indicator: "red"
-        });
-    }
-}
-
-async function wf_apply_action(frm, action) {
-    if (!action) frappe.throw(__("The workflow action is missing."));
-
-    const updated_doc = await frappe.xcall(
-        "frappe.model.workflow.apply_workflow",
-        { doc: frm.doc, action }
-    );
-    if (updated_doc) frappe.model.sync(updated_doc);
-    await frm.reload_doc();
-}
-
-async function wf_add_comment(frm, text) {
-    const content = String(text || "").trim();
-    if (!content) return true;
-
-    try {
-        await frappe.call({
-            method: "frappe.desk.form.utils.add_comment",
-            args: {
-                reference_doctype: frm.doc.doctype,
-                reference_name: frm.doc.name,
-                content,
-                comment_email: frappe.session.user,
-                comment_by: frappe.session.user_fullname || frappe.session.user
-            },
-            freeze: false
-        });
-
-        try {
-            if (frm.timeline?.refresh) await frm.timeline.refresh();
-            else await frm.reload_doc();
-        } catch (error) {
-            console.warn("Comment saved, but timeline refresh failed", error);
-        }
-        return true;
-    } catch (error) {
-        console.error("Unable to add workflow comment", error);
-        return false;
     }
 }
 
